@@ -21,6 +21,29 @@
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        /* Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -6px; 
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #334155;
+            border-radius: 2px;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen">
@@ -34,7 +57,7 @@
         const Shield = ({size=20, className=""}) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         );
-        const Factory = ({size=20, className=""}) => (
+        const FactoryIcon = ({size=20, className=""}) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/></svg>
         );
         const Crosshair = ({size=20, className=""}) => (
@@ -66,6 +89,9 @@
         );
         const Calendar = ({size=20, className=""}) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        );
+        const Sliders = ({size=20, className=""}) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
         );
 
         // --- DATASETS ---
@@ -217,12 +243,48 @@
             const [userInventory, setUserInventory] = useState(MOCK_INVENTORY);
             const [factoryFilter, setFactoryFilter] = useState('ALL');
             const [timeframe, setTimeframe] = useState('day'); // 'day' | 'month'
+            const [tuRatio, setTuRatio] = useState(INITIAL_MARKET_PRICES.DOVF / INITIAL_MARKET_PRICES.DOVX);
 
             // State Combat
             const [selectedZoneId, setSelectedZoneId] = useState(1);
             const [selectedSquad, setSelectedSquad] = useState([]);
             const [selectedSupport, setSelectedSupport] = useState(null);
             const [selectedOfficer, setSelectedOfficer] = useState(null);
+
+            // -- HANDLERS FOR SIMULATION --
+            
+            const handleSimulationSlider = (e) => {
+                const newDovx = parseFloat(e.target.value);
+                setMarketPrices({
+                    ...marketPrices,
+                    DOVX: newDovx,
+                    // Link TUs to DOVX based on current ratio
+                    DOVF: newDovx * tuRatio,
+                    DOVR: newDovx * tuRatio,
+                    DOVS: newDovx * tuRatio,
+                    DOVH: newDovx * tuRatio
+                });
+            };
+
+            const handleManualDovxChange = (val) => {
+                const newDovx = parseFloat(val);
+                setMarketPrices({...marketPrices, DOVX: newDovx});
+                // When manually changing DOVX, we update the Ratio so future slider moves respect this new balance
+                // Ratio = Current TU / New DOVX. Or do we keep TU constant and just update Ratio?
+                // Let's keep TU constant, update ratio.
+                if(newDovx > 0) setTuRatio(marketPrices.DOVF / newDovx);
+            };
+
+            const handleManualTuChange = (val) => {
+                const newTu = parseFloat(val);
+                setMarketPrices({
+                    ...marketPrices, 
+                    DOVF: newTu, DOVR: newTu, DOVS: newTu, DOVH: newTu
+                });
+                // When manually changing TU, update Ratio
+                if(marketPrices.DOVX > 0) setTuRatio(newTu / marketPrices.DOVX);
+            };
+
 
             // --- LOGIC: PRODUCTION ---
             const productionAnalysis = useMemo(() => {
@@ -347,46 +409,69 @@
                     </div>
                     </div>
                     
-                    {/* MARKET BAR */}
-                    <div className="flex flex-wrap gap-4 bg-slate-800 p-2 rounded-lg border border-slate-700 text-sm justify-center">
-                    {/* NEW WAX PRICE INPUT */}
-                    <div className="flex flex-col">
-                        <span className="text-xs text-green-400 font-bold">Prix WAX ($)</span>
-                        <div className="relative">
-                        <span className="absolute left-1 top-1 text-slate-500">$</span>
-                        <input 
-                            type="number" 
-                            value={waxPriceUsd}
-                            step="0.01"
-                            onChange={(e) => setWaxPriceUsd(parseFloat(e.target.value))}
-                            className="bg-slate-700 text-white w-20 pl-4 pr-1 rounded border border-slate-600 focus:outline-none focus:border-blue-500"
-                        />
+                    {/* MARKET BAR & SIMULATION */}
+                    <div className="flex flex-wrap gap-4 bg-slate-800 p-3 rounded-lg border border-slate-700 text-sm justify-center items-end">
+                        
+                        {/* WAX PRICE */}
+                        <div className="flex flex-col">
+                            <span className="text-xs text-green-400 font-bold mb-1">Prix WAX ($)</span>
+                            <div className="relative">
+                            <span className="absolute left-2 top-1.5 text-slate-500">$</span>
+                            <input 
+                                type="number" 
+                                value={waxPriceUsd}
+                                step="0.01"
+                                onChange={(e) => setWaxPriceUsd(parseFloat(e.target.value))}
+                                className="bg-slate-700 text-white w-20 pl-5 pr-2 py-1 rounded border border-slate-600 focus:outline-none focus:border-blue-500"
+                            />
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div className="w-px bg-slate-600 mx-2 hidden md:block"></div>
+                        
+                        <div className="w-px bg-slate-600 h-8 mx-2 hidden md:block self-center"></div>
 
-                    <div className="flex flex-col">
-                        <span className="text-xs text-slate-400">DOV-X (WAX)</span>
-                        <input 
-                        type="number" 
-                        value={marketPrices.DOVX}
-                        onChange={(e) => setMarketPrices({...marketPrices, DOVX: parseFloat(e.target.value)})}
-                        className="bg-slate-700 text-yellow-400 w-24 px-1 rounded border border-slate-600 focus:outline-none focus:border-blue-500"
-                        />
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="text-xs text-slate-400">Ressources (WAX)</span>
-                        <input 
-                        type="number" 
-                        value={marketPrices.DOVF}
-                        onChange={(e) => {
-                            const val = parseFloat(e.target.value);
-                            setMarketPrices({...marketPrices, DOVF: val, DOVR: val, DOVS: val, DOVH: val});
-                        }}
-                        className="bg-slate-700 text-blue-400 w-24 px-1 rounded border border-slate-600 focus:outline-none focus:border-blue-500"
-                        />
-                    </div>
+                        {/* DOVX MANUAL */}
+                        <div className="flex flex-col">
+                            <span className="text-xs text-slate-400 mb-1">DOV-X (WAX)</span>
+                            <input 
+                            type="number" 
+                            step="0.0001"
+                            value={marketPrices.DOVX}
+                            onChange={(e) => handleManualDovxChange(e.target.value)}
+                            className="bg-slate-700 text-yellow-400 w-24 px-2 py-1 rounded border border-slate-600 focus:outline-none focus:border-blue-500"
+                            />
+                        </div>
+
+                        {/* SLIDER SIMULATION */}
+                        <div className="flex flex-col w-32 md:w-48 px-2">
+                            <span className="text-[10px] text-blue-300 font-bold mb-1 flex justify-between">
+                                <span>SIMULATION DOVX</span>
+                                <span>{marketPrices.DOVX.toFixed(3)}</span>
+                            </span>
+                            <input 
+                                type="range" 
+                                min="0" max="2" step="0.001"
+                                value={marketPrices.DOVX}
+                                onChange={handleSimulationSlider}
+                                className="accent-blue-500"
+                            />
+                            <div className="flex justify-between text-[8px] text-slate-500 mt-1">
+                                <span>0</span>
+                                <span>1</span>
+                                <span>2 WAX</span>
+                            </div>
+                        </div>
+
+                        {/* TU MANUAL */}
+                        <div className="flex flex-col">
+                            <span className="text-xs text-slate-400 mb-1">Ressources (WAX)</span>
+                            <input 
+                            type="number" 
+                            step="0.000001"
+                            value={marketPrices.DOVF}
+                            onChange={(e) => handleManualTuChange(e.target.value)}
+                            className="bg-slate-700 text-blue-400 w-24 px-2 py-1 rounded border border-slate-600 focus:outline-none focus:border-blue-500"
+                            />
+                        </div>
                     </div>
                 </header>
 
@@ -402,7 +487,7 @@
                     onClick={() => setActiveTab('production')}
                     className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${activeTab === 'production' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
                     >
-                    <Factory size={18} /> analyse PRODUCTION
+                    <FactoryIcon size={18} /> analyse PRODUCTION
                     </button>
                 </div>
 
@@ -662,7 +747,7 @@
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                         <div>
                             <h2 className="text-xl font-bold flex items-center gap-2 text-emerald-400">
-                            <Factory /> Analyse Rentabilité Usines
+                            <FactoryIcon /> Analyse Rentabilité Usines
                             </h2>
                             <p className="text-slate-400 text-sm mt-1">
                             Comparez le coût de production vs prix d'achat Alcor.
