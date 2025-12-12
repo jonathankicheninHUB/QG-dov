@@ -1,0 +1,616 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { Calculator, Shield, Factory, Crosshair, TrendingUp, AlertTriangle, CheckCircle, Lock, Users, ChevronRight, DollarSign, Filter } from 'lucide-react';
+
+// --- DATASETS ---
+
+// 1. PRIX MARCHÉ (Initiaux)
+const INITIAL_MARKET_PRICES = {
+  WAX: 1, // Base
+  DOVX: 0.00528552,
+  DOVR: 0.00045263,
+  DOVH: 0.00045263,
+  DOVF: 0.00045263,
+  DOVS: 0.00045263,
+};
+
+// 2. LISTE COMPLÈTE DES USINES
+// Généré à partir des données brutes:
+// L1: C(5.40), R(16.20), E(48.60), L(145.80)
+// L2: C(12.15), R(36.45), E(109.35), L(328.05)
+// L3: C(30.38), R(91.13), E(273.38), L(820.13)
+// L4: C(83.53), R(250.59), E(751.78), L(2255.34)
+// Supreme = L4 Legendary
+
+const generateFactories = () => {
+  const types = ['FUEL', 'REPAIR', 'SUPPLY', 'HEALTH'];
+  const rarities = [
+    { name: 'Common', levels: [
+      { l: 1, out: 5.40, cost: 0.4590 },
+      { l: 2, out: 12.15, cost: 1.0328 },
+      { l: 3, out: 30.38, cost: 2.5819 },
+      { l: 4, out: 83.53, cost: 7.1002 },
+      { l: 5, out: 1458.00, cost: 123.9300 } // Special C_F5
+    ]},
+    { name: 'Rare', levels: [
+      { l: 1, out: 16.20, cost: 1.3770 },
+      { l: 2, out: 36.45, cost: 3.0983 },
+      { l: 3, out: 91.13, cost: 7.7456 },
+      { l: 4, out: 250.59, cost: 21.3005 }
+    ]},
+    { name: 'Epic', levels: [
+      { l: 1, out: 48.60, cost: 4.1310 },
+      { l: 2, out: 109.35, cost: 9.2948 },
+      { l: 3, out: 273.38, cost: 23.2369 },
+      { l: 4, out: 751.78, cost: 63.9014 }
+    ]},
+    { name: 'Legendary', levels: [
+      { l: 1, out: 145.80, cost: 12.3930 },
+      { l: 2, out: 328.05, cost: 27.8843 },
+      { l: 3, out: 820.13, cost: 69.7106 },
+      { l: 4, out: 2255.34, cost: 191.7042 }
+    ]},
+    { name: 'Supreme', levels: [
+      { l: 1, out: 2255.34, cost: 191.7042 }
+    ]}
+  ];
+
+  let list = [];
+  types.forEach(type => {
+    rarities.forEach(rarity => {
+      rarity.levels.forEach(level => {
+        // Exclure C_F5 pour autres que Fuel/Repair si nécessaire, mais on l'inclut pour l'instant par générique
+        // Note: Le dataset original avait C_F5 pour Fuel et Repair.
+        if (level.l === 5 && (type === 'SUPPLY' || type === 'HEALTH')) return; 
+
+        list.push({
+          id: `${rarity.name.charAt(0)}_${type.charAt(0)}${level.l}`,
+          name: `${rarity.name} ${type} L${level.l}`,
+          type: type,
+          rarity: rarity.name,
+          level: level.l,
+          output: level.out,
+          costDoVX: level.cost
+        });
+      });
+    });
+  });
+  return list;
+};
+
+const FACTORIES = generateFactories();
+
+
+// 3. ZONES DE COMBAT (Liste Complète 1-16)
+// keyReq = 0 (Gratuit), sinon correspond à l'Order de la clé requise (ex: Order 4 pour finir Beach)
+const ZONES = [
+  // --- BEACH (Plage) ---
+  { id: 1, name: 'Beach 1', type: 'Beach', order: 1, win: 400, usage: 1160, minWeight: 14, keyReq: 0 },
+  { id: 2, name: 'Beach 2', type: 'Beach', order: 2, win: 2405, usage: 6968, minWeight: 28, keyReq: 2 },
+  { id: 3, name: 'Beach 3', type: 'Beach', order: 3, win: 3037, usage: 8800, minWeight: 55, keyReq: 3 },
+  { id: 4, name: 'Bunker (Beach End)', type: 'Beach', order: 4, win: 3838, usage: 11120, minWeight: 109, keyReq: 4, isCheckpoint: true },
+  
+  // --- FOREST (Forêt) ---
+  { id: 5, name: 'Forest 1', type: 'Forest', order: 5, win: 4840, usage: 14024, minWeight: 219, keyReq: 5 },
+  { id: 6, name: 'Forest 2', type: 'Forest', order: 6, win: 6110, usage: 17704, minWeight: 342, keyReq: 6 },
+  { id: 7, name: 'Forest 3', type: 'Forest', order: 7, win: 7714, usage: 22352, minWeight: 450, keyReq: 7 },
+  { id: 8, name: 'Camp (Forest End)', type: 'Forest', order: 8, win: 9739, usage: 28220, minWeight: 512, keyReq: 8, isCheckpoint: true },
+  
+  // --- HILL (Colline) ---
+  { id: 9, name: 'Hill 1', type: 'Hill', order: 9, win: 12788, usage: 37052, minWeight: 695, keyReq: 9 },
+  { id: 10, name: 'Hill 2', type: 'Hill', order: 10, win: 16791, usage: 48652, minWeight: 869, keyReq: 10 },
+  { id: 11, name: 'Hill 3', type: 'Hill', order: 11, win: 22266, usage: 64516, minWeight: 1086, keyReq: 11 },
+  { id: 12, name: 'Radar (Hill End)', type: 'Hill', order: 12, win: 29236, usage: 84712, minWeight: 1358, keyReq: 12, isCheckpoint: true },
+  
+  // --- PLAIN (Plaine) ---
+  { id: 13, name: 'Plain 1', type: 'Plain', order: 13, win: 34300, usage: 99384, minWeight: 1697, keyReq: 13 },
+  { id: 14, name: 'Plain 2', type: 'Plain', order: 14, win: 43385, usage: 125708, minWeight: 1866, keyReq: 14 },
+  { id: 15, name: 'Plain 3', type: 'Plain', order: 15, win: 52171, usage: 151164, minWeight: 2052, keyReq: 15 },
+  { id: 16, name: 'HQ (Plain End)', type: 'Plain', order: 16, win: 64884, usage: 188000, minWeight: 2495, keyReq: 16, isCheckpoint: true },
+];
+
+// 4. UNITÉS & BONUS TERRAIN
+const UNITS = [
+  { id: 'u1', name: '26th Infantry (Common)', type: 'Infantry', baseWeight: 0.3, bonuses: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 0.01 } },
+  { id: 'u2', name: '741st Tank (Epic)', type: 'Tank', baseWeight: 58.42, bonuses: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 0.72, City: 0.01 } },
+  { id: 'u3', name: 'Mosquito B.IV (Uncommon)', type: 'Plane', baseWeight: 0.9, bonuses: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 1.0 } },
+  { id: 'u4', name: 'USS Arkansas (Legendary)', type: 'Ship', baseWeight: 1555.20, bonuses: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
+  { id: 'u5', name: '37th Engineer (Epic)', type: 'Engineer', baseWeight: 58.42, bonuses: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 1.0, City: 0.01 } }
+];
+
+// 5. INVENTAIRE SIMULÉ DU JOUEUR (OFFICIERS, CLÉS, SUPPORTS)
+const MOCK_INVENTORY = {
+  keys: [
+    { id: 'k1', name: 'F1-KEY-BEACH', order: 4 }, // Débloque jusqu'à l'ordre 4
+    { id: 'k2', name: 'F1-KEY-FOREST', order: 8 }, // Débloque jusqu'à l'ordre 8
+  ],
+  officers: [
+    { id: 'o1', name: 'F1-COLONEL-JOHN-F-R-SEITZ', order: 5 },
+    { id: 'o2', name: 'F1-MAJOR-GENERAL-WHAOU', order: 20 },
+  ],
+  supports: [
+    { id: 's1', name: 'F1-ASPIRANT-KIYO', bonusPct: 12.0 },
+    { id: 's2', name: 'F4-104th-MEDICAL-BATTALION', bonusPct: 10.0 },
+  ],
+  units: UNITS 
+};
+
+// --- COMPOSANTS UI ---
+
+const Card = ({ children, className = "" }) => (
+  <div className={`bg-slate-800 border border-slate-700 rounded-lg p-4 shadow-xl ${className}`}>
+    {children}
+  </div>
+);
+
+const Badge = ({ children, color = "blue" }) => {
+  const colors = {
+    blue: "bg-blue-900 text-blue-200 border-blue-700",
+    green: "bg-emerald-900 text-emerald-200 border-emerald-700",
+    red: "bg-red-900 text-red-200 border-red-700",
+    yellow: "bg-yellow-900 text-yellow-200 border-yellow-700",
+    purple: "bg-purple-900 text-purple-200 border-purple-700",
+    slate: "bg-slate-700 text-slate-300 border-slate-600",
+  };
+  return (
+    <span className={`px-2 py-1 rounded text-xs font-bold border ${colors[color] || colors.blue}`}>
+      {children}
+    </span>
+  );
+};
+
+// --- APP MAIN ---
+
+export default function DoVManager() {
+  const [activeTab, setActiveTab] = useState('production'); // Start on Prod to see list
+  const [marketPrices, setMarketPrices] = useState(INITIAL_MARKET_PRICES);
+  const [userInventory, setUserInventory] = useState(MOCK_INVENTORY);
+  const [factoryFilter, setFactoryFilter] = useState('ALL');
+
+  // State Combat
+  const [selectedZoneId, setSelectedZoneId] = useState(1);
+  const [selectedSquad, setSelectedSquad] = useState([]);
+  const [selectedSupport, setSelectedSupport] = useState(null);
+  const [selectedOfficer, setSelectedOfficer] = useState(null);
+
+  // --- LOGIC: PRODUCTION ---
+  const productionAnalysis = useMemo(() => {
+    return FACTORIES.map(factory => {
+      const prodValue = factory.output * 24 * marketPrices[`DOV${factory.type.charAt(0)}`]; // Prix Res
+      const costValue = factory.costDoVX * 24 * marketPrices.DOVX;
+      const profit = prodValue - costValue;
+      const unitCost = (factory.costDoVX * marketPrices.DOVX) / factory.output; // Prix de revient d'1 unité
+      const marketPrice = marketPrices[`DOV${factory.type.charAt(0)}`];
+      
+      return { ...factory, prodValue, costValue, profit, unitCost, marketPrice, isProfitable: profit > 0, betterToBuy: unitCost > marketPrice };
+    });
+  }, [marketPrices]);
+
+  const filteredFactories = useMemo(() => {
+    if (factoryFilter === 'ALL') return productionAnalysis;
+    return productionAnalysis.filter(f => f.type === factoryFilter);
+  }, [productionAnalysis, factoryFilter]);
+
+  // --- LOGIC: COMBAT ---
+  const selectedZone = ZONES.find(z => z.id === parseInt(selectedZoneId));
+
+  // Check Clés (Keys)
+  const hasRequiredKey = useMemo(() => {
+    if (selectedZone.keyReq === 0) return true;
+    return userInventory.keys.some(k => k.order >= selectedZone.keyReq);
+  }, [selectedZone, userInventory]);
+
+  // Check Officier (Gatekeeper)
+  const hasOfficer = !!selectedOfficer; 
+
+  // Calcul Poids Effectif
+  const squadStats = useMemo(() => {
+    let totalBaseWeight = 0;
+    let totalEffectiveWeight = 0;
+
+    selectedSquad.forEach(unit => {
+      totalBaseWeight += unit.baseWeight;
+      const bonus = unit.bonuses[selectedZone.type] || 1.0;
+      totalEffectiveWeight += (unit.baseWeight * bonus);
+    });
+
+    // Appliquer Supports
+    let supportBonus = 0;
+    if (selectedSupport) {
+      supportBonus = selectedSupport.bonusPct / 100;
+    }
+    
+    const finalWeight = totalEffectiveWeight * (1 + supportBonus);
+    return { totalBaseWeight, totalEffectiveWeight, finalWeight, supportBonus };
+  }, [selectedSquad, selectedZone, selectedSupport]);
+
+  // ROI Combat
+  const combatROI = useMemo(() => {
+    const costR = selectedZone.usage * marketPrices.DOVR;
+    const costH = selectedZone.usage * marketPrices.DOVH;
+    const costF = selectedZone.usage * marketPrices.DOVF;
+    const costS = selectedZone.usage * marketPrices.DOVS;
+    
+    const totalCostWAX = costR + costH + costF + costS;
+    const rewardWAX = selectedZone.win * marketPrices.DOVX;
+    const profitWAX = rewardWAX - totalCostWAX;
+    
+    return { totalCostWAX, rewardWAX, profitWAX, roiPercent: totalCostWAX > 0 ? ((profitWAX / totalCostWAX) * 100).toFixed(2) : "0.00" };
+  }, [selectedZone, marketPrices]);
+
+
+  const toggleUnit = (unit) => {
+    if (selectedSquad.find(u => u.id === unit.id)) {
+      setSelectedSquad(selectedSquad.filter(u => u.id !== unit.id));
+    } else {
+      setSelectedSquad([...selectedSquad, unit]);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans p-4 md:p-8">
+      
+      {/* HEADER */}
+      <header className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-slate-700 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-blue-600 p-2 rounded-lg">
+            <Shield size={32} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-wider text-white">DoV <span className="text-blue-400">COMMANDER</span></h1>
+            <p className="text-slate-400 text-sm">Optimiseur Tactique & Financier</p>
+          </div>
+        </div>
+        
+        {/* MARKET BAR */}
+        <div className="flex gap-4 mt-4 md:mt-0 bg-slate-800 p-2 rounded-lg border border-slate-700 text-sm">
+          <div className="flex flex-col">
+            <span className="text-xs text-slate-400">DOV-X ($WAX)</span>
+            <input 
+              type="number" 
+              value={marketPrices.DOVX}
+              onChange={(e) => setMarketPrices({...marketPrices, DOVX: parseFloat(e.target.value)})}
+              className="bg-slate-700 text-yellow-400 w-24 px-1 rounded border border-slate-600"
+            />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xs text-slate-400">Ressources ($WAX)</span>
+            <input 
+              type="number" 
+              value={marketPrices.DOVF}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                setMarketPrices({...marketPrices, DOVF: val, DOVR: val, DOVS: val, DOVH: val});
+              }}
+              className="bg-slate-700 text-blue-400 w-24 px-1 rounded border border-slate-600"
+            />
+          </div>
+        </div>
+      </header>
+
+      {/* NAVIGATION */}
+      <div className="flex gap-4 mb-6">
+        <button 
+          onClick={() => setActiveTab('combat')}
+          className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${activeTab === 'combat' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
+        >
+          <Crosshair size={18} /> simulateur COMBAT
+        </button>
+        <button 
+          onClick={() => setActiveTab('production')}
+          className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${activeTab === 'production' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
+        >
+          <Factory size={18} /> analyse PRODUCTION
+        </button>
+      </div>
+
+      {/* --- TAB: COMBAT SIMULATOR --- */}
+      {activeTab === 'combat' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* COL 1: SELECTOR */}
+          <div className="space-y-6">
+            <Card className="max-h-[600px] overflow-y-auto">
+              <h3 className="text-lg font-bold text-blue-300 mb-4 flex items-center gap-2 sticky top-0 bg-slate-800 py-2 z-10 border-b border-slate-700">
+                <Crosshair size={20} /> Sélection Zone
+              </h3>
+              <div className="space-y-2">
+                {ZONES.map(zone => {
+                  const isLocked = zone.keyReq > 0 && !userInventory.keys.some(k => k.order >= zone.keyReq);
+                  return (
+                    <button
+                      key={zone.id}
+                      onClick={() => setSelectedZoneId(zone.id)}
+                      className={`w-full text-left px-3 py-2 rounded border transition-all flex justify-between items-center text-sm ${
+                        selectedZoneId === zone.id 
+                          ? 'bg-blue-900/40 border-blue-500 text-white' 
+                          : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {isLocked ? <Lock size={12} className="text-red-500" /> : <ChevronRight size={12} className="text-emerald-500" />}
+                        <div>
+                          <div className="font-bold">{zone.name}</div>
+                          <div className="text-[10px] uppercase opacity-70 tracking-wide">{zone.type}</div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                         <div className="text-[10px] text-slate-500">Win Reward</div>
+                         <div className="font-mono font-bold text-yellow-500">{zone.win}</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </Card>
+
+            <Card>
+              <h3 className="text-lg font-bold text-yellow-300 mb-4 flex items-center gap-2">
+                <Users size={20} /> État Major
+              </h3>
+              
+              <div className="mb-4">
+                <label className="text-xs text-slate-400 uppercase font-bold mb-1 block">Officier (Gatekeeper)</label>
+                <select 
+                  className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm"
+                  onChange={(e) => setSelectedOfficer(userInventory.officers.find(o => o.id === e.target.value))}
+                >
+                  <option value="">-- Choisir Officier --</option>
+                  {userInventory.officers.map(off => (
+                    <option key={off.id} value={off.id}>{off.name} (Lvl {off.order})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs text-slate-400 uppercase font-bold mb-1 block">Support (Bonus)</label>
+                <select 
+                  className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm"
+                  onChange={(e) => setSelectedSupport(userInventory.supports.find(s => s.id === e.target.value))}
+                >
+                  <option value="">-- Choisir Support --</option>
+                  {userInventory.supports.map(sup => (
+                    <option key={sup.id} value={sup.id}>{sup.name} (+{sup.bonusPct}%)</option>
+                  ))}
+                </select>
+                {selectedSupport && (
+                  <div className="mt-2 text-xs text-emerald-400 flex items-center gap-1">
+                    <TrendingUp size={12} /> Bonus actif: +{selectedSupport.bonusPct}% sur le poids total
+                  </div>
+                )}
+              </div>
+            </Card>
+          </div>
+
+          {/* COL 2: SQUAD BUILDER */}
+          <div className="space-y-6">
+            <Card className="h-full">
+              <h3 className="text-lg font-bold text-emerald-300 mb-4 flex items-center gap-2">
+                <Shield size={20} /> Constructeur d'Escouade
+              </h3>
+              
+              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                {userInventory.units.map(unit => {
+                  const bonus = unit.bonuses[selectedZone.type] || 0;
+                  const isEffective = bonus >= 1.0;
+                  const isBad = bonus < 0.5;
+                  const effectiveW = unit.baseWeight * bonus;
+                  const isSelected = !!selectedSquad.find(u => u.id === unit.id);
+
+                  return (
+                    <div 
+                      key={unit.id}
+                      onClick={() => toggleUnit(unit)}
+                      className={`p-3 rounded border cursor-pointer transition-all relative ${
+                        isSelected 
+                          ? 'bg-emerald-900/30 border-emerald-500' 
+                          : 'bg-slate-900 border-slate-700 hover:border-slate-500'
+                      }`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="font-bold text-sm">{unit.name}</div>
+                          <div className="text-xs text-slate-400">{unit.type}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className={`font-mono font-bold ${isBad ? 'text-red-400' : isEffective ? 'text-emerald-400' : 'text-yellow-400'}`}>
+                            {effectiveW.toFixed(2)} pts
+                          </div>
+                          <div className="text-[10px] text-slate-500">
+                             Base: {unit.baseWeight} x {Math.round(bonus * 100)}%
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {isBad && (
+                        <div className="absolute top-1 right-1">
+                          <AlertTriangle size={12} className="text-red-500" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          </div>
+
+          {/* COL 3: RESULTS & ROI */}
+          <div className="space-y-6">
+            
+            {/* STATUS PANEL */}
+            <Card className="border-t-4 border-t-blue-500">
+              <h3 className="text-lg font-bold text-white mb-4">Analyse Tactique</h3>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between items-center border-b border-slate-700 pb-2">
+                  <span className="text-sm text-slate-400">Accès Zone (Key)</span>
+                  {hasRequiredKey ? (
+                    <Badge color="green">AUTORISÉ</Badge>
+                  ) : (
+                    <Badge color="red">VERROUILLÉ</Badge>
+                  )}
+                </div>
+
+                <div className="flex justify-between items-center border-b border-slate-700 pb-2">
+                  <span className="text-sm text-slate-400">Commandement</span>
+                  {hasOfficer ? (
+                    <Badge color="green">PRÊT</Badge>
+                  ) : (
+                    <Badge color="yellow">OFFICIER REQUIS</Badge>
+                  )}
+                </div>
+
+                <div className="bg-slate-900 p-3 rounded border border-slate-700">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-slate-400">Poids Requis (Win)</span>
+                    <span className="font-mono text-white">{selectedZone.minWeight.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold mb-2">
+                    <span className={squadStats.finalWeight >= selectedZone.minWeight ? "text-emerald-400" : "text-red-400"}>
+                      Puissance Totale
+                    </span>
+                    <span className="font-mono text-white">{squadStats.finalWeight.toFixed(2)}</span>
+                  </div>
+                  
+                  <div className="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full ${squadStats.finalWeight >= selectedZone.minWeight ? 'bg-emerald-500' : 'bg-red-500'}`}
+                      style={{ width: `${Math.min((squadStats.finalWeight / selectedZone.minWeight) * 100, 100)}%` }}
+                    ></div>
+                  </div>
+                  <div className="mt-1 text-xs text-right text-slate-500">
+                     Support Bonus: +{squadStats.supportBonus * 100}% inclus
+                  </div>
+                </div>
+
+                <div className="mt-4 text-center">
+                  {!hasRequiredKey ? (
+                    <div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 font-bold flex items-center justify-center gap-2">
+                      <Lock size={18} /> CLÉ MANQUANTE
+                    </div>
+                  ) : squadStats.finalWeight >= selectedZone.minWeight ? (
+                    <div className="p-3 bg-emerald-900/50 border border-emerald-500 rounded text-emerald-200 font-bold flex items-center justify-center gap-2">
+                      <CheckCircle size={18} /> VICTOIRE ASSURÉE
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 font-bold flex items-center justify-center gap-2">
+                      <AlertTriangle size={18} /> DÉFAITE PROBABLE
+                    </div>
+                  )}
+                </div>
+
+              </div>
+            </Card>
+
+            <Card className="border-t-4 border-t-yellow-500">
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <DollarSign size={20} /> Rentabilité (WAX)
+              </h3>
+              
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Coût Entrée (Ressources)</span>
+                  <span className="text-red-400 font-mono">-{combatROI.totalCostWAX.toFixed(2)} WAX</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Gain (DoV-X)</span>
+                  <span className="text-emerald-400 font-mono">+{combatROI.rewardWAX.toFixed(2)} WAX</span>
+                </div>
+                <div className="border-t border-slate-700 my-2 pt-2 flex justify-between text-lg font-bold">
+                  <span>Net Profit</span>
+                  <span className={combatROI.profitWAX > 0 ? "text-emerald-400" : "text-red-400"}>
+                    {combatROI.profitWAX > 0 ? "+" : ""}{combatROI.profitWAX.toFixed(2)} WAX
+                  </span>
+                </div>
+                <div className="text-center text-xs text-slate-500 mt-1">
+                  ROI: {combatROI.roiPercent}%
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      )}
+
+      {/* --- TAB: PRODUCTION ANALYSIS --- */}
+      {activeTab === 'production' && (
+        <div className="space-y-6">
+          <Card>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+              <div>
+                <h2 className="text-xl font-bold flex items-center gap-2 text-emerald-400">
+                  <Factory /> Analyse Rentabilité Usines
+                </h2>
+                <p className="text-slate-400 text-sm mt-1">
+                  Comparez le coût de production de 24h vs prix d'achat Alcor.
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700">
+                <Filter size={14} className="text-slate-500 ml-2" />
+                {['ALL', 'FUEL', 'REPAIR', 'SUPPLY', 'HEALTH'].map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setFactoryFilter(f)}
+                    className={`px-3 py-1 rounded text-xs font-bold transition-all ${factoryFilter === f ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="overflow-x-auto max-h-[700px]">
+              <table className="w-full text-left border-collapse">
+                <thead className="sticky top-0 bg-slate-800 z-10 shadow-lg">
+                  <tr className="text-slate-400 border-b border-slate-700">
+                    <th className="p-3">Usine</th>
+                    <th className="p-3">Type</th>
+                    <th className="p-3">Rareté</th>
+                    <th className="p-3 text-right">Prod/24h</th>
+                    <th className="p-3 text-right">Coût DoVX/24h</th>
+                    <th className="p-3 text-right">Coût Unit (WAX)</th>
+                    <th className="p-3 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="overflow-y-auto">
+                  {filteredFactories.map(factory => (
+                    <tr key={factory.id} className="border-b border-slate-700 hover:bg-slate-700/30 transition-colors">
+                      <td className="p-3 font-bold text-white text-sm">{factory.name}</td>
+                      <td className="p-3 text-xs text-slate-400">{factory.type}</td>
+                      <td className="p-3">
+                        <Badge color={factory.rarity === 'Legendary' ? 'yellow' : factory.rarity === 'Epic' ? 'purple' : factory.rarity === 'Supreme' ? 'red' : 'blue'}>
+                          {factory.rarity} {factory.level < 5 ? `L${factory.level}` : ''}
+                        </Badge>
+                      </td>
+                      <td className="p-3 text-right font-mono text-emerald-400 text-sm">{(factory.output * 24).toLocaleString()}</td>
+                      <td className="p-3 text-right font-mono text-red-400 text-sm">{(factory.costDoVX * 24).toLocaleString()}</td>
+                      
+                      <td className="p-3 text-right font-mono text-sm">
+                        <div className={factory.betterToBuy ? "text-red-300" : "text-emerald-300"}>
+                          {factory.unitCost.toFixed(6)}
+                        </div>
+                        <div className="text-[10px] text-slate-500">Mkt: {factory.marketPrice.toFixed(6)}</div>
+                      </td>
+                      
+                      <td className="p-3 text-center">
+                        {factory.betterToBuy ? (
+                          <div className="inline-flex items-center gap-1 text-red-400 font-bold bg-red-900/30 px-2 py-1 rounded text-xs">
+                            <AlertTriangle size={12} /> BUY
+                          </div>
+                        ) : (
+                          <div className="inline-flex items-center gap-1 text-emerald-400 font-bold bg-emerald-900/30 px-2 py-1 rounded text-xs">
+                            <CheckCircle size={12} /> PROD
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+      )}
+
+    </div>
+  );
+}
