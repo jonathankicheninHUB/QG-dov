@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoV Tactical Manager</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        input[type=range] { -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
+            background: #3b82f6; cursor: pointer; margin-top: -6px; 
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- ICONS ---
+        const Shield = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
+        const FactoryIcon = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/></svg>;
+        const Crosshair = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>;
+        const TrendingUp = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
+        const AlertTriangle = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
+        const CheckCircle = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
+        const Lock = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
+        const Users = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
+        const ChevronRight = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="9 18 15 12 9 6"/></svg>;
+        const DollarSign = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>;
+        const Filter = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>;
+        const Calendar = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
+        const Sliders = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>;
+        const Package = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m16.5 9.4-9-5.19"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>;
+        const Trash2 = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>;
+        const Plus = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
+        const Calculator = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>;
+        const KeyIcon = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21 2-2 2m-7.6 7.6a6.5 6.5 0 1 1-5.3 5.3L3 21l3-3 2.1-2.1a2 2 0 0 1 2.8 0L13.4 13.4a2 2 0 0 1 0 2.8l-4.3 4.3"/><path d="m10 10 1.5 1.5"/><path d="m14 6 1.5 1.5"/><path d="m18 2 1.5 1.5"/></svg>;
+        const Zap = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+        const Heart = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.28 3.6-2.34 4.53-3.26a6.5 6.5 0 0 0-5.71-10.42 6.51 6.51 0 0 0-5.71 3.8A6.5 6.5 0 0 0 5.71 .32 6.51 6.51 0 0 0 0 5.22c.94.91 3.05 1.98 4.53 3.26L12 22l7-8z"/></svg>;
+        const ArrowLeft = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>;
+        const Briefcase = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>;
+        const Database = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>;
+        const Gift = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.9 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>;
+        const Flask = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M10 2v7.31"/><path d="M14 2v7.31"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/></svg>;
+        const Diamond = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>;
+        const Scale = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>;
+        const Building = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>;
+
+        // --- DATASETS ---
+
+        const INITIAL_MARKET_PRICES = {
+            WAX: 1, 
+            DOVX: 0.00528552,
+            DOVR: 0.00045262,
+            DOVH: 0.00045262,
+            DOVF: 0.00045262,
+            DOVS: 0.00045262,
+        };
+
+        const CHEST_DATA = {
+            'Bunker': {
+                zone: 4,
+                name: 'PACK Bunker',
+                tokenCost: 27, 
+                drops: [
+                    { type: 'building', pool: [
+                        { id: 'c_f1_fuel', name: 'C_F1_PRODUCER_FUEL', prob: 24.98 },
+                        { id: 'c_f1_repair', name: 'C_F1_PRODUCER_REPAIR', prob: 24.98 },
+                        { id: 'c_f1_supply', name: 'C_F1_PRODUCER_SUPPLY', prob: 24.98 },
+                        { id: 'c_f1_health', name: 'C_F1_PRODUCER_HEALTH', prob: 24.98 },
+                        { id: 'c_f4_fuel', name: 'C_F4_PRODUCER_FUEL', prob: 0.02 },
+                        { id: 'c_f4_supply', name: 'C_F4_PRODUCER_SUPPLY', prob: 0.02 },
+                        { id: 'c_f4_repair', name: 'C_F4_PRODUCER_REPAIR', prob: 0.02 },
+                        { id: 'c_f4_health', name: 'C_F4_PRODUCER_HEALTH', prob: 0.02 }
+                    ]},
+                    { type: 'key', pool: [
+                        { id: 'F1-KEY-CITY', name: 'F1-KEY-CITY', prob: 33.33 },
+                        { id: 'F1-KEY-BEACH', name: 'F1-KEY-BEACH', prob: 33.33 },
+                        { id: 'F1-KEY-FOREST', name: 'F1-KEY-FOREST', prob: 33.33 }
+                    ]}
+                ]
+            },
+            'Camp': {
+                zone: 8,
+                name: 'PACK Camp',
+                tokenCost: 27,
+                drops: [
+                    { type: 'building', pool: [
+                        { id: 'r_f1_fuel', name: 'R_F1_PRODUCER_FUEL', prob: 24.98 },
+                        { id: 'r_f1_repair', name: 'R_F1_PRODUCER_REPAIR', prob: 24.98 },
+                        { id: 'r_f1_supply', name: 'R_F1_PRODUCER_SUPPLY', prob: 24.98 },
+                        { id: 'r_f1_health', name: 'R_F1_PRODUCER_HEALTH', prob: 24.98 },
+                        { id: 'r_f4_fuel', name: 'R_F4_PRODUCER_FUEL', prob: 0.02 },
+                        { id: 'r_f4_supply', name: 'R_F4_PRODUCER_SUPPLY', prob: 0.02 },
+                        { id: 'r_f4_repair', name: 'R_F4_PRODUCER_REPAIR', prob: 0.02 },
+                        { id: 'r_f4_health', name: 'R_F4_PRODUCER_HEALTH', prob: 0.02 }
+                    ]},
+                    { type: 'key', pool: [
+                        { id: 'F2-KEY-CITY', name: 'F2-KEY-CITY', prob: 33.33 },
+                        { id: 'F1-KEY-HILL', name: 'F1-KEY-HILL', prob: 33.33 },
+                        { id: 'F1-KEY-FOREST', name: 'F1-KEY-FOREST', prob: 33.33 }
+                    ]}
+                ]
+            },
+            'Radar': {
+                zone: 12,
+                name: 'PACK Radar',
+                tokenCost: 27,
+                drops: [
+                    { type: 'building', pool: [
+                        { id: 'e_f1_fuel', name: 'E_F1_PRODUCER_FUEL', prob: 24.98 },
+                        { id: 'e_f1_repair', name: 'E_F1_PRODUCER_REPAIR', prob: 24.98 },
+                        { id: 'e_f1_supply', name: 'E_F1_PRODUCER_SUPPLY', prob: 24.98 },
+                        { id: 'e_f1_health', name: 'E_F1_PRODUCER_HEALTH', prob: 24.98 },
+                        { id: 'e_f4_fuel', name: 'E_F4_PRODUCER_FUEL', prob: 0.02 },
+                        { id: 'e_f4_supply', name: 'E_F4_PRODUCER_SUPPLY', prob: 0.02 },
+                        { id: 'e_f4_repair', name: 'E_F4_PRODUCER_REPAIR', prob: 0.02 },
+                        { id: 'e_f4_health', name: 'E_F4_PRODUCER_HEALTH', prob: 0.02 }
+                    ]},
+                    { type: 'key', pool: [
+                        { id: 'F3-KEY-CITY', name: 'F3-KEY-CITY', prob: 33.33 },
+                        { id: 'F1-KEY-HILL', name: 'F1-KEY-HILL', prob: 33.33 },
+                        { id: 'F1-KEY-PLAINE', name: 'F1-KEY-PLAINE', prob: 33.33 }
+                    ]}
+                ]
+            },
+            'HQ': {
+                zone: 16,
+                name: 'PACK HQ',
+                tokenCost: 27,
+                drops: [
+                    { type: 'building', pool: [
+                        { id: 'l_f1_fuel', name: 'L_F1_PRODUCER_FUEL', prob: 24.98 },
+                        { id: 'l_f1_repair', name: 'L_F1_PRODUCER_REPAIR', prob: 24.98 },
+                        { id: 'l_f1_supply', name: 'L_F1_PRODUCER_SUPPLY', prob: 24.98 },
+                        { id: 'l_f1_health', name: 'L_F1_PRODUCER_HEALTH', prob: 24.98 },
+                        { id: 'r_f4_fuel', name: 'R_F4_PRODUCER_FUEL', prob: 0.02 }, 
+                        { id: 'l_f4_supply', name: 'L_F4_PRODUCER_SUPPLY', prob: 0.02 },
+                        { id: 'l_f4_repair', name: 'L_F4_PRODUCER_REPAIR', prob: 0.02 },
+                        { id: 'r_f4_health', name: 'R_F4_PRODUCER_HEALTH', prob: 0.02 }
+                    ]},
+                    { type: 'key', pool: [
+                        { id: 'F4-KEY-CITY', name: 'F4-KEY-CITY', prob: 33.33 },
+                        { id: 'F1-KEY-PLAINE', name: 'F1-KEY-PLAINE', prob: 33.33 },
+                        { id: 'F1-KEY-HILL', name: 'F1-KEY-HILL', prob: 33.33 }
+                    ]}
+                ]
+            }
+        };
+
+        const generateFactories = () => {
+            const types = ['FUEL', 'REPAIR', 'SUPPLY', 'HEALTH'];
+            const rarities = [
+                { name: 'Common', levels: [ { l: 1, out: 5.40, cost: 0.4590 }, { l: 2, out: 12.15, cost: 1.0328 }, { l: 3, out: 30.38, cost: 2.5819 }, { l: 4, out: 83.53, cost: 7.1002 }, { l: 5, out: 1458.00, cost: 123.9300, isBlend: true } ]},
+                { name: 'Rare', levels: [ { l: 1, out: 16.20, cost: 1.3770 }, { l: 2, out: 36.45, cost: 3.0983 }, { l: 3, out: 91.13, cost: 7.7456 }, { l: 4, out: 250.59, cost: 21.3005 } ]},
+                { name: 'Epic', levels: [ { l: 1, out: 48.60, cost: 4.1310 }, { l: 2, out: 109.35, cost: 9.2948 }, { l: 3, out: 273.38, cost: 23.2369 }, { l: 4, out: 751.78, cost: 63.9014 } ]},
+                { name: 'Legendary', levels: [ { l: 1, out: 145.80, cost: 12.3930 }, { l: 2, out: 328.05, cost: 27.8843 }, { l: 3, out: 820.13, cost: 69.7106 }, { l: 4, out: 2255.34, cost: 191.7042 } ]},
+                { name: 'Supreme', levels: [ { l: 1, out: 2255.34, cost: 191.7042 } ]}
+            ];
+            let list = [];
+            types.forEach(type => {
+                rarities.forEach(rarity => {
+                rarity.levels.forEach(level => {
+                    if (level.l === 5 && rarity.name !== 'Common' && (type === 'SUPPLY' || type === 'HEALTH')) return; 
+
+                    // MODIFICATION ICI : Suppression du 'L' avant le niveau
+                    let name = `${rarity.name} ${type} ${level.l}`;
+                    if (level.isBlend) {
+                        name = `Supreme ${rarity.name} ${type} (Blend 10x F4)`;
+                    }
+
+                    list.push({
+                        id: `${rarity.name.charAt(0)}_${type.charAt(0)}${level.l}`,
+                        name: name,
+                        type: type,
+                        rarity: rarity.name,
+                        level: level.l,
+                        output: level.out,
+                        costDoVX: level.cost,
+                        efficiency: 100, // Default 100%
+                        accountsNeeded: 1,
+                        equivalentF1s: 1 // Baseline
+                    });
+                });
+                });
+            });
+            return list;
+        };
+
+        const FACTORIES = generateFactories();
+
+        // UPDATED: Added bonusToken
+        const ZONES = [
+            { id: 1, name: 'Beach 1', type: 'Beach', order: 1, win: 400, usage: 1160, minWeight: 14, keyReq: 0, officerReq: 1 },
+            { id: 2, name: 'Beach 2', type: 'Beach', order: 2, win: 2405, usage: 6968, minWeight: 28, keyReq: 5, officerReq: 2 },
+            { id: 3, name: 'Beach 3', type: 'Beach', order: 3, win: 3037, usage: 8800, minWeight: 55, keyReq: 6, officerReq: 3 },
+            { id: 4, name: 'Bunker', type: 'Beach', order: 4, win: 3838, usage: 11120, minWeight: 109, keyReq: 7, officerReq: 4, isCheckpoint: true, unitReq: 'e2', bonusToken: "TOKEN-BUNKER" }, 
+            { id: 5, name: 'Forest 1', type: 'Forest', order: 5, win: 4840, usage: 14024, minWeight: 219, keyReq: 8, officerReq: 5 },
+            { id: 6, name: 'Forest 2', type: 'Forest', order: 6, win: 6110, usage: 17704, minWeight: 342, keyReq: 9, officerReq: 6 },
+            { id: 7, name: 'Forest 3', type: 'Forest', order: 7, win: 7714, usage: 22352, minWeight: 450, keyReq: 10, officerReq: 7 },
+            { id: 8, name: 'Camp', type: 'Forest', order: 8, win: 9739, usage: 28220, minWeight: 512, keyReq: 11, officerReq: 8, isCheckpoint: true, unitReq: 'e1', bonusToken: "TOKEN-CAMP" },
+            { id: 9, name: 'Hill 1', type: 'Hill', order: 9, win: 12788, usage: 37052, minWeight: 695, keyReq: 12, officerReq: 9 },
+            { id: 10, name: 'Hill 2', type: 'Hill', order: 10, win: 16791, usage: 48652, minWeight: 869, keyReq: 13, officerReq: 10 },
+            { id: 11, name: 'Hill 3', type: 'Hill', order: 11, win: 22266, usage: 64516, minWeight: 1086, keyReq: 14, officerReq: 11 },
+            { id: 12, name: 'Radar', type: 'Hill', order: 12, win: 29236, usage: 84712, minWeight: 1358, keyReq: 15, officerReq: 12, isCheckpoint: true, unitReq: 'e3', godmotherReq: true, bonusToken: "TOKEN-RADAR" },
+            { id: 13, name: 'Plain 1', type: 'Plain', order: 13, win: 34300, usage: 99384, minWeight: 1697, keyReq: 16, officerReq: 13 },
+            { id: 14, name: 'Plain 2', type: 'Plain', order: 14, win: 43385, usage: 125708, minWeight: 1866, keyReq: 17, officerReq: 14 },
+            { id: 15, name: 'Plain 3', type: 'Plain', order: 15, win: 52171, usage: 151164, minWeight: 2052, keyReq: 18, officerReq: 15 },
+            { id: 16, name: 'HQ', type: 'Plain', order: 16, win: 64884, usage: 188000, minWeight: 2495, keyReq: 19, officerReq: 16, isCheckpoint: true, unitReq: 'l1', godmotherReq: true, bonusToken: "TOKEN-HQ" },
+            // NEW ZONES
+            { id: 17, name: 'City 1', type: 'City', order: 17, win: 0, usage: 0, entryCostDovX: 777.35, minWeight: 108.53, keyReq: 9, officerReq: 1, bonusToken: "F1-TOKEN-CITY-2025", specificOfficer: 'o25', requiredUnits: ['e6', 'uc6', 'l2'] },
+            { id: 18, name: 'City 2', type: 'City', order: 18, win: 0, usage: 0, entryCostDovX: 2213.87, minWeight: 511.76, keyReq: 13, officerReq: 1, bonusToken: "F2-TOKEN-CITY-2025", specificOfficer: 'o26', requiredUnits: ['uc5', 'c6', 'r4'] },
+            { id: 19, name: 'City 3', type: 'City', order: 19, win: 0, usage: 0, entryCostDovX: 6677.85, minWeight: 1357.04, keyReq: 17, officerReq: 1, bonusToken: "F3-TOKEN-CITY-2025", specificOfficer: 'o27', requiredUnits: ['uc6', 'r5', 'e7', 'l2'] },
+            { id: 20, name: 'Bridge', type: 'City', order: 20, win: 0, usage: 0, entryCostDovX: 14850.80, minWeight: 2494.23, keyReq: 20, officerReq: 1, bonusToken: "F4-TOKEN-CITY-2025", specificOfficer: 'o11', requiredUnits: ['e7', 'l2', 'l2'] } // Simplified logic for dual unit requirement
+        ];
+
+        // --- UNIT TEMPLATES FOR GENERATOR ---
+        // Excluded: Plane, Ship. Included: Infantry, Tank, Artillery, etc.
+        const UNIT_TEMPLATES = [
+            // COMMON
+            { baseId: 'c1', name: '26th Infantry', type: 'Infantry', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 0.01 } },
+            { baseId: 'c2', name: '18th Infantry', type: 'Infantry', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 0.01 } },
+            { baseId: 'c3', name: '507th Parachute', type: 'Parachute', rarity: 'Common', base: 0.3, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 0.01 } },
+            { baseId: 'c4', name: '32nd Field Artillery', type: 'Artillery', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 1.0, Forest: 0.72, Hill: 1.0, City: 0.01 } },
+            { baseId: 'c5', name: '82nd Armored Reconn', type: 'Reconn', rarity: 'Common', base: 0.3, b: { Beach: 0.22, Plain: 1.0, Forest: 1.0, Hill: 1.0, City: 1.0 } },
+            // Removed HMS Glasgow (Ship) for blending
+
+            // UNCOMMON
+            { baseId: 'uc1', name: '505th Parachute', type: 'Parachute', rarity: 'Uncommon', base: 0.9, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 0.01 } },
+            { baseId: 'uc2', name: '5th Field Artillery', type: 'Artillery', rarity: 'Uncommon', base: 0.9, b: { Beach: 1.0, Plain: 1.0, Forest: 1.0, Hill: 1.0, City: 0.01 } },
+            { baseId: 'uc3', name: '325th Glider', type: 'Glider', rarity: 'Uncommon', base: 0.9, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 0.01 } },
+            { baseId: 'uc4', name: 'Anti-tank Xmas', type: 'Anti-Tank', rarity: 'Uncommon', base: 0.9, b: { Beach: 0.22, Plain: 1.0, Forest: 1.0, Hill: 1.0, City: 1.0 } },
+            // Removed Mosquito & Lancaster (Planes)
+
+            // RARE
+            { baseId: 'r1', name: '16th Infantry', type: 'Infantry', rarity: 'Rare', base: 3.6, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 1.0, City: 0.01 } },
+            { baseId: 'r2', name: '635th Anti-Tank', type: 'Anti-Tank', rarity: 'Rare', base: 3.6, b: { Beach: 0.22, Plain: 0.72, Forest: 1.0, Hill: 1.0, City: 1.0 } },
+            // Removed Guyenne (Plane), Texas/Baldwin (Ships)
+
+            // EPIC
+            { baseId: 'e1', name: '502nd Parachute', type: 'Parachute', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 1.0 } },
+            { baseId: 'e2', name: '37th Engineer', type: 'Engineer', rarity: 'Epic', base: 8.42, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 1.0, City: 0.01 } },
+            { baseId: 'e3', name: '741st Tank', type: 'Tank', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 0.72, City: 0.01 } },
+            { baseId: 'e4', name: 'Afterland', type: 'Special', rarity: 'Epic', base: 8.42, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 1.0, City: 0.01 } },
+            // Removed Frankford/Leygues (Ships), Marauder (Plane)
+
+            // LEGENDARY
+            { baseId: 'l1', name: '741 Tank Xmas', type: 'Tank', rarity: 'Legendary', base: 57.6, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 0.72, City: 0.01 } },
+            // Removed Arkansas (Ship)
+        ];
+
+        // FULL UNITS FOR COMBAT (INCLUDES PLANES/SHIPS MANUALLY ADDED BACK FOR COMBAT SIM BUT NOT FOR BLEND LIST)
+        const COMBAT_TEMPLATES = [
+             ...UNIT_TEMPLATES,
+             { baseId: 'c6', name: 'HMS Glasgow', type: 'Ship', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 1.0 } },
+             { baseId: 'uc5', name: 'Mosquito B.IV', type: 'Plane', rarity: 'Uncommon', base: 0.9, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 1.0 } },
+             { baseId: 'uc6', name: 'Avro Lancaster', type: 'Plane', rarity: 'Uncommon', base: 0.9, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 1.0 } },
+             { baseId: 'r3', name: '346th Guyenne', type: 'Plane', rarity: 'Rare', base: 3.6, b: { Beach: 1.0, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 1.0 } },
+             { baseId: 'r4', name: 'USS Texas', type: 'Ship', rarity: 'Rare', base: 3.6, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
+             { baseId: 'r5', name: 'USS Baldwin', type: 'Ship', rarity: 'Rare', base: 3.6, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
+             { baseId: 'e5', name: 'USS Frankford', type: 'Ship', rarity: 'Epic', base: 8.42, b: { Beach: 1.25, Plain: 1.0, Forest: 1.0, Hill: 0.75, City: 1.0 } },
+             { baseId: 'e6', name: 'B-26 Marauder', type: 'Plane', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
+             { baseId: 'e7', name: 'Georges Leygues', type: 'Ship', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
+             { baseId: 'l2', name: 'USS Arkansas', type: 'Ship', rarity: 'Legendary', base: 57.6, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } }
+        ];
+
+        const generateUnits = (templates) => {
+            let list = [];
+            templates.forEach(tpl => {
+                for (let lvl = 1; lvl <= 4; lvl++) {
+                    const multiplier = Math.pow(3, lvl - 1); 
+                    list.push({
+                        id: `${tpl.baseId}_f${lvl}`, 
+                        baseId: tpl.baseId,
+                        name: `${tpl.rarity} F${lvl}-${tpl.name}`,
+                        type: tpl.type,
+                        rarity: tpl.rarity,
+                        level: lvl,
+                        baseWeight: tpl.base * multiplier,
+                        bonuses: tpl.b
+                    });
+                }
+            });
+            return list;
+        };
+
+        const UNITS = generateUnits(COMBAT_TEMPLATES);
+        const BLENDABLE_UNITS = generateUnits(UNIT_TEMPLATES); // Excludes ships/planes
+
+        const ALL_OFFICERS = [
+            { id: 'o1', name: 'F1-BRIGADIER-GEN-CLIFT-ANDRUS', order: 1 },
+            { id: 'o2', name: 'F2-BRIGADIER-GEN-CLIFT-ANDRUS', order: 2 },
+            { id: 'o3', name: 'F3-BRIGADIER-GEN-CLIFT-ANDRUS', order: 3 },
+            { id: 'o4', name: 'F4-BRIGADIER-GEN-CLIFT-ANDRUS', order: 4 },
+            { id: 'o5', name: 'F1-COLONEL-JOHN-F-R-SEITZ', order: 5 },
+            { id: 'o6', name: 'F2-COLONEL-JOHN-F-R-SEITZ', order: 6 },
+            { id: 'o7', name: 'F3-COLONEL-JOHN-F-R-SEITZ', order: 7 },
+            { id: 'o8', name: 'F4-COLONEL-JOHN-F-R-SEITZ', order: 8 },
+            { id: 'o9', name: 'F1-MAJOR-ERNEST-L-SMITH', order: 9 },
+            { id: 'o10', name: 'F1-Major_Gen_C_R_HUEBNER', order: 13 },
+            { id: 'o11', name: 'F1-L_COLONEL_G_A_TAYLOR', order: 17 },
+            { id: 'o12', name: 'F1-MAJOR-GENERAL-WHAOU', order: 20 },
+            { id: 'o13', name: 'F1-MAJOR-GENERAL-PANCAKE', order: 20 },
+            { id: 'o14', name: 'F1-MAJOR-GENERAL-RAPHI', order: 1 },
+            { id: 'o15', name: 'F1-MAJOR-GENERAL-ROLAND', order: 0 },
+            { id: 'o16', name: 'F1-DOCTEUR-GENERAL-B.ANDREW', order: 0 },
+            { id: 'o17', name: 'F1-MAJOR-GENERAL-DAGDAG', order: 0 },
+            { id: 'o18', name: 'F1-BRIGADIER-GENERAL-KEVIN', order: 0 },
+            { id: 'o19', name: 'F1-BRIGADIER-GENERAL-LUCAS', order: 0 },
+            { id: 'o20', name: 'F1-LIEUTENANT-COMMANDER-ELODIE', order: 0 },
+            { id: 'o21', name: 'F1-LIEUTENANT-GENERAL-GREG', order: 20 },
+            { id: 'o22', name: 'F1-LIEUTENANT-GENERAL-OLIVER', order: 20 },
+            { id: 'o23', name: 'F1-DIVISION-GENERAL-FLO', order: 1 },
+            { id: 'o24', name: 'F1-BRIGADIER-GENERAL-NIMAJ', order: 1 },
+            { id: 'o25', name: 'F1-CAP-JOY-BRIGHT-HANCOCK', order: 19 },
+            { id: 'o26', name: 'F1-CAP-JEAN-PALMER', order: 20 },
+            { id: 'o27', name: 'F1-COMMAND-RITA-LENIHAN', order: 21 },
+        ];
+
+        const ALL_SUPPORTS = [
+            { id: 's1', name: 'F1-1st-MEDICAL-BATTALION', bonusPct: 0.5 },
+            { id: 's2', name: 'F4-1st-MEDICAL-BATTALION', bonusPct: 3.0 },
+            { id: 's3', name: 'F1-56th-SIGNAL-BATTALION', bonusPct: 1.5 },
+            { id: 's4', name: 'F4-56th-SIGNAL-BATTALION', bonusPct: 4.5 },
+            { id: 's5', name: 'F1-104th-MEDICAL-BATTALION', bonusPct: 2.5 },
+            { id: 's6', name: 'F4-104th-MEDICAL-BATTALION', bonusPct: 10.0 },
+            { id: 's7', name: 'F1-29-SIGNAL-COMPAGNY-XMAS', bonusPct: 2.5 },
+            { id: 's8', name: 'F4-29-SIGNAL-COMPAGNY-XMAS', bonusPct: 10.0 },
+            { id: 's9', name: 'F1-ASPIRANT-KIYO', bonusPct: 12.0 },
+            { id: 's10', name: 'F2E-F4-104th-MEDICAL-BATTALION', bonusPct: 10.0 },
+        ];
+
+        const ALL_KEYS = [
+            { id: 'k1', name: 'F1-KEY-BEACH', order: 4 },
+            { id: 'k2', name: 'F2-KEY-BEACH', order: 5 },
+            { id: 'k3', name: 'F3-KEY-BEACH', order: 6 },
+            { id: 'k4', name: 'F4-KEY-BEACH', order: 7 },
+            { id: 'k5', name: 'F1-KEY-FOREST', order: 8 },
+            { id: 'k6', name: 'F2-KEY-FOREST', order: 9 },
+            { id: 'k7', name: 'F3-KEY-FOREST', order: 10 },
+            { id: 'k8', name: 'F4-KEY-FOREST', order: 11 },
+            { id: 'k9', name: 'F1-KEY-HILL', order: 12 },
+            { id: 'k10', name: 'F2-KEY-HILL', order: 13 },
+            { id: 'k11', name: 'F3-KEY-HILL', order: 14 },
+            { id: 'k12', name: 'F4-KEY-HILL', order: 15 },
+            { id: 'k13', name: 'F1-KEY-PLAINE', order: 16 },
+            { id: 'k14', name: 'F2-KEY-PLAINE', order: 17 },
+            { id: 'k15', name: 'F3-KEY-PLAINE', order: 18 },
+            { id: 'k16', name: 'F4-KEY-PLAINE', order: 19 },
+            { id: 'k17', name: 'F1-KEY-CITY', order: 9 },
+            { id: 'k18', name: 'F2-KEY-CITY', order: 13 },
+            { id: 'k19', name: 'F3-KEY-CITY', order: 17 },
+            { id: 'k20', name: 'F4-KEY-CITY', order: 20 },
+        ];
+
+        const ALL_GODMOTHERS = [
+            { id: 'gm1', name: 'F1-Sonja-Henie-Xmas' },
+            { id: 'gm2', name: 'F2-Sonja-Henie-Xmas' },
+            { id: 'gm3', name: 'F3-Sonja-Henie-Xmas' },
+            { id: 'gm4', name: 'F4-Sonja-Henie-Xmas' },
+            { id: 'gm5', name: 'F4-GODMOTHER-SONJA-HENIE' },
+            { id: 'gm6', name: 'F1-Miss-Betty-QTT' },
+            { id: 'gm7', name: 'F1-DOROTHY-STRATTON' },
+        ];
+
+        const MOCK_INVENTORY = {
+            keys: ALL_KEYS,
+            officers: ALL_OFFICERS,
+            supports: ALL_SUPPORTS,
+            godmothers: ALL_GODMOTHERS,
+            units: UNITS 
+        };
+
+        // --- COMPONENTS ---
+
+        const Card = ({ children, className = "" }) => <div className={`bg-slate-800 border border-slate-700 rounded-lg p-4 shadow-xl ${className}`}>{children}</div>;
+        const Badge = ({ children, color = "blue" }) => {
+            const colors = {
+                blue: "bg-blue-900 text-blue-200 border-blue-700",
+                green: "bg-emerald-900 text-emerald-200 border-emerald-700",
+                red: "bg-red-900 text-red-200 border-red-700",
+                yellow: "bg-yellow-900 text-yellow-200 border-yellow-700",
+                purple: "bg-purple-900 text-purple-200 border-purple-700",
+                pink: "bg-pink-900 text-pink-200 border-pink-700",
+                slate: "bg-slate-700 text-slate-300 border-slate-600",
+                indigo: "bg-indigo-900 text-indigo-200 border-indigo-700",
+                cyan: "bg-cyan-900 text-cyan-200 border-cyan-700",
+            };
+            return <span className={`px-2 py-1 rounded text-xs font-bold border ${colors[color] || colors.blue}`}>{children}</span>;
+        };
+
+        // --- APP MAIN ---
+
+        function DoVManager() {
+            const [activeTab, setActiveTab] = useState('account_sim');
+            const [viewMode, setViewMode] = useState('dashboard');
+            const [marketPrices, setMarketPrices] = useState(INITIAL_MARKET_PRICES);
+            const [waxPriceUsd, setWaxPriceUsd] = useState(0.008); 
+            const [userInventory, setUserInventory] = useState(MOCK_INVENTORY);
+            const [factoryFilter, setFactoryFilter] = useState('ALL');
+            const [unitRarityFilter, setUnitRarityFilter] = useState('ALL');
+            const [valuationFilter, setValuationFilter] = useState('ALL'); // Add filter state
+            const [timeframe, setTimeframe] = useState('day');
+            const [tuRatio, setTuRatio] = useState(INITIAL_MARKET_PRICES.DOVF / INITIAL_MARKET_PRICES.DOVX);
+
+            const [packBuilder, setPackBuilder] = useState({ name: 'Pack Personnalisé', price: 100, contents: [] });
+            const [packPriceUsdStr, setPackPriceUsdStr] = useState("0.80"); 
+            const [dovxInputStr, setDovxInputStr] = useState(INITIAL_MARKET_PRICES.DOVX.toString());
+            const [tuInputStr, setTuInputStr] = useState(INITIAL_MARKET_PRICES.DOVF.toString());
+            const [selectedFactoryToAdd, setSelectedFactoryToAdd] = useState(FACTORIES[0].id);
+            const [targetRoi, setTargetRoi] = useState('');
+
+            // ACCOUNT SIMULATOR STATES (NEW)
+            const [accountBuildings, setAccountBuildings] = useState([FACTORIES[0].id, FACTORIES[1].id, FACTORIES[2].id, FACTORIES[3].id]); // 4 Slots
+            const [accountDivisions, setAccountDivisions] = useState([1, 1, 1]); // Zone IDs for 3 Divisions
+
+            // CHEST SIMULATOR STATES
+            const [selectedChestType, setSelectedChestType] = useState('Bunker');
+            const [numChestsToOpen, setNumChestsToOpen] = useState(1);
+            const [chestSimulationResults, setChestSimulationResults] = useState(null);
+
+            // ROI ADVANCED STATES
+            const [chestEstimates, setChestEstimates] = useState({
+                'Bunker': 50,
+                'Camp': 100,
+                'Radar': 250,
+                'HQ': 1000,
+                'Bridge': 2000 // Estimated for new zone
+            });
+            
+            // New TARGET ROI States
+            const [roiTargetDays, setRoiTargetDays] = useState(365);
+
+            const [selectedZoneId, setSelectedZoneId] = useState(1);
+            const [selectedSquad, setSelectedSquad] = useState([]); 
+            const [selectedSupport, setSelectedSupport] = useState(null);
+            const [selectedOfficer, setSelectedOfficer] = useState(null);
+            const [selectedKey, setSelectedKey] = useState(null);
+            const [selectedGodmother, setSelectedGodmother] = useState(null);
+            const [activeDivision, setActiveDivision] = useState(1);
+
+            // --- OPTIONS GÉNÉRATEUR AUTOMATIQUE ---
+            const [autoGenOptions, setAutoGenOptions] = useState({
+                budget: "50",
+                roi: "30",
+                limit4: false,
+                diverse: false
+            });
+
+            const handleGlobalWaxPriceChange = (val) => {
+                const newWaxPrice = parseFloat(val);
+                setWaxPriceUsd(newWaxPrice);
+                const usdPrice = parseFloat(packPriceUsdStr);
+                if (!isNaN(usdPrice) && newWaxPrice > 0) {
+                    setPackBuilder(prev => ({ ...prev, price: usdPrice / newWaxPrice }));
+                }
+            };
+            const handleSimulationSlider = (e) => {
+                const newDovx = parseFloat(e.target.value);
+                setDovxInputStr(newDovx.toString());
+                const newTu = newDovx * tuRatio;
+                setTuInputStr(newTu.toString());
+                setMarketPrices({ ...marketPrices, DOVX: newDovx, DOVF: newTu, DOVR: newTu, DOVS: newTu, DOVH: newTu });
+            };
+            const handleManualDovxChange = (val) => {
+                setDovxInputStr(val); 
+                const newDovx = parseFloat(val);
+                if (!isNaN(newDovx)) {
+                    setMarketPrices({ ...marketPrices, DOVX: newDovx, DOVF: newDovx * tuRatio, DOVR: newDovx * tuRatio, DOVS: newDovx * tuRatio, DOVH: newDovx * tuRatio });
+                    setTuInputStr((newDovx * tuRatio).toString());
+                }
+            };
+            const handleManualTuChange = (val) => {
+                setTuInputStr(val);
+                const newTu = parseFloat(val);
+                if (!isNaN(newTu)) {
+                    setMarketPrices({ ...marketPrices, DOVF: newTu, DOVR: newTu, DOVS: newTu, DOVH: newTu });
+                    if(marketPrices.DOVX > 0) setTuRatio(newTu / marketPrices.DOVX);
+                }
+            };
+
+            // -- CHEST SIMULATOR HANDLER --
+            const handleSimulateChests = () => {
+                const chest = CHEST_DATA[selectedChestType];
+                if (!chest) return;
+                let results = { buildingDrops: {}, keyDrops: {}, totalValueWax: 0 };
+                const pickItem = (pool) => {
+                   const totalWeight = pool.reduce((acc, item) => acc + item.prob, 0);
+                   let random = Math.random() * totalWeight;
+                   for (let item of pool) {
+                       if (random < item.prob) return item;
+                       random -= item.prob;
+                   }
+                   return pool[pool.length - 1];
+                };
+                for(let i=0; i<numChestsToOpen; i++) {
+                    const building = pickItem(chest.drops[0].pool);
+                    results.buildingDrops[building.name] = (results.buildingDrops[building.name] || 0) + 1;
+                    const key = pickItem(chest.drops[1].pool);
+                    results.keyDrops[key.name] = (results.keyDrops[key.name] || 0) + 1;
+                }
+                setChestSimulationResults(results);
+            };
+
+            const addToPack = () => {
+                const existing = packBuilder.contents.find(i => i.factoryId === selectedFactoryToAdd);
+                if (existing) {
+                    setPackBuilder({ ...packBuilder, contents: packBuilder.contents.map(i => i.factoryId === selectedFactoryToAdd ? {...i, qty: i.qty + 1} : i) });
+                } else {
+                    setPackBuilder({ ...packBuilder, contents: [...packBuilder.contents, { factoryId: selectedFactoryToAdd, qty: 1 }] });
+                }
+            };
+            const removeFromPack = (id) => setPackBuilder({ ...packBuilder, contents: packBuilder.contents.filter(i => i.factoryId !== id) });
+            const updatePackQty = (id, newQty) => { if (newQty >= 1) setPackBuilder({ ...packBuilder, contents: packBuilder.contents.map(i => i.factoryId === id ? {...i, qty: parseInt(newQty)} : i) }); };
+            
+            const updatePriceFromRoi = (daysStr) => {
+                setTargetRoi(daysStr);
+                const days = parseFloat(daysStr);
+                if (!days || days <= 0) return;
+                let dailyNetWax = 0;
+                packBuilder.contents.forEach(item => {
+                    const factory = FACTORIES.find(f => f.id === item.factoryId);
+                    if (factory) {
+                        const prod = factory.output * 24 * marketPrices[`DOV${factory.type.charAt(0)}`] * item.qty;
+                        const cost = factory.costDoVX * 24 * marketPrices.DOVX * item.qty;
+                        dailyNetWax += (prod - cost);
+                    }
+                });
+                if (dailyNetWax > 0) {
+                    const newPrice = dailyNetWax * days;
+                    setPackBuilder(prev => ({...prev, price: parseFloat(newPrice.toFixed(2))}));
+                    setPackPriceUsdStr((newPrice * waxPriceUsd).toFixed(2));
+                }
+            };
+            const handleWaxPriceChange = (val) => {
+                setTargetRoi('');
+                const waxVal = parseFloat(val);
+                if (!isNaN(waxVal)) {
+                    setPackBuilder(prev => ({...prev, price: waxVal}));
+                    setPackPriceUsdStr((waxVal * waxPriceUsd).toFixed(2));
+                }
+            };
+            const handleUsdPriceChange = (val) => {
+                setTargetRoi('');
+                setPackPriceUsdStr(val); 
+                const usdVal = parseFloat(val);
+                if (!isNaN(usdVal) && waxPriceUsd > 0) {
+                    const waxVal = usdVal / waxPriceUsd;
+                    setPackBuilder(prev => ({...prev, price: waxVal}));
+                }
+            };
+            
+            // --- AUTO PACK GENERATOR ---
+            const generateAutoPack = () => {
+                const targetPriceUsd = parseFloat(autoGenOptions.budget);
+                const targetRoi = parseFloat(autoGenOptions.roi);
+                const limitBuildings = autoGenOptions.limit4;
+                const diversify = autoGenOptions.diverse;
+
+                if (!targetPriceUsd || !targetRoi || targetRoi <= 0) return;
+
+                // 1. Calculate required daily net profit in USD to meet ROI
+                // Price = Profit * ROI => Profit = Price / ROI
+                const requiredDailyProfitUsd = targetPriceUsd / targetRoi;
+
+                // 2. Prepare Candidates (Factories with positive net profit)
+                let candidates = FACTORIES.map(f => {
+                    const resPrice = marketPrices[`DOV${f.type.charAt(0)}`];
+                    const dailyProdWax = f.output * 24 * resPrice;
+                    const dailyCostWax = f.costDoVX * 24 * marketPrices.DOVX;
+                    const dailyNetWax = dailyProdWax - dailyCostWax;
+                    const dailyNetUsd = dailyNetWax * waxPriceUsd;
+                    return { ...f, dailyNetUsd };
+                }).filter(f => f.dailyNetUsd > 0);
+
+                // Sort by efficiency (Profit per Slot)? Or just highest profit?
+                // If limited slots, we want highest profit per slot.
+                candidates.sort((a, b) => b.dailyNetUsd - a.dailyNetUsd);
+
+                let selectedContents = [];
+                let currentProfit = 0;
+                let slotsUsed = 0;
+
+                // Greedy approach
+                // If diverse option is on, try to pick different types first
+                if (diversify) {
+                    // Try to pick one of each type if possible and profitable
+                    const types = ['FUEL', 'REPAIR', 'SUPPLY', 'HEALTH'];
+                    for (let type of types) {
+                         if (limitBuildings && slotsUsed >= 4) break;
+                         const bestOfType = candidates.find(c => c.type === type);
+                         if (bestOfType && (currentProfit + bestOfType.dailyNetUsd <= requiredDailyProfitUsd * 1.5)) {
+                             selectedContents.push({ factoryId: bestOfType.id, qty: 1 });
+                             currentProfit += bestOfType.dailyNetUsd;
+                             slotsUsed++;
+                         }
+                    }
+                }
+                
+                // Fill the rest
+                for (let factory of candidates) {
+                    if (currentProfit >= requiredDailyProfitUsd) break;
+                    if (limitBuildings && slotsUsed >= 4) break;
+
+                    const needed = requiredDailyProfitUsd - currentProfit;
+                    let count = Math.ceil(needed / factory.dailyNetUsd);
+
+                    if (limitBuildings) {
+                        const slotsLeft = 4 - slotsUsed;
+                        count = Math.min(count, slotsLeft);
+                    }
+                    
+                    // Add to existing or new
+                    if (count > 0) {
+                        const existingIdx = selectedContents.findIndex(i => i.factoryId === factory.id);
+                        if (existingIdx >= 0) {
+                            selectedContents[existingIdx].qty += count;
+                        } else {
+                            selectedContents.push({ factoryId: factory.id, qty: count });
+                        }
+                        currentProfit += factory.dailyNetUsd * count;
+                        slotsUsed += count;
+                    }
+                }
+
+                setPackBuilder({
+                    name: `Pack Auto ${targetRoi}j ROI ($${targetPriceUsd})`,
+                    price: targetPriceUsd / waxPriceUsd,
+                    contents: selectedContents
+                });
+                setPackPriceUsdStr(targetPriceUsd.toString());
+                setTargetRoi(targetRoi.toString()); // Lock the ROI calc display
+            };
+
+
+            useEffect(() => {
+                if (targetRoi && parseFloat(targetRoi) > 0) {
+                    const days = parseFloat(targetRoi);
+                    let dailyNetWax = 0;
+                    packBuilder.contents.forEach(item => {
+                        const factory = FACTORIES.find(f => f.id === item.factoryId);
+                        if(factory) {
+                            const prod = factory.output * 24 * marketPrices[`DOV${factory.type.charAt(0)}`] * item.qty;
+                            const cost = factory.costDoVX * 24 * marketPrices.DOVX * item.qty;
+                            dailyNetWax += (prod - cost);
+                        }
+                    });
+                    if (dailyNetWax > 0) {
+                        const newPrice = dailyNetWax * days;
+                        if(Math.abs(packBuilder.price - newPrice) > 0.01) {
+                            setPackBuilder(prev => ({...prev, price: parseFloat(newPrice.toFixed(2))}));
+                            setPackPriceUsdStr((newPrice * waxPriceUsd).toFixed(2));
+                        }
+                    }
+                }
+            }, [marketPrices, packBuilder.contents, targetRoi]);
+
+            const packStats = useMemo(() => {
+                let totalDailyProdWax = 0, totalDailyCostWax = 0;
+                packBuilder.contents.forEach(item => {
+                    const factory = FACTORIES.find(f => f.id === item.factoryId);
+                    if (factory) {
+                        totalDailyProdWax += factory.output * 24 * marketPrices[`DOV${factory.type.charAt(0)}`] * item.qty;
+                        totalDailyCostWax += factory.costDoVX * 24 * marketPrices.DOVX * item.qty;
+                    }
+                });
+                const dailyNetWax = totalDailyProdWax - totalDailyCostWax;
+                const roiDays = dailyNetWax > 0 ? (packBuilder.price / dailyNetWax) : 0;
+                return { totalDailyProdWax, totalDailyCostWax, dailyNetWax, roiDays };
+            }, [packBuilder, marketPrices]);
+
+            const productionAnalysis = useMemo(() => {
+                return FACTORIES.map(factory => {
+                    const dailyProdWax = factory.output * 24 * marketPrices[`DOV${factory.type.charAt(0)}`]; 
+                    const dailyCostWax = factory.costDoVX * 24 * marketPrices.DOVX;
+                    const dailyProfitWax = dailyProdWax - dailyCostWax;
+                    const dailyProfitUsd = dailyProfitWax * waxPriceUsd;
+                    const monthlyProdWax = dailyProdWax * 30;
+                    const monthlyCostWax = dailyCostWax * 30;
+                    const monthlyProfitWax = dailyProfitWax * 30;
+                    const monthlyProfitUsd = dailyProfitUsd * 30;
+                    const unitCost = (factory.costDoVX * marketPrices.DOVX) / factory.output;
+                    const marketPrice = marketPrices[`DOV${factory.type.charAt(0)}`];
+                    
+                    // FIX: Calculate Fair Value for Valuation Tab
+                    const fairValueWax = dailyProfitWax * roiTargetDays;
+                    const fairValueUsd = fairValueWax * waxPriceUsd;
+
+                    // NEW: Account Equivalence Logic
+                    const baseFactory = FACTORIES.find(f => f.type === factory.type && f.rarity === 'Common' && f.level === 1);
+                    const baseOutput = baseFactory ? (baseFactory.output * 24) : (factory.output * 24);
+                    
+                    const equivalentF1s = baseOutput > 0 ? (factory.output * 24) / baseOutput : 1;
+                    const accountsNeeded = equivalentF1s / 4; 
+                    
+                    // NEW: Efficiency Logic (Input Cost vs Output)
+                    // F1 Cost = 1 (Baseline)
+                    // F2 Cost = 3 F1s. F2 Output = 12.15. 3 F1 Output = 16.2. Eff = 12.15/16.2 = 75%
+                    // F5 Cost = 270 F1s. F5 Output = 1458. 270 F1 Output = 1458. Eff = 100%
+                    
+                    // Determine cost in F1s based on ID/Level
+                    let costInF1s = 1;
+                    if (factory.level === 2) costInF1s = 3;
+                    if (factory.level === 3) costInF1s = 9;
+                    if (factory.level === 4) costInF1s = 27;
+                    if (factory.level === 5) costInF1s = 270; // 10 x F4 = 10 * 27 = 270
+                    
+                    const f1DailyProd = baseFactory ? baseFactory.output * 24 : 5.4 * 24;
+                    const theoreticalMax = costInF1s * f1DailyProd;
+                    
+                    const actualOutput = factory.output * 24;
+                    const efficiency = theoreticalMax > 0 ? (actualOutput / theoreticalMax) * 100 : 0;
+
+
+                    return { 
+                        ...factory, 
+                        displayProdWax: timeframe === 'day' ? dailyProdWax : monthlyProdWax, 
+                        displayCostWax: timeframe === 'day' ? dailyCostWax : monthlyCostWax, 
+                        displayProfitWax: timeframe === 'day' ? dailyProfitWax : monthlyProfitWax, 
+                        displayProfitUsd: timeframe === 'day' ? dailyProfitUsd : monthlyProfitUsd, 
+                        displayOutput: timeframe === 'day' ? (factory.output * 24) : (factory.output * 24 * 30), 
+                        displayCostDoVX: timeframe === 'day' ? (factory.costDoVX * 24) : (factory.costDoVX * 24 * 30), 
+                        unitCost, 
+                        marketPrice, 
+                        isProfitable: dailyProfitWax > 0, 
+                        betterToBuy: unitCost > marketPrice,
+                        fairValueWax, 
+                        fairValueUsd,
+                        equivalentF1s, // Added
+                        accountsNeeded, // Added
+                        efficiency // Added
+                    };
+                });
+            }, [marketPrices, waxPriceUsd, timeframe, roiTargetDays]);
+
+            const filteredFactories = useMemo(() => {
+                if (factoryFilter === 'ALL') return productionAnalysis;
+                return productionAnalysis.filter(f => f.type === factoryFilter);
+            }, [productionAnalysis, factoryFilter]);
+
+            // HELPER to get key name from order
+            const getKeyNameFromOrder = (order) => {
+                if (order === 0) return null;
+                const key = ALL_KEYS.find(k => k.order === order);
+                return key ? key.name.replace('F1-KEY-', '').replace('F2-KEY-', '').replace('F3-KEY-', '').replace('F4-KEY-', 'Key ') : `Order ${order}`;
+            };
+            
+            const getRequiredKeyName = (order) => {
+                if (order === 0) return null;
+                const key = ALL_KEYS.find(k => k.order === order);
+                return key ? key.name : `Key Lvl ${order}`;
+            };
+
+            const zonesAnalysis = useMemo(() => {
+                return ZONES.map(z => {
+                    const costR = z.usage * marketPrices.DOVR;
+                    const costH = z.usage * marketPrices.DOVH;
+                    const costF = z.usage * marketPrices.DOVF;
+                    const costS = z.usage * marketPrices.DOVS;
+                    
+                    // Special Handling for City/Bridge with DOV-X Cost
+                    let totalCostWAX = 0;
+                    if(z.entryCostDovX) {
+                        totalCostWAX = z.entryCostDovX * marketPrices.DOVX;
+                    } else {
+                        totalCostWAX = costR + costH + costF + costS;
+                    }
+                    
+                    const rewardWAX = z.win * marketPrices.DOVX;
+                    const profitWAX = rewardWAX - totalCostWAX;
+                    const profitUSD = profitWAX * waxPriceUsd;
+                    const roi = totalCostWAX > 0 ? (profitWAX / totalCostWAX) * 100 : 0;
+                    
+                    const monthlyProfitWAX = profitWAX * 30;
+                    const monthlyProfitUSD = profitUSD * 30;
+                    
+                    return { ...z, totalCostWAX, rewardWAX, profitWAX, profitUSD, monthlyProfitWAX, monthlyProfitUSD, roi };
+                });
+            }, [marketPrices, waxPriceUsd]);
+
+            // --- ROI ADVANCED LOGIC ---
+            const advancedRoiAnalysis = useMemo(() => {
+                const checkpoints = ZONES.filter(z => z.bonusToken);
+                return checkpoints.map(z => {
+                    const baseStats = zonesAnalysis.find(za => za.id === z.id);
+                    let chestType = 'Bunker';
+                    if (z.id === 8) chestType = 'Camp';
+                    if (z.id === 12) chestType = 'Radar';
+                    if (z.id === 16) chestType = 'HQ';
+                    
+                    // ALGO: (Entry Cost * 0.25) + (Min Weight * 0.1)
+                    let tokenValWax = 0;
+                    if (z.id >= 17) {
+                         // Bridge/City Logic (100% Value)
+                         tokenValWax = (baseStats.totalCostWAX * 0.25) + (z.minWeight * 0.1);
+                    } else {
+                         // Classic Logic (1/27 Value)
+                         const estimatedChestVal = (baseStats.totalCostWAX * 27 * 0.25) + (z.minWeight * 2.7 * 0.1);
+                         tokenValWax = estimatedChestVal / 27;
+                    }
+                    
+                    const totalProfitWax = baseStats.profitWAX + tokenValWax;
+                    const totalRoi = baseStats.totalCostWAX > 0 ? (totalProfitWax / baseStats.totalCostWAX) * 100 : 0;
+                    return { ...baseStats, chestType: z.id>=17 ? 'Bridge' : chestType, tokenValWax, totalProfitWax, totalRoi, roiBoost: totalRoi - baseStats.roi };
+                });
+            }, [zonesAnalysis, chestEstimates]);
+
+            // --- ASSET VALUATION LOGIC ---
+            // ASSET VALUATION FILTER
+            const filteredAssetValuations = useMemo(() => {
+                // 1. Buildings (Uses Production Analysis with Density Premium)
+                const buildings = productionAnalysis.map(b => {
+                    // Density Premium Formula:
+                    let finalValWax = b.fairValueWax;
+                    let premiumNote = "";
+                    
+                    if (b.accountsNeeded > 1) {
+                         const savedAccounts = b.accountsNeeded - 1;
+                         const densityPremium = savedAccounts * 2000; 
+                         finalValWax += densityPremium;
+                         premiumNote = ` + Prime Densité (${savedAccounts.toFixed(1)} cptes)`;
+                    }
+
+                    return {
+                        name: b.name,
+                        type: 'Bâtiment',
+                        valueWax: finalValWax,
+                        valueUsd: finalValWax * waxPriceUsd,
+                        details: `Prod: ${(b.output * 24).toFixed(0)}/j | Eq: ${b.equivalentF1s.toFixed(1)} F1${premiumNote}`,
+                        isSupreme: b.level === 5
+                    };
+                });
+
+                // 2. Tokens (Derived from Advanced ROI Analysis)
+                const tokens = advancedRoiAnalysis.map(roi => ({
+                    name: `Token ${roi.bonusToken.replace('TOKEN-', '')}`,
+                    type: 'Token',
+                    valueWax: roi.tokenValWax,
+                    valueUsd: roi.tokenValWax * waxPriceUsd,
+                    details: `Algo: Coût + Poids`
+                }));
+
+                // 3. Keys
+                const keys = ALL_KEYS.map(k => {
+                    const targetZone = ZONES.find(z => z.keyReq === k.order);
+                    let valWax = 0;
+                    if (targetZone) {
+                        const zoneStats = zonesAnalysis.find(z => z.id === targetZone.id);
+                        if (zoneStats && zoneStats.profitWAX > 0) {
+                            valWax = zoneStats.monthlyProfitWAX * 0.20; 
+                        } else {
+                             valWax = targetZone.minWeight * 0.5;
+                        }
+                    } 
+                    return {
+                        name: k.name,
+                        type: 'Clé Tactique',
+                        valueWax: valWax,
+                        valueUsd: valWax * waxPriceUsd,
+                        details: targetZone ? `Zone ${targetZone.name}` : 'Unlock'
+                    };
+                });
+                
+                // 4. Units
+                const weightValueMultiplier = 0.1; 
+                const units = UNITS.map(u => {
+                    const dailyValue = u.baseWeight * weightValueMultiplier;
+                    const valWax = dailyValue * roiTargetDays;
+                    return {
+                        name: u.name,
+                        type: 'Unité',
+                        valueWax: valWax,
+                        valueUsd: valWax * waxPriceUsd,
+                        details: `Poids: ${u.baseWeight}`
+                    };
+                });
+
+                const allAssets = [...buildings, ...tokens, ...keys, ...units];
+
+                if (valuationFilter === 'ALL') return allAssets;
+                return allAssets.filter(a => {
+                    if (valuationFilter === 'BUILDING') return a.type === 'Bâtiment';
+                    if (valuationFilter === 'TOKEN') return a.type === 'Token';
+                    if (valuationFilter === 'KEY') return a.type === 'Clé Tactique';
+                    if (valuationFilter === 'UNIT') return a.type === 'Unité';
+                    return true;
+                });
+            }, [productionAnalysis, advancedRoiAnalysis, zonesAnalysis, roiTargetDays, waxPriceUsd, valuationFilter]);
+
+
+            // --- ACCOUNT SIMULATOR LOGIC ---
+            const accountSimStats = useMemo(() => {
+                let totalProdWax = 0;
+                let totalMaintWax = 0;
+                
+                accountBuildings.forEach(factoryId => {
+                    const factory = productionAnalysis.find(f => f.id === factoryId);
+                    if(factory) {
+                        totalProdWax += factory.displayProdWax; 
+                        totalMaintWax += factory.displayCostWax; 
+                    }
+                });
+
+                let totalCombatEntryWax = 0;
+                let totalCombatRewardWax = 0;
+                let totalCombatTokenValueWax = 0;
+
+                accountDivisions.forEach(zoneId => {
+                    const zoneStats = advancedRoiAnalysis.find(z => z.id == zoneId) || zonesAnalysis.find(z => z.id == zoneId);
+                    if(zoneStats) {
+                         totalCombatEntryWax += zoneStats.totalCostWAX;
+                         totalCombatRewardWax += zoneStats.rewardWAX;
+                         if(zoneStats.tokenValWax) totalCombatTokenValueWax += zoneStats.tokenValWax;
+                    }
+                });
+
+                const dailyNetProfitWax = (totalProdWax + totalCombatRewardWax + totalCombatTokenValueWax) - (totalMaintWax + totalCombatEntryWax);
+                const dailyNetProfitUsd = dailyNetProfitWax * waxPriceUsd;
+
+                return {
+                    totalProdWax, totalMaintWax,
+                    totalCombatEntryWax, totalCombatRewardWax, totalCombatTokenValueWax,
+                    dailyNetProfitWax, dailyNetProfitUsd
+                };
+
+            }, [accountBuildings, accountDivisions, productionAnalysis, zonesAnalysis, advancedRoiAnalysis, waxPriceUsd]);
+
+
+            const selectedZone = ZONES.find(z => z.id === parseInt(selectedZoneId));
+            const hasRequiredKey = useMemo(() => {
+                if (selectedZone.keyReq === 0) return true;
+                if (!selectedKey) return false;
+                return selectedKey.order >= selectedZone.keyReq;
+            }, [selectedZone, selectedKey]);
+            
+            const hasRequiredOfficer = useMemo(() => {
+                if (selectedZone.specificOfficer) {
+                    return selectedOfficer && selectedOfficer.id === selectedZone.specificOfficer;
+                }
+                const req = selectedZone.officerReq || 0;
+                if (req === 0) return true;
+                if (!selectedOfficer) return false;
+                return selectedOfficer.order >= req;
+            }, [selectedZone, selectedOfficer]);
+
+            const hasRequiredGodmother = useMemo(() => {
+                if (!selectedZone.godmotherReq) return true;
+                return !!selectedGodmother;
+            }, [selectedZone, selectedGodmother]);
+            
+            const missingUnits = useMemo(() => {
+                if (!selectedZone.requiredUnits) return [];
+                const missing = [];
+                selectedZone.requiredUnits.forEach(reqId => {
+                    const found = selectedSquad.find(u => u.id.startsWith(reqId));
+                    if (!found) missing.push(reqId);
+                });
+                return missing;
+            }, [selectedZone, selectedSquad]);
+
+
+            const filteredUnits = useMemo(() => {
+                if (unitRarityFilter === 'ALL') return userInventory.units;
+                return userInventory.units.filter(u => u.rarity === unitRarityFilter);
+            }, [userInventory.units, unitRarityFilter]);
+            const squadStats = useMemo(() => {
+                let totalBaseWeight = 0;
+                let totalEffectiveWeight = 0;
+                selectedSquad.forEach(unit => {
+                    totalBaseWeight += unit.baseWeight;
+                    const bonus = unit.bonuses[selectedZone.type] || 1.0;
+                    totalEffectiveWeight += (unit.baseWeight * bonus);
+                });
+                let supportBonus = 0;
+                if (selectedSupport) supportBonus = selectedSupport.bonusPct / 100;
+                const finalWeight = totalEffectiveWeight * (1 + supportBonus);
+                return { totalBaseWeight, totalEffectiveWeight, finalWeight, supportBonus };
+            }, [selectedSquad, selectedZone, selectedSupport]);
+
+            const combatROI = useMemo(() => {
+                const costR = selectedZone.usage * marketPrices.DOVR;
+                const costH = selectedZone.usage * marketPrices.DOVH;
+                const costF = selectedZone.usage * marketPrices.DOVF;
+                const costS = selectedZone.usage * marketPrices.DOVS;
+                
+                let totalCostWAX = 0;
+                if (selectedZone.entryCostDovX) {
+                    totalCostWAX = selectedZone.entryCostDovX * marketPrices.DOVX;
+                } else {
+                    totalCostWAX = costR + costH + costF + costS;
+                }
+
+                const rewardWAX = selectedZone.win * marketPrices.DOVX;
+                const profitWAX = rewardWAX - totalCostWAX;
+                const totalCostUsd = totalCostWAX * waxPriceUsd;
+                const rewardUsd = rewardWAX * waxPriceUsd;
+                const profitUsd = profitWAX * waxPriceUsd;
+                const monthlyProfitWax = profitWAX * 30;
+                const monthlyProfitUsd = profitUsd * 30;
+                return { totalCostWAX, rewardWAX, profitWAX, totalCostUsd, rewardUsd, profitUsd, monthlyProfitWax, monthlyProfitUsd, roiPercent: totalCostWAX > 0 ? ((profitWAX / totalCostWAX) * 100).toFixed(2) : "0.00" };
+            }, [selectedZone, marketPrices, waxPriceUsd]);
+
+            const toggleUnit = (unit) => {
+                if (selectedSquad.find(u => u.id === unit.id)) {
+                    setSelectedSquad(selectedSquad.filter(u => u.id !== unit.id));
+                } else {
+                    if (selectedSquad.length < 10) setSelectedSquad([...selectedSquad, unit]);
+                }
+            };
+
+            const handleAutoBuild = () => {
+                const zone = ZONES.find(z => z.id === parseInt(selectedZoneId));
+                if (!zone) return;
+                
+                // 1. Mandatory Slots
+                if (zone.keyReq > 0) { const neededKey = userInventory.keys.find(k => k.order >= zone.keyReq); if (neededKey) setSelectedKey(neededKey); }
+                
+                // Officer Logic
+                if (zone.specificOfficer) {
+                     const specOff = userInventory.officers.find(o => o.id === zone.specificOfficer);
+                     if (specOff) setSelectedOfficer(specOff);
+                } else {
+                    const highestOfficer = [...userInventory.officers].sort((a, b) => b.order - a.order)[0];
+                    if (highestOfficer) setSelectedOfficer(highestOfficer);
+                }
+
+                if (zone.godmotherReq) {
+                    if (userInventory.godmothers.length > 0) setSelectedGodmother(userInventory.godmothers[0]);
+                } else {
+                    if (userInventory.godmothers.length > 0) setSelectedGodmother(userInventory.godmothers[0]);
+                }
+
+                const bestSupport = [...userInventory.supports].sort((a, b) => b.bonusPct - a.bonusPct)[0];
+                if (bestSupport) setSelectedSupport(bestSupport);
+
+                let newSquad = [];
+                let currentSlots = 0;
+                let currentWeight = 0;
+
+                // 2a. Prerequisite Unit (Old Logic)
+                if (zone.unitReq) {
+                    const prereqUnit = userInventory.units.find(u => u.baseId === zone.unitReq || u.id.startsWith(zone.unitReq));
+                    if (prereqUnit) {
+                        newSquad.push(prereqUnit);
+                        const bonus = prereqUnit.bonuses[zone.type] || 0;
+                        currentWeight += prereqUnit.baseWeight * bonus;
+                        currentSlots++;
+                    }
+                }
+                
+                // 2b. New Required Units Logic (Array)
+                if (zone.requiredUnits) {
+                    zone.requiredUnits.forEach(reqId => {
+                         const unit = userInventory.units.find(u => u.baseId === reqId || u.id.startsWith(reqId));
+                         if (unit && currentSlots < 10) {
+                             newSquad.push(unit);
+                             const bonus = unit.bonuses[zone.type] || 0;
+                             currentWeight += unit.baseWeight * bonus;
+                             currentSlots++; 
+                         }
+                    });
+                }
+
+                // 2c. Fill remaining slots
+                const candidates = userInventory.units.map(u => { const bonus = u.bonuses[zone.type] || 0; return { ...u, effectiveW: u.baseWeight * bonus }; });
+                candidates.sort((a, b) => b.effectiveW - a.effectiveW);
+                for (let unit of candidates) {
+                    if (currentSlots >= 10) break;
+                    if (unit.effectiveW <= 0.01) continue;
+                    
+                    if (currentWeight >= zone.minWeight * 1.05) break;
+                    newSquad.push(unit);
+                    currentWeight += unit.effectiveW;
+                    currentSlots++;
+                }
+                setSelectedSquad(newSquad);
+            };
+
+            const switchToDetailMode = (zoneId) => {
+                setSelectedZoneId(zoneId);
+                setViewMode('builder');
+                setSelectedSquad([]); setSelectedKey(null); setSelectedOfficer(null); setSelectedGodmother(null); setSelectedSupport(null);
+            };
+
+            return (
+                <div className="p-4 md:p-8">
+                <header className="flex flex-col xl:flex-row justify-between items-center mb-8 border-b border-slate-700 pb-4 gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-blue-600 p-2 rounded-lg"><Shield size={32} className="text-white" /></div>
+                        <div><h1 className="text-2xl font-bold tracking-wider text-white">DoV <span className="text-blue-400">COMMANDER</span></h1><p className="text-slate-400 text-sm">Optimiseur Tactique & Financier</p></div>
+                    </div>
+                    <div className="flex flex-wrap gap-4 bg-slate-800 p-3 rounded-lg border border-slate-700 text-sm justify-center items-end">
+                        <div className="flex flex-col"><span className="text-xs text-green-400 font-bold mb-1">Prix WAX ($)</span><div className="relative"><span className="absolute left-2 top-1.5 text-slate-500">$</span><input type="number" value={waxPriceUsd} step="0.001" onChange={(e) => handleGlobalWaxPriceChange(e.target.value)} className="bg-slate-700 text-white w-20 pl-5 pr-2 py-1 rounded border border-slate-600 focus:outline-none focus:border-blue-500"/></div></div>
+                        <div className="w-px bg-slate-600 h-8 mx-2 hidden md:block self-center"></div>
+                        <div className="flex flex-col"><span className="text-xs text-slate-400 mb-1">DOV-X (WAX)</span><input type="number" step="0.0001" value={dovxInputStr} onChange={(e) => handleManualDovxChange(e.target.value)} className="bg-slate-700 text-yellow-400 w-24 px-2 py-1 rounded border border-slate-600 focus:outline-none focus:border-blue-500"/></div>
+                        <div className="flex flex-col w-32 md:w-48 px-2"><span className="text-[10px] text-blue-300 font-bold mb-1 flex justify-between"><span>SIMULATION DOVX</span><span>{marketPrices.DOVX.toFixed(3)}</span></span><input type="range" min="0" max="2" step="0.001" value={marketPrices.DOVX} onChange={handleSimulationSlider} className="accent-blue-500" /></div>
+                        <div className="flex flex-col"><span className="text-xs text-slate-400 mb-1">Ressources (WAX)</span><input type="number" step="0.000001" value={tuInputStr} onChange={(e) => handleManualTuChange(e.target.value)} className="bg-slate-700 text-blue-400 w-24 px-2 py-1 rounded border border-slate-600 focus:outline-none focus:border-blue-500" /></div>
+                    </div>
+                </header>
+
+                <div className="flex gap-4 mb-6 overflow-x-auto pb-2">
+                    <button onClick={() => setActiveTab('account_sim')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'account_sim' ? 'bg-orange-600 text-white shadow-lg shadow-orange-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Briefcase size={18} /> 🏢 COMPTE COMPLET</button>
+                    <button onClick={() => setActiveTab('combat')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'combat' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Crosshair size={18} /> tableau de bord STRATÉGIQUE</button>
+                    <button onClick={() => setActiveTab('production')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'production' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><FactoryIcon size={18} /> analyse PRODUCTION</button>
+                    <button onClick={() => setActiveTab('packs')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'packs' ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Package size={18} /> créateur de PACK</button>
+                    <button onClick={() => setActiveTab('chests')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'chests' ? 'bg-yellow-600 text-white shadow-lg shadow-yellow-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Gift size={18} /> simulateur COFFRES</button>
+                    <button onClick={() => setActiveTab('zone_roi_advanced')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'zone_roi_advanced' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Diamond size={18} /> ROI AVANCÉ (TOKENS)</button>
+                    <button onClick={() => setActiveTab('valuation')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'valuation' ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Scale size={18} /> VALORISATION ACTIFS</button>
+                </div>
+
+                {/* --- TAB: ACCOUNT SIMULATOR (New) --- */}
+                {activeTab === 'account_sim' && (
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            
+                            {/* LEFT: BUILDINGS CONFIG */}
+                            <Card>
+                                <h3 className="text-lg font-bold text-orange-400 mb-4 flex items-center gap-2"><FactoryIcon size={20} /> Configuration Production (Max 4)</h3>
+                                <div className="space-y-3">
+                                    {accountBuildings.map((bId, idx) => (
+                                        <div key={idx} className="flex gap-2 items-center">
+                                            <span className="text-xs text-slate-500 w-6">#{idx+1}</span>
+                                            <select 
+                                                value={bId} 
+                                                onChange={(e) => {
+                                                    const newBuilds = [...accountBuildings];
+                                                    newBuilds[idx] = e.target.value;
+                                                    setAccountBuildings(newBuilds);
+                                                }}
+                                                className="flex-1 bg-slate-900 border border-slate-700 rounded p-2 text-sm focus:outline-none focus:border-orange-500"
+                                            >
+                                                {FACTORIES.map(f => (
+                                                    <option key={f.id} value={f.id}>{f.name} (+{(f.output*24).toFixed(0)}/j)</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="mt-4 pt-4 border-t border-slate-700 grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <div className="text-slate-400 text-xs">Production Totale /j</div>
+                                        <div className="text-emerald-400 font-mono font-bold">
+                                            {accountSimStats.totalProdWax.toFixed(2)} WAX
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-slate-400 text-xs">Coût Maintenance /j</div>
+                                        <div className="text-red-400 font-mono font-bold">
+                                            -{accountSimStats.totalMaintWax.toFixed(2)} WAX
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
+
+                            {/* RIGHT: DIVISIONS CONFIG */}
+                            <Card>
+                                <h3 className="text-lg font-bold text-blue-400 mb-4 flex items-center gap-2"><Crosshair size={20} /> Configuration Combat (3 Divisions)</h3>
+                                <div className="space-y-3">
+                                    {accountDivisions.map((zId, idx) => (
+                                        <div key={idx} className="flex gap-2 items-center">
+                                            <span className="text-xs text-slate-500 w-12">Div {idx+1}</span>
+                                            <select 
+                                                value={zId} 
+                                                onChange={(e) => {
+                                                    const newDivs = [...accountDivisions];
+                                                    newDivs[idx] = parseInt(e.target.value);
+                                                    setAccountDivisions(newDivs);
+                                                }}
+                                                className="flex-1 bg-slate-900 border border-slate-700 rounded p-2 text-sm focus:outline-none focus:border-blue-500"
+                                            >
+                                                {ZONES.map(z => (
+                                                    <option key={z.id} value={z.id}>{z.name} (Win: {z.win})</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="mt-4 pt-4 border-t border-slate-700 grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <div className="text-slate-400 text-xs">Coût Combats /j</div>
+                                        <div className="text-red-400 font-mono font-bold">
+                                            -{accountSimStats.totalCombatEntryWax.toFixed(2)} WAX
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-slate-400 text-xs">Gains (DOV-X + Tokens) /j</div>
+                                        <div className="text-emerald-400 font-mono font-bold">
+                                            +{(accountSimStats.totalCombatRewardWax + accountSimStats.totalCombatTokenValueWax).toFixed(2)} WAX
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
+                        </div>
+
+                        {/* BOTTOM: TOTAL SUMMARY */}
+                        <Card className="border-t-4 border-t-emerald-500 bg-slate-800/80">
+                            <div className="text-center mb-2 text-emerald-400 font-bold tracking-widest text-sm uppercase">Bilan Journalier Consolidé</div>
+                            <div className="flex justify-center items-center gap-8">
+                                <div>
+                                    <div className="text-4xl font-bold text-white mb-1 font-mono">
+                                        {accountSimStats.dailyNetProfitWax > 0 ? "+" : ""}{accountSimStats.dailyNetProfitWax.toFixed(2)} WAX
+                                    </div>
+                                    <div className="text-sm text-slate-400">Profit Net / Jour</div>
+                                </div>
+                                <div className="h-12 w-px bg-slate-700"></div>
+                                <div>
+                                    <div className="text-4xl font-bold text-emerald-400 mb-1 font-mono">
+                                        ${accountSimStats.dailyNetProfitUsd.toFixed(2)}
+                                    </div>
+                                    <div className="text-sm text-slate-400">Valeur USD / Jour</div>
+                                </div>
+                            </div>
+                            <div className="mt-4 text-center text-xs text-slate-500 italic">
+                                Inclut : Production + Maintenance - Coût Entrée Zones + Rewards DOV-X + Valeur Estimée Tokens (Algorithmique)
+                            </div>
+                        </Card>
+                    </div>
+                )}
+
+
+                {/* --- TAB: ZONE ROI ADVANCED (Restored) --- */}
+                {activeTab === 'zone_roi_advanced' && (
+                    <div className="space-y-6">
+                        <Card>
+                            <h3 className="text-lg font-bold text-indigo-400 mb-6 flex items-center gap-2"><Diamond size={20} /> Rentabilité Avancée : Impact des Reward Tokens</h3>
+                            
+                            <div className="p-4 bg-indigo-900/10 rounded border border-indigo-700/30 mb-6 text-sm text-indigo-200">
+                                <p><strong>ℹ️ Note :</strong> La valeur des Tokens est désormais calculée <strong>dynamiquement</strong> par l'algorithme "Fair Value".</p>
+                                <p className="mt-1 opacity-70">Formule : (Coût d'Entrée × 25%) + (Difficulté Poids × 0.1 WAX)</p>
+                            </div>
+
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="text-slate-400 border-b border-slate-700 text-xs uppercase bg-slate-800/50">
+                                            <th className="p-3">Zone Checkpoint</th>
+                                            <th className="p-3 text-right">Coût Entrée</th>
+                                            <th className="p-3 text-right">Gain DOV-X</th>
+                                            <th className="p-3 text-right text-indigo-300">+ Gain Token (1u)</th>
+                                            <th className="p-3 text-right font-bold text-white">Profit Total</th>
+                                            <th className="p-3 text-center">ROI Boosté</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="text-sm">
+                                        {advancedRoiAnalysis.map(z => (
+                                            <tr key={z.id} className="border-b border-slate-700 hover:bg-slate-800/50 transition-colors">
+                                                <td className="p-3 font-bold text-white">
+                                                    <div>{z.name}</div>
+                                                    <div className="text-[10px] text-slate-500 uppercase">{z.bonusToken.replace('TOKEN-', '')} TOKEN DROP</div>
+                                                </td>
+                                                <td className="p-3 text-right font-mono text-red-400">
+                                                    -{z.totalCostWAX.toFixed(2)} W
+                                                </td>
+                                                <td className="p-3 text-right font-mono text-emerald-400">
+                                                    +{z.rewardWAX.toFixed(2)} W
+                                                </td>
+                                                <td className="p-3 text-right font-mono text-indigo-300 bg-indigo-900/10">
+                                                    +{z.tokenValWax.toFixed(2)} W
+                                                </td>
+                                                <td className="p-3 text-right font-mono font-bold">
+                                                    <div className={z.totalProfitWax > 0 ? "text-emerald-400" : "text-red-400"}>
+                                                        {z.totalProfitWax > 0 ? "+" : ""}{z.totalProfitWax.toFixed(2)} W
+                                                    </div>
+                                                    <div className="text-[10px] opacity-70">${(z.totalProfitWax * waxPriceUsd).toFixed(2)}</div>
+                                                </td>
+                                                <td className="p-3 text-center">
+                                                    <div className={`px-2 py-1 rounded text-xs font-bold inline-block ${z.totalRoi > 0 ? "bg-emerald-900/50 text-emerald-300" : "bg-red-900/50 text-red-300"}`}>
+                                                        {z.totalRoi.toFixed(1)}%
+                                                    </div>
+                                                    {z.roiBoost > 0 && <div className="text-[10px] text-indigo-400 mt-1">+{z.roiBoost.toFixed(1)}% boost</div>}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </Card>
+                    </div>
+                )}
+
+                {/* --- TAB: VALUATION (New) --- */}
+                {activeTab === 'valuation' && (
+                    <div className="space-y-6">
+                        <Card>
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                                <div>
+                                    <h3 className="text-lg font-bold text-cyan-400 mb-1 flex items-center gap-2"><Scale size={20} /> Valorisation "Fair Value" des Actifs</h3>
+                                    <p className="text-slate-400 text-sm">Calcul basé sur le rendement et l'utilité théorique sur une période donnée.</p>
+                                </div>
+                                <div className="flex items-center gap-2 bg-slate-900 p-2 rounded-lg border border-slate-700">
+                                    <span className="text-xs text-slate-400">ROI Cible (Jours) :</span>
+                                    <input 
+                                        type="number" 
+                                        value={roiTargetDays}
+                                        onChange={(e) => setRoiTargetDays(parseInt(e.target.value) || 30)}
+                                        className="w-16 bg-slate-800 border border-slate-600 rounded text-center text-sm focus:outline-none focus:border-cyan-500"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700 mb-4">
+                                <button onClick={() => setValuationFilter('ALL')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'ALL' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'}`}>TOUT</button>
+                                <button onClick={() => setValuationFilter('BUILDING')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'BUILDING' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>BÂTIMENTS</button>
+                                <button onClick={() => setValuationFilter('TOKEN')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'TOKEN' ? 'bg-yellow-600 text-white' : 'text-slate-400 hover:text-white'}`}>TOKENS</button>
+                                <button onClick={() => setValuationFilter('KEY')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'KEY' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>CLÉS</button>
+                                <button onClick={() => setValuationFilter('UNIT')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'UNIT' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}>UNITÉS</button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {/* LISTING */}
+                                <div className="col-span-2">
+                                    <div className="overflow-x-auto max-h-[600px]">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead className="sticky top-0 bg-slate-800 z-10 shadow-lg">
+                                                <tr className="text-slate-400 border-b border-slate-700 text-xs uppercase">
+                                                    <th className="p-3">Nom de l'Actif</th>
+                                                    <th className="p-3">Type</th>
+                                                    <th className="p-3 text-right">Valeur Théorique (WAX)</th>
+                                                    <th className="p-3 text-right">Valeur Théorique ($)</th>
+                                                    <th className="p-3">Détails Calcul</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="text-sm">
+                                                {filteredAssetValuations.map((asset, idx) => (
+                                                    <tr key={idx} className="border-b border-slate-700 hover:bg-slate-700/30 transition-colors">
+                                                        <td className="p-3 font-bold text-white flex items-center gap-2">
+                                                            {asset.name}
+                                                            {asset.isSupreme && <span className="bg-indigo-500 text-white text-[10px] px-1 rounded">💎 GAME CHANGER</span>}
+                                                        </td>
+                                                        <td className="p-3">
+                                                            <span className={`px-2 py-1 rounded text-xs border ${
+                                                                asset.type === 'Bâtiment' ? 'bg-blue-900/30 text-blue-300 border-blue-800' :
+                                                                asset.type === 'Token' ? 'bg-yellow-900/30 text-yellow-300 border-yellow-800' :
+                                                                asset.type === 'Clé Tactique' ? 'bg-purple-900/30 text-purple-300 border-purple-800' :
+                                                                'bg-emerald-900/30 text-emerald-300 border-emerald-800'
+                                                            }`}>
+                                                                {asset.type}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-3 text-right font-mono text-cyan-300 font-bold">{asset.valueWax.toFixed(2)} W</td>
+                                                        <td className="p-3 text-right font-mono text-slate-300">${asset.valueUsd.toFixed(2)}</td>
+                                                        <td className="p-3 text-xs text-slate-500 italic">{asset.details}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+                )}
+                
+                {/* COMBAT AND OTHER TABS RENDERED BELOW... (Kept for brevity, assumes standard implementation) */}
+                {activeTab === 'combat' && (
+                    <div>
+                        {viewMode === 'dashboard' ? (
+                            <div className="space-y-6">
+                                <div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700 w-fit">
+                                    {[1, 2, 3].map(div => (<button key={div} onClick={() => setActiveDivision(div)} className={`px-4 py-2 rounded text-sm font-bold transition-all ${activeDivision === div ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>Division {div}</button>))}
+                                </div>
+                                <Card>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead>
+                                                <tr className="text-slate-400 border-b border-slate-700 text-xs uppercase bg-slate-800/50">
+                                                    <th className="p-3">Zone</th><th className="p-3">Prérequis (Gatekeepers)</th><th className="p-3 text-right">Poids Min</th><th className="p-3 text-right">Coût Entrée</th><th className="p-3 text-right">Gain (Win)</th><th className="p-3 text-right">Profit / Combat</th><th className="p-3 text-right text-purple-300">Profit / Mois (x30)</th><th className="p-3 text-center">ROI</th><th className="p-3 text-center">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="text-sm">
+                                                {zonesAnalysis.map(z => (
+                                                    <tr key={z.id} className="border-b border-slate-700 hover:bg-slate-800/50 transition-colors">
+                                                        <td className="p-3 font-bold text-white"><div>{z.name}</div><div className="text-[10px] text-slate-500 uppercase">{z.type}</div></td>
+                                                        <td className="p-3">
+                                                            <div className="flex gap-2 flex-wrap max-w-xs">
+                                                                {z.keyReq > 0 && <div title={`Clé requise : ${getRequiredKeyName(z.keyReq)}`} className="flex items-center gap-1 bg-purple-900/40 text-purple-300 px-2 py-1 rounded text-xs border border-purple-800"><KeyIcon size={12}/> {getRequiredKeyName(z.keyReq).replace('F1-KEY-', '').replace('F2-KEY-', '').replace('F3-KEY-', '').replace('F4-KEY-', '')} ou +</div>}
+                                                                {z.officerReq > 0 && <div title={`Officier Niveau ${z.officerReq} requis`} className="flex items-center gap-1 bg-blue-900/40 text-blue-300 px-2 py-1 rounded text-xs border border-blue-800"><Users size={12}/> Lvl {z.officerReq}</div>}
+                                                                {z.godmotherReq && <div title="Godmother requise" className="flex items-center gap-1 bg-pink-900/40 text-pink-300 px-2 py-1 rounded text-xs border border-pink-800"><Heart size={12}/> GM</div>}
+                                                                {z.unitReq && <div title="Unité Spéciale requise" className="flex items-center gap-1 bg-yellow-900/40 text-yellow-300 px-2 py-1 rounded text-xs border border-yellow-800"><Shield size={12}/> Unit</div>}
+                                                                {z.requiredUnits && z.requiredUnits.length > 0 && <div title="Unités Spécifiques requises" className="flex items-center gap-1 bg-orange-900/40 text-orange-300 px-2 py-1 rounded text-xs border border-orange-800"><Shield size={12}/> {z.requiredUnits.length} Spec.</div>}
+                                                                {z.bonusToken && <div title={`Bonus Token: ${z.bonusToken}`} className="flex items-center gap-1 bg-yellow-600/40 text-yellow-200 px-2 py-1 rounded text-xs border border-yellow-500"><Gift size={12}/> Token</div>}
+                                                                {z.keyReq===0 && z.officerReq===0 && <span className="text-slate-600 text-xs">- Aucun -</span>}
+                                                            </div>
+                                                        </td>
+                                                        <td className="p-3 text-right font-mono text-slate-300">{z.minWeight}</td>
+                                                        <td className="p-3 text-right font-mono text-red-400">
+                                                            {z.totalCostWAX.toFixed(2)} W
+                                                            <div className="text-[10px] opacity-70">${(z.totalCostWAX * waxPriceUsd).toFixed(2)}</div>
+                                                            <div className="text-[10px] text-slate-400 mt-1">{z.entryCostDovX ? `${z.entryCostDovX.toLocaleString()} DOV-X` : `${z.usage.toLocaleString()} TU x4`}</div>
+                                                        </td>
+                                                        <td className="p-3 text-right font-mono text-emerald-400">
+                                                            {z.rewardWAX.toFixed(2)} W
+                                                            <div className="text-[10px] opacity-70">${(z.rewardWAX * waxPriceUsd).toFixed(2)}</div>
+                                                            {z.bonusToken && <div className="text-[10px] text-yellow-500 mt-1">+ {z.bonusToken.replace('F1-TOKEN-', '')}</div>}
+                                                        </td>
+                                                        
+                                                        {/* Profit / Combat */}
+                                                        <td className="p-3 text-right font-bold font-mono">
+                                                            <div className={z.profitWAX > 0 ? "text-emerald-500" : "text-red-500"}>
+                                                                {z.profitWAX > 0 ? "+" : ""}{z.profitWAX.toFixed(2)} W
+                                                            </div>
+                                                            <div className="text-[10px] opacity-70">
+                                                                ${z.profitUSD.toFixed(2)}
+                                                            </div>
+                                                        </td>
+
+                                                        {/* Profit / Mois */}
+                                                        <td className="p-3 text-right font-bold font-mono bg-slate-800/30">
+                                                            <div className={z.monthlyProfitWAX > 0 ? "text-purple-400" : "text-red-400"}>
+                                                                {z.monthlyProfitWAX > 0 ? "+" : ""}{z.monthlyProfitWAX.toLocaleString(undefined, {maximumFractionDigits: 0})} W
+                                                            </div>
+                                                            <div className="text-[10px] opacity-70">
+                                                                ${z.monthlyProfitUSD.toFixed(2)}
+                                                            </div>
+                                                        </td>
+
+                                                        <td className="p-3 text-center"><span className={`px-2 py-1 rounded text-xs font-bold ${z.roi > 0 ? "bg-emerald-900/50 text-emerald-300" : "bg-red-900/50 text-red-300"}`}>{z.roi.toFixed(1)}%</span></td>
+                                                        <td className="p-3 text-center"><button onClick={() => switchToDetailMode(z.id)} className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded text-xs flex items-center gap-1 mx-auto">PRÉPARER <ChevronRight size={12}/></button></td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </Card>
+                            </div>
+                        ) : (
+                            /* DETAIL BUILDER VIEW */
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <div className="col-span-3 mb-2 flex items-center gap-4">
+                                    <button onClick={() => setViewMode('dashboard')} className="flex items-center gap-2 text-slate-400 hover:text-white font-bold text-sm"><ArrowLeft size={16}/> Retour Tableau de Bord</button>
+                                    <div className="h-6 w-px bg-slate-700"></div>
+                                    <h2 className="text-xl font-bold text-white flex items-center gap-2"><Crosshair size={24} className="text-blue-500"/> Préparation : <span className="text-blue-400">{selectedZone.name}</span></h2>
+                                </div>
+                                <div className="space-y-6">
+                                    <Card>
+                                        <h3 className="text-lg font-bold text-yellow-300 mb-4 flex items-center gap-2"><Users size={20} /> État Major</h3>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className={`text-xs uppercase font-bold mb-1 flex items-center gap-1 ${selectedZone.officerReq > 0 ? (hasRequiredOfficer ? 'text-green-400' : 'text-red-400') : 'text-slate-400'}`}>Officier {selectedZone.officerReq > 0 ? `(Req Lvl ${selectedZone.officerReq})` : '(Optionnel)'}</label>
+                                                {selectedZone.specificOfficer && <div className="text-[10px] text-orange-400 mb-1">Spécifique Requis : {selectedZone.specificOfficer}</div>}
+                                                <select className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm focus:outline-none focus:border-blue-500" onChange={(e) => setSelectedOfficer(userInventory.officers.find(o => o.id === e.target.value))} value={selectedOfficer?.id || ''}>
+                                                    <option value="">-- Choisir Officier --</option>
+                                                    {userInventory.officers.map(off => <option key={off.id} value={off.id}>{off.name} (Lvl {off.order})</option>)}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className={`text-xs uppercase font-bold mb-1 flex items-center gap-1 ${selectedZone.keyReq > 0 ? (hasRequiredKey ? 'text-green-400' : 'text-red-400') : 'text-purple-400'}`}>
+                                                    <KeyIcon size={12}/> Slot Tactique {selectedZone.keyReq > 0 ? `(${getRequiredKeyName(selectedZone.keyReq)} ou +)` : '(Optionnel)'}
+                                                </label>
+                                                <select className="w-full bg-slate-900 border border-purple-500/50 rounded p-2 text-sm focus:outline-none focus:border-purple-500" onChange={(e) => setSelectedKey(userInventory.keys.find(k => k.id === e.target.value))} value={selectedKey?.id || ''}>
+                                                    <option value="">-- Sélectionner Clé --</option>
+                                                    {userInventory.keys.map(k => <option key={k.id} value={k.id}>{k.name} (Lvl {k.order})</option>)}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className={`text-xs uppercase font-bold mb-1 flex items-center gap-1 ${selectedZone.godmotherReq ? (hasRequiredGodmother ? 'text-green-400' : 'text-red-400') : 'text-pink-400'}`}><Heart size={12}/> Godmother {selectedZone.godmotherReq ? '(OBLIGATOIRE)' : '(Optionnel)'}</label>
+                                                <select className="w-full bg-slate-900 border border-pink-500/50 rounded p-2 text-sm focus:outline-none focus:border-pink-500" onChange={(e) => setSelectedGodmother(userInventory.godmothers.find(k => k.id === e.target.value))} value={selectedGodmother?.id || ''}>
+                                                    <option value="">-- Sélectionner Godmother --</option>
+                                                    {userInventory.godmothers.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-slate-400 uppercase font-bold mb-1 block">Support (Optionnel)</label>
+                                                <select className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm focus:outline-none focus:border-blue-500" onChange={(e) => setSelectedSupport(userInventory.supports.find(s => s.id === e.target.value))} value={selectedSupport?.id || ''}>
+                                                    <option value="">-- Choisir Support --</option>
+                                                    {userInventory.supports.map(sup => <option key={sup.id} value={sup.id}>{sup.name} (+{sup.bonusPct}%)</option>)}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                </div>
+                                <div className="space-y-6">
+                                    <Card className="h-full">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="text-lg font-bold text-emerald-300 flex items-center gap-2"><Shield size={20} /> Armée ({selectedSquad.length}/10)</h3>
+                                        <div className="flex bg-slate-900 rounded p-1">
+                                            {['ALL', 'Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'].map(r => (
+                                                <button key={r} onClick={() => setUnitRarityFilter(r)} className={`px-2 py-1 text-[10px] rounded ${unitRarityFilter === r ? 'bg-emerald-700 text-white' : 'text-slate-500 hover:text-white'}`}>{r.substring(0,3)}</button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <button onClick={handleAutoBuild} className="w-full mb-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-2 px-4 rounded shadow-lg flex items-center justify-center gap-2 text-sm"><Zap size={16} /> ⚡ AUTO-BUILD (OPTIMISÉ)</button>
+                                    
+                                    {selectedZone.requiredUnits && (
+                                        <div className="mb-2 p-2 bg-orange-900/30 border border-orange-700/50 rounded text-xs text-orange-200">
+                                            <div className="font-bold mb-1">Unités Spéciales Requises :</div>
+                                            <div className="flex flex-wrap gap-1">
+                                                {selectedZone.requiredUnits.map(req => (
+                                                    <span key={req} className={`px-1 rounded ${missingUnits.includes(req) ? 'bg-red-500/50 text-white' : 'bg-green-500/50 text-white'}`}>{req}</span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="space-y-3 max-h-[450px] overflow-y-auto pr-2">
+                                        {filteredUnits.map(unit => {
+                                        const bonus = unit.bonuses[selectedZone.type] || 0;
+                                        const effectiveW = unit.baseWeight * bonus;
+                                        const isSelected = !!selectedSquad.find(u => u.id === unit.id);
+                                        return (
+                                            <div key={unit.id} onClick={() => toggleUnit(unit)} className={`p-3 rounded border cursor-pointer transition-all relative ${isSelected ? 'bg-emerald-900/30 border-emerald-500' : 'bg-slate-900 border-slate-700 hover:border-slate-500'}`}>
+                                            <div className="flex justify-between items-start">
+                                                <div><div className="font-bold text-sm">{unit.name}</div><div className="text-xs text-slate-400">{unit.type} | {unit.rarity}</div></div>
+                                                <div className="text-right">
+                                                <div className={`font-mono font-bold ${bonus < 0.5 ? 'text-red-400' : bonus >= 1 ? 'text-emerald-400' : 'text-yellow-400'}`}>{effectiveW.toFixed(2)} pts</div>
+                                                <div className="text-[10px] text-slate-500">Base: {unit.baseWeight.toFixed(1)} x {Math.round(bonus * 100)}%</div>
+                                                </div>
+                                            </div>
+                                            {bonus < 0.5 && (<div className="absolute top-1 right-1"><AlertTriangle size={12} className="text-red-500" /></div>)}
+                                            </div>
+                                        );
+                                        })}
+                                    </div>
+                                    </Card>
+                                </div>
+                                <div className="space-y-6">
+                                    <Card className="border-t-4 border-t-blue-500">
+                                    <h3 className="text-lg font-bold text-white mb-4">Analyse Tactique</h3>
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between items-center border-b border-slate-700 pb-2"><span className="text-sm text-slate-400">Accès Zone (Key)</span>{hasRequiredKey ? <Badge color="green">AUTORISÉ</Badge> : <Badge color="red">VERROUILLÉ</Badge>}</div>
+                                        <div className="flex justify-between items-center border-b border-slate-700 pb-2"><span className="text-sm text-slate-400">Commandement</span>{hasRequiredOfficer ? <Badge color="green">PRÊT</Badge> : <Badge color="red">OFFICIER REQUIS</Badge>}</div>
+                                        <div className="flex justify-between items-center border-b border-slate-700 pb-2"><span className="text-sm text-slate-400">Godmother</span>{hasRequiredGodmother ? <Badge color="green">OK</Badge> : <Badge color="red">REQUISE</Badge>}</div>
+                                        {selectedZone.requiredUnits && <div className="flex justify-between items-center border-b border-slate-700 pb-2"><span className="text-sm text-slate-400">Unités Spéciales</span>{missingUnits.length === 0 ? <Badge color="green">COMPLET</Badge> : <Badge color="red">MANQUANTES</Badge>}</div>}
+                                        <div className="bg-slate-900 p-3 rounded border border-slate-700">
+                                        <div className="flex justify-between text-sm mb-1"><span className="text-slate-400">Poids Requis (Win)</span><span className="font-mono text-white">{selectedZone.minWeight.toFixed(2)}</span></div>
+                                        <div className="flex justify-between text-lg font-bold mb-2"><span className={squadStats.finalWeight >= selectedZone.minWeight ? "text-emerald-400" : "text-red-400"}>Puissance Totale</span><span className="font-mono text-white">{squadStats.finalWeight.toFixed(2)}</span></div>
+                                        <div className="w-full bg-slate-700 h-2 rounded-full overflow-hidden"><div className={`h-full ${squadStats.finalWeight >= selectedZone.minWeight ? 'bg-emerald-500' : 'bg-red-500'}`} style={{ width: `${Math.min((squadStats.finalWeight / selectedZone.minWeight) * 100, 100)}%` }}></div></div>
+                                        </div>
+                                        <div className="mt-4 text-center">
+                                        {!hasRequiredKey ? (<div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 font-bold flex items-center justify-center gap-2"><Lock size={18} /> CLÉ TACTIQUE REQUISE</div>) : !hasRequiredOfficer ? (<div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 font-bold flex items-center justify-center gap-2"><Users size={18} /> OFFICIER REQUIS</div>) : !hasRequiredGodmother ? (<div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 font-bold flex items-center justify-center gap-2"><Heart size={18} /> GODMOTHER REQUISE</div>) : missingUnits.length > 0 ? (<div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 font-bold flex items-center justify-center gap-2"><Shield size={18} /> UNITÉS MANQUANTES</div>) : squadStats.finalWeight >= selectedZone.minWeight ? (<div className="p-3 bg-emerald-900/50 border border-emerald-500 rounded text-emerald-200 font-bold flex items-center justify-center gap-2"><CheckCircle size={18} /> VICTOIRE ASSURÉE</div>) : (<div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 font-bold flex items-center justify-center gap-2"><AlertTriangle size={18} /> DÉFAITE PROBABLE</div>)}
+                                        </div>
+                                    </div>
+                                    </Card>
+                                    <Card className="border-t-4 border-t-yellow-500">
+                                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><DollarSign size={20} /> Rentabilité / Combat</h3>
+                                    <div className="space-y-3 text-sm">
+                                        <div className="grid grid-cols-2 gap-4">
+                                        <div><span className="text-slate-400 text-xs block">COÛT RESSOURCES</span><div className="text-red-400 font-mono">-{combatROI.totalCostWAX.toFixed(2)} WAX</div><div className="text-red-500/70 text-xs font-mono">(-${combatROI.totalCostUsd.toFixed(3)})</div><div className="text-[10px] text-slate-400 mt-1">{selectedZone.entryCostDovX ? `${selectedZone.entryCostDovX} DOV-X` : `${selectedZone.usage.toLocaleString()} TU x4`}</div></div>
+                                        <div className="text-right"><span className="text-slate-400 text-xs block">GAIN DOV-X</span><div className="text-emerald-400 font-mono">+{combatROI.rewardWAX.toFixed(2)} WAX</div><div className="text-emerald-500/70 text-xs font-mono">(+${combatROI.rewardUsd.toFixed(3)})</div></div>
+                                        </div>
+                                        <div className="border-t border-slate-700 pt-2"><div className="flex justify-between items-baseline mb-1"><span className="font-bold text-slate-300">Profit Net</span><span className={`text-lg font-bold ${combatROI.profitWAX > 0 ? "text-emerald-400" : "text-red-400"}`}>{combatROI.profitWAX > 0 ? "+" : ""}{combatROI.profitWAX.toFixed(2)} WAX</span></div><div className={`text-right font-mono text-sm ${combatROI.profitUsd > 0 ? "text-emerald-500" : "text-red-500"}`}>{combatROI.profitUsd > 0 ? "+" : ""}${combatROI.profitUsd.toFixed(4)}</div></div>
+                                        <div className="text-center bg-slate-900 rounded p-1 text-xs text-slate-500 mt-1">ROI: <span className={combatROI.roiPercent > 0 ? "text-green-400" : "text-slate-500"}>{combatROI.roiPercent}%</span></div>
+                                    </div>
+                                    </Card>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+                
+                {/* PRODUCTION TAB */}
+                {activeTab === 'production' && (
+                    <div className="space-y-6">
+                    <Card>
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                        <div><h2 className="text-xl font-bold flex items-center gap-2 text-emerald-400"><FactoryIcon /> Analyse Rentabilité Usines</h2><p className="text-slate-400 text-sm mt-1">Comparez le coût de production vs prix d'achat Alcor.</p></div>
+                        <div className="flex items-center gap-4"><div className="flex items-center gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700"><button onClick={() => setTimeframe('day')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${timeframe === 'day' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>24H</button><button onClick={() => setTimeframe('month')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${timeframe === 'month' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>30 JOURS</button></div><div className="flex items-center gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700 hidden md:flex"><Filter size={14} className="text-slate-500 ml-2" />{['ALL', 'FUEL', 'REPAIR', 'SUPPLY', 'HEALTH'].map(f => (<button key={f} onClick={() => setFactoryFilter(f)} className={`px-3 py-1 rounded text-xs font-bold transition-all ${factoryFilter === f ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}>{f}</button>))}</div></div>
+                        </div>
+                        <div className="overflow-x-auto max-h-[700px]"><table className="w-full text-left border-collapse"><thead className="sticky top-0 bg-slate-800 z-10 shadow-lg"><tr className="text-slate-400 border-b border-slate-700 text-xs uppercase"><th className="p-3">Usine</th><th className="p-3">Type</th><th className="p-3">Rareté</th><th className="p-3 text-right">Prod/{timeframe === 'day' ? '24h' : 'Mois'}</th><th className="p-3 text-right">Coût Unit (WAX)</th><th className="p-3 text-right text-emerald-300">Profit {timeframe === 'day' ? '24h' : '30j'} ($)</th><th className="p-3 text-center">Action</th></tr></thead><tbody className="overflow-y-auto">{filteredFactories.map(factory => (<tr key={factory.id} className="border-b border-slate-700 hover:bg-slate-700/30 transition-colors"><td className="p-3 font-bold text-white text-sm">{factory.name}</td><td className="p-3 text-xs text-slate-400">{factory.type}</td><td className="p-3"><Badge color={factory.rarity === 'Legendary' ? 'yellow' : factory.rarity === 'Epic' ? 'purple' : factory.rarity === 'Supreme' ? 'red' : 'blue'}>{factory.rarity} {factory.level < 5 ? `L${factory.level}` : ''}</Badge></td><td className="p-3 text-right font-mono text-emerald-400 text-sm">{factory.displayOutput.toLocaleString(undefined, {maximumFractionDigits: 0})}</td><td className="p-3 text-right font-mono text-sm"><div className={factory.betterToBuy ? "text-red-300" : "text-slate-300"}>{factory.unitCost.toFixed(6)}</div><div className="text-[10px] text-slate-500">Mkt: {factory.marketPrice.toFixed(6)}</div></td><td className="p-3 text-right font-mono text-sm font-bold"><div className={factory.displayProfitUsd > 0 ? "text-emerald-400" : "text-red-400"}>${factory.displayProfitUsd.toFixed(timeframe === 'day' ? 4 : 2)}</div><div className="text-[10px] text-slate-500">{factory.displayProfitWax.toFixed(2)} WAX</div></td><td className="p-3 text-center">{factory.betterToBuy ? (<div className="inline-flex items-center gap-1 text-red-400 font-bold bg-red-900/30 px-2 py-1 rounded text-xs"><AlertTriangle size={12} /> BUY</div>) : (<div className="inline-flex items-center gap-1 text-emerald-400 font-bold bg-emerald-900/30 px-2 py-1 rounded text-xs"><CheckCircle size={12} /> PROD</div>)}</td></tr>))}</tbody></table></div>
+                    </Card>
+                    </div>
+                )}
+                
+                {/* PACKS TAB */}
+                {activeTab === 'packs' && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="space-y-6">
+                            <Card>
+                                <h3 className="text-lg font-bold text-purple-300 mb-4 flex items-center gap-2"><Package size={20} /> Configuration du Pack</h3>
+                                <div className="space-y-4">
+                                    <div><label className="text-xs text-slate-400 block mb-1">Nom du Pack</label><input type="text" value={packBuilder.name} onChange={(e) => setPackBuilder({...packBuilder, name: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm focus:border-purple-500 outline-none" /></div>
+                                    <div className="flex gap-4"><div className="flex-1"><label className="text-xs text-slate-400 block mb-1 font-bold text-purple-400">Prix du Pack ($)</label><div className="relative"><span className="absolute left-3 top-2 text-slate-400 font-bold">$</span><input type="number" step="0.01" value={packPriceUsdStr} onChange={(e) => handleUsdPriceChange(e.target.value)} className="w-full bg-slate-800 border-2 border-purple-600 rounded p-2 pl-6 text-lg font-bold text-white focus:outline-none" /></div></div><div className="flex-1"><label className="text-xs text-slate-400 block mb-1">Equivalent WAX</label><div className="relative"><input type="number" value={packBuilder.price.toFixed(2)} onChange={(e) => handleWaxPriceChange(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 pl-2 text-sm text-yellow-400 font-mono font-bold focus:border-purple-500 outline-none" /><span className="absolute right-3 top-2 text-xs text-slate-500">WAX</span></div></div></div>
+                                    <div className="mt-2 bg-slate-800/50 p-2 rounded border border-slate-700/50"><label className="text-xs text-slate-400 block mb-1">Ou définir un Objectif ROI (Jours)</label><div className="relative"><input type="number" placeholder="Ex: 30" value={targetRoi} onChange={(e) => updatePriceFromRoi(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 pl-8 text-sm text-purple-300 focus:border-purple-500 outline-none" /><div className="absolute left-2 top-2 text-purple-500"><Calculator size={16}/></div></div></div>
+                                    
+                                    {/* AUTO GENERATOR */}
+                                    <div className="mt-4 p-3 bg-purple-900/20 border border-purple-700/50 rounded-lg">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-xs font-bold text-purple-300 flex items-center gap-1"><Zap size={12}/> GÉNÉRATEUR AUTOMATIQUE</span>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2 mb-2">
+                                            <div>
+                                                <label className="text-[10px] text-slate-400 block">Budget ($)</label>
+                                                <input type="number" value={autoGenOptions.budget} onChange={(e) => setAutoGenOptions({...autoGenOptions, budget: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-1 text-xs" />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-slate-400 block">ROI Cible (Jours)</label>
+                                                <input type="number" value={autoGenOptions.roi} onChange={(e) => setAutoGenOptions({...autoGenOptions, roi: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded p-1 text-xs" />
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-4 mb-3">
+                                            <label className="flex items-center gap-1 text-[10px] text-slate-400 cursor-pointer">
+                                                <input type="checkbox" checked={autoGenOptions.limit4} onChange={(e) => setAutoGenOptions({...autoGenOptions, limit4: e.target.checked})} className="rounded bg-slate-900 border-slate-600 text-purple-500 focus:ring-0" />
+                                                Mode Starter (Max 4 Bât.)
+                                            </label>
+                                            <label className="flex items-center gap-1 text-[10px] text-slate-400 cursor-pointer">
+                                                <input type="checkbox" checked={autoGenOptions.diverse} onChange={(e) => setAutoGenOptions({...autoGenOptions, diverse: e.target.checked})} className="rounded bg-slate-900 border-slate-600 text-purple-500 focus:ring-0" />
+                                                Diversifier Types
+                                            </label>
+                                        </div>
+                                        <button onClick={generateAutoPack} className="w-full bg-purple-700 hover:bg-purple-600 text-white py-1 rounded text-xs font-bold shadow-sm">
+                                            GÉNÉRER PACK OPTIMISÉ
+                                        </button>
+                                    </div>
+                                    
+                                    <div className="border-t border-slate-700 pt-4"><label className="text-xs text-slate-400 block mb-2">Ajouter un Bâtiment</label><div className="flex gap-2"><select className="flex-1 bg-slate-900 border border-slate-600 rounded p-2 text-sm outline-none" value={selectedFactoryToAdd} onChange={(e) => setSelectedFactoryToAdd(e.target.value)}>{FACTORIES.map(f => (<option key={f.id} value={f.id}>{f.name} (Prod: {f.output * 24}/j)</option>))}</select><button onClick={addToPack} className="bg-purple-600 hover:bg-purple-500 text-white p-2 rounded"><Plus size={20} /></button></div></div>
+                                </div>
+                            </Card>
+                            <Card className="min-h-[200px]">
+                                <h3 className="text-sm font-bold text-slate-400 mb-2 uppercase">Contenu du Pack</h3>
+                                {packBuilder.contents.length === 0 ? (<div className="text-slate-500 text-center py-8 text-sm italic">Aucun bâtiment ajouté.</div>) : (
+                                    <div className="space-y-2">{packBuilder.contents.map((item, idx) => { const factory = FACTORIES.find(f => f.id === item.factoryId); return ( <div key={idx} className="flex justify-between items-center bg-slate-900 p-2 rounded border border-slate-700"><div className="flex-1"><div className="text-sm font-bold">{factory.name}</div><div className="text-xs text-slate-500 flex gap-2"><span>{factory.rarity}</span><span className="text-slate-600">|</span><span>{factory.type}</span></div></div><div className="flex items-center gap-3"><input type="number" min="1" value={item.qty} onChange={(e) => updatePackQty(item.factoryId, e.target.value)} className="w-12 bg-slate-800 border border-slate-600 rounded p-1 text-center text-sm" /><button onClick={() => removeFromPack(item.factoryId)} className="text-red-500 hover:text-red-400"><Trash2 size={16} /></button></div></div> ); })}</div>
+                                )}
+                            </Card>
+                        </div>
+                        {/* COLUMN 2: ANALYSIS */}
+                        <div className="space-y-6">
+                            <Card className="border-t-4 border-t-purple-500 h-full flex flex-col justify-between">
+                                <div>
+                                    <h3 className="text-lg font-bold text-white mb-6">Analyse de Rentabilité</h3>
+                                    <div className="space-y-4 mb-8">
+                                        <div className="flex justify-between items-center text-sm border-b border-slate-700 pb-2"><span className="text-slate-400">Investissement Total</span><div className="text-right"><div className="font-mono text-purple-400 text-xl font-bold">${(packBuilder.price * waxPriceUsd).toFixed(2)}</div><div className="text-xs text-yellow-500 font-mono">{packBuilder.price.toFixed(2)} WAX</div></div></div>
+                                        <div className="grid grid-cols-2 gap-4"><div><div className="text-xs text-slate-500 mb-1">Production Brute / Jour</div><div className="text-emerald-400 font-mono font-bold">{packStats.totalDailyProdWax.toFixed(4)} WAX</div></div><div className="text-right"><div className="text-xs text-slate-500 mb-1">Coût Maintenance / Jour</div><div className="text-red-400 font-mono font-bold">{packStats.totalDailyCostWax.toFixed(4)} WAX</div></div></div>
+                                        <div className="bg-slate-900 p-4 rounded border border-slate-700"><div className="text-center text-sm text-slate-400 mb-1">Profit Net Quotidien</div><div className={`text-center text-2xl font-bold font-mono ${packStats.dailyNetWax > 0 ? 'text-emerald-400' : 'text-red-400'}`}>{packStats.dailyNetWax > 0 ? '+' : ''}{packStats.dailyNetWax.toFixed(4)} WAX</div><div className="text-center text-sm text-emerald-500 mt-1 font-bold">≈ ${(packStats.dailyNetWax * waxPriceUsd).toFixed(4)} / jour</div></div>
+                                    </div>
+                                </div>
+                                <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-6 rounded-lg border border-slate-600 text-center"><div className="text-sm font-bold text-purple-300 uppercase tracking-wider mb-2">Retour sur Investissement</div>{packStats.dailyNetWax > 0 ? (<div><div className="text-5xl font-bold text-white mb-2">{packStats.roiDays < 1 ? "< 1" : Math.ceil(packStats.roiDays)} <span className="text-xl font-normal text-slate-400">Jours</span></div><div className="text-xs text-slate-500">Pour rentabiliser vos ${(packBuilder.price * waxPriceUsd).toFixed(2)}</div></div>) : (<div className="text-red-400 font-bold flex flex-col items-center gap-2"><AlertTriangle size={32} /><span>JAMAIS RENTABLE</span><span className="text-xs font-normal text-slate-400">Les coûts de maintenance dépassent la production.</span></div>)}</div>
+                            </Card>
+                        </div>
+                    </div>
+                )}
+                
+                {/* CHESTS TAB */}
+                {activeTab === 'chests' && (
+                    <div className="space-y-6">
+                        <Card>
+                            <h3 className="text-lg font-bold text-yellow-500 mb-4 flex items-center gap-2"><Gift size={20} /> Simulateur de Coffres & Drops</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <div><label className="text-xs text-slate-400 uppercase font-bold mb-1 block">Type de Coffre</label><select className="w-full bg-slate-900 border border-yellow-600/50 rounded p-2 text-sm focus:outline-none focus:border-yellow-500 text-yellow-200 font-bold" value={selectedChestType} onChange={(e) => { setSelectedChestType(e.target.value); setChestSimulationResults(null); }}>{Object.keys(CHEST_DATA).map(type => (<option key={type} value={type}>{CHEST_DATA[type].name} (Zone {CHEST_DATA[type].zone})</option>))}</select></div>
+                                    <div><label className="text-xs text-slate-400 uppercase font-bold mb-1 block">Quantité à ouvrir</label><div className="flex gap-2">{[1, 5, 10, 27, 50, 100].map(n => (<button key={n} onClick={() => setNumChestsToOpen(n)} className={`px-3 py-1 rounded text-xs font-bold transition-all ${numChestsToOpen === n ? 'bg-yellow-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>x{n}</button>))}<input type="number" min="1" value={numChestsToOpen} onChange={(e) => setNumChestsToOpen(parseInt(e.target.value) || 1)} className="w-16 bg-slate-900 border border-slate-600 rounded px-2 text-center text-sm focus:outline-none" /></div></div>
+                                    <div className="bg-slate-900 p-3 rounded border border-slate-700 text-sm"><div className="flex justify-between mb-1"><span className="text-slate-400">Coût en Reward Tokens</span><span className="text-yellow-400 font-mono font-bold">{numChestsToOpen * 27} Tokens</span></div><div className="text-xs text-slate-500 italic">Basé sur le ratio de blend : 27 Tokens = 1 Coffre 4★</div></div>
+                                    <button onClick={handleSimulateChests} className="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white font-bold py-3 px-4 rounded shadow-lg flex items-center justify-center gap-2"><Gift size={18} /> SIMULER OUVERTURE</button>
+                                </div>
+                                <div className="bg-slate-900/50 p-4 rounded border border-slate-700 h-full">
+                                    {!chestSimulationResults ? (<div className="h-full flex flex-col justify-center items-center text-slate-500 text-center"><div className="mb-2 opacity-50"><Database size={48} /></div><p className="text-sm">Cliquez sur "Simuler Ouverture"<br/>pour générer les drops aléatoires.</p><div className="mt-4 text-xs text-slate-600 border-t border-slate-700 pt-2 w-full text-left"><div className="font-bold mb-1 uppercase">Probabilités Officielles :</div><div>• Bâtiments Communs/Rares/Epiques/Légendaires : ~25% chacun</div><div>• Jackpot F4 (T4) : 0.02% (Très Rare)</div><div>• Clés : ~33% chacune</div></div></div>) : (
+                                        <div className="space-y-4 animate-fade-in">
+                                            <div className="flex justify-between items-center border-b border-slate-700 pb-2"><h4 className="font-bold text-white">Résultats ({numChestsToOpen} Coffres)</h4><span className="text-xs text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded">Succès</span></div>
+                                            <div><div className="text-xs font-bold text-slate-400 uppercase mb-2 flex justify-between"><span>Bâtiments (100% Drop Rate)</span><span>{Object.values(chestSimulationResults.buildingDrops).reduce((a,b)=>a+b,0)} recus</span></div><div className="space-y-1 max-h-[150px] overflow-y-auto pr-2">{Object.entries(chestSimulationResults.buildingDrops).map(([name, count]) => { const isJackpot = name.includes('_F4_') || name.includes('L_F4') || name.includes('R_F4'); return ( <div key={name} className={`flex justify-between text-sm p-1 rounded ${isJackpot ? 'bg-yellow-900/40 border border-yellow-700/50' : 'hover:bg-slate-800'}`}><span className={isJackpot ? "text-yellow-200 font-bold" : "text-slate-300"}>{name} {isJackpot && "🌟"}</span><span className="font-mono font-bold text-white">x{count}</span></div> ) })}</div></div>
+                                            <div><div className="text-xs font-bold text-slate-400 uppercase mb-2 flex justify-between"><span>Clés Tactiques (100% Drop Rate)</span><span>{Object.values(chestSimulationResults.keyDrops).reduce((a,b)=>a+b,0)} recus</span></div><div className="space-y-1">{Object.entries(chestSimulationResults.keyDrops).map(([name, count]) => ( <div key={name} className="flex justify-between text-sm p-1 hover:bg-slate-800 rounded"><span className="text-purple-300">{name}</span><span className="font-mono font-bold text-white">x{count}</span></div> ))}</div></div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+                )}
+                
+                {/* BLEND TAB */}
+                {activeTab === 'blending' && (
+                    <div className="space-y-6">
+                        <Card>
+                            <h3 className="text-lg font-bold text-indigo-400 mb-4 flex items-center gap-2"><Flask size={20} /> Simulateur de Fusion (Blend)</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-4">
+                                    <div className="bg-indigo-900/20 border border-indigo-700/50 p-3 rounded text-sm text-indigo-200">
+                                        <p className="font-bold mb-1">Règle de Fusion :</p>
+                                        <p>3 Cartes (Même Rareté) ➜ 1 Carte (Niveau Supérieur)</p>
+                                        <p className="text-xs text-indigo-400 mt-2 italic">* Ne fonctionne pas pour les Avions, Bateaux et Officiers 'Wave'</p>
+                                    </div>
+                                    <div><label className="text-xs text-slate-400 block mb-1">Choisir une Unité de Base (F1)</label><select className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm focus:outline-none focus:border-indigo-500" value={selectedBlendUnitId} onChange={(e) => setSelectedBlendUnitId(e.target.value)}>{BLENDABLE_UNITS.filter(u => u.level === 1).map(u => (<option key={u.id} value={u.id}>{u.name}</option>))}</select></div>
+                                    <div><label className="text-xs text-slate-400 block mb-1">Quantité possédée (F1)</label><div className="flex items-center gap-2"><input type="number" min="0" value={ownedF1Count} onChange={(e) => setOwnedF1Count(parseInt(e.target.value) || 0)} className="flex-1 bg-slate-900 border border-slate-600 rounded p-2 text-sm focus:outline-none focus:border-indigo-500" /><span className="text-slate-500 text-sm">Unités</span></div></div>
+                                </div>
+                                <div className="space-y-4">
+                                    {blendCalculation ? (
+                                        <div className="h-full flex flex-col justify-between">
+                                            <div>
+                                                <h4 className="font-bold text-white mb-4 border-b border-slate-700 pb-2">Résultats de Fusion pour : <span className="text-indigo-400">{blendCalculation.unitName.replace('F1-', '')}</span></h4>
+                                                <div className="space-y-3">
+                                                    <div className="flex justify-between items-center bg-slate-900 p-2 rounded border border-slate-700"><div className="text-slate-400 text-sm">Vers <strong>F2 (★★)</strong></div><div className="font-mono text-white font-bold">{blendCalculation.f2Count} unités <span className="text-xs text-slate-500 font-normal">(Coût: {blendCalculation.f2Count * 3})</span></div></div>
+                                                    <div className="flex justify-between items-center bg-slate-900 p-2 rounded border border-slate-700"><div className="text-slate-400 text-sm">Vers <strong>F3 (★★★)</strong></div><div className="font-mono text-white font-bold">{blendCalculation.f3Count} unités <span className="text-xs text-slate-500 font-normal">(Coût: {blendCalculation.f3Count * 9})</span></div></div>
+                                                    <div className="flex justify-between items-center bg-indigo-900/30 p-2 rounded border border-indigo-600/50"><div className="text-indigo-300 text-sm">Vers <strong>F4 (★★★★)</strong></div><div className="font-mono text-white font-bold text-lg">{blendCalculation.f4Count} unités <span className="text-xs text-slate-400 font-normal block text-right">(Coût: {blendCalculation.f4Count * 27})</span></div></div>
+                                                </div>
+                                            </div>
+                                            {blendCalculation.f4Count > 0 && (
+                                                <div className="mt-4 p-3 bg-emerald-900/20 border border-emerald-600/30 rounded text-center">
+                                                    <div className="text-xs text-emerald-400 uppercase font-bold mb-1">Optimisation des Slots</div>
+                                                    <div className="text-sm text-slate-300">En fusionnant vers F4, vous libérez <strong className="text-white">{blendCalculation.slotsSavedF4} slots</strong> dans votre armée pour la même puissance de feu.</div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="h-full flex items-center justify-center text-slate-500 italic text-sm">Entrez une quantité pour voir les calculs.</div>
+                                    )}
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+                )}
+                
+                {/* ROI ADVANCED TAB */}
+                {activeTab === 'zone_roi_advanced' && (
+                    <div className="space-y-6">
+                        <Card>
+                            <h3 className="text-lg font-bold text-indigo-400 mb-6 flex items-center gap-2"><Diamond size={20} /> Rentabilité Avancée : Impact des Reward Tokens</h3>
+                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+                                {['Bunker', 'Camp', 'Radar', 'HQ'].map(type => (
+                                    <div key={type} className="bg-indigo-900/20 p-3 rounded border border-indigo-700/50">
+                                        <label className="text-xs text-indigo-300 block mb-1">Val. Estimée Coffre {type} (WAX)</label>
+                                        <input 
+                                            type="number" 
+                                            value={chestEstimates[type]}
+                                            onChange={(e) => setChestEstimates({...chestEstimates, [type]: parseFloat(e.target.value) || 0})}
+                                            className="w-full bg-slate-900 border border-indigo-600 rounded p-2 text-sm text-white font-bold focus:outline-none"
+                                        />
+                                        <div className="text-[10px] text-slate-500 mt-1">1 Token ≈ {(chestEstimates[type]/27).toFixed(2)} WAX</div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="text-slate-400 border-b border-slate-700 text-xs uppercase bg-slate-800/50"><th className="p-3">Zone Checkpoint</th><th className="p-3 text-right">Coût Entrée</th><th className="p-3 text-right">Gain DOV-X</th><th className="p-3 text-right text-indigo-300">+ Gain Token (1u)</th><th className="p-3 text-right font-bold text-white">Profit Total</th><th className="p-3 text-center">ROI Boosté</th></tr>
+                                    </thead>
+                                    <tbody className="text-sm">
+                                        {advancedRoiAnalysis.map(z => (
+                                            <tr key={z.id} className="border-b border-slate-700 hover:bg-slate-800/50 transition-colors">
+                                                <td className="p-3 font-bold text-white"><div>{z.name}</div><div className="text-[10px] text-slate-500 uppercase">{z.bonusToken.replace('TOKEN-', '')} TOKEN DROP</div></td>
+                                                <td className="p-3 text-right font-mono text-red-400">-{z.totalCostWAX.toFixed(2)} W</td>
+                                                <td className="p-3 text-right font-mono text-emerald-400">+{z.rewardWAX.toFixed(2)} W</td>
+                                                <td className="p-3 text-right font-mono text-indigo-300 bg-indigo-900/10">+{z.tokenValWax.toFixed(2)} W</td>
+                                                <td className="p-3 text-right font-mono font-bold"><div className={z.totalProfitWax > 0 ? "text-emerald-400" : "text-red-400"}>{z.totalProfitWax > 0 ? "+" : ""}{z.totalProfitWax.toFixed(2)} W</div><div className="text-[10px] opacity-70">${(z.totalProfitWax * waxPriceUsd).toFixed(2)}</div></td>
+                                                <td className="p-3 text-center"><div className={`px-2 py-1 rounded text-xs font-bold inline-block ${z.totalRoi > 0 ? "bg-emerald-900/50 text-emerald-300" : "bg-red-900/50 text-red-300"}`}>{z.totalRoi.toFixed(1)}%</div>{z.roiBoost > 0 && <div className="text-[10px] text-indigo-400 mt-1">+{z.roiBoost.toFixed(1)}% boost</div>}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </Card>
+                    </div>
+                )}
+
+                {/* --- TAB: VALUATION (New) --- */}
+                {activeTab === 'valuation' && (
+                    <div className="space-y-6">
+                        <Card>
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                                <div>
+                                    <h3 className="text-lg font-bold text-cyan-400 mb-1 flex items-center gap-2"><Scale size={20} /> Valorisation "Fair Value" des Actifs</h3>
+                                    <p className="text-slate-400 text-sm">Calcul basé sur le rendement et l'utilité théorique sur une période donnée.</p>
+                                </div>
+                                <div className="flex items-center gap-2 bg-slate-900 p-2 rounded-lg border border-slate-700">
+                                    <span className="text-xs text-slate-400">ROI Cible (Jours) :</span>
+                                    <input 
+                                        type="number" 
+                                        value={roiTargetDays}
+                                        onChange={(e) => setRoiTargetDays(parseInt(e.target.value) || 30)}
+                                        className="w-16 bg-slate-800 border border-slate-600 rounded text-center text-sm focus:outline-none focus:border-cyan-500"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700 mb-4">
+                                <button onClick={() => setValuationFilter('ALL')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'ALL' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'}`}>TOUT</button>
+                                <button onClick={() => setValuationFilter('BUILDING')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'BUILDING' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>BÂTIMENTS</button>
+                                <button onClick={() => setValuationFilter('TOKEN')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'TOKEN' ? 'bg-yellow-600 text-white' : 'text-slate-400 hover:text-white'}`}>TOKENS</button>
+                                <button onClick={() => setValuationFilter('KEY')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'KEY' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>CLÉS</button>
+                                <button onClick={() => setValuationFilter('UNIT')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'UNIT' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}>UNITÉS</button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {/* LISTING */}
+                                <div className="col-span-2">
+                                    <div className="overflow-x-auto max-h-[600px]">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead className="sticky top-0 bg-slate-800 z-10 shadow-lg">
+                                                <tr className="text-slate-400 border-b border-slate-700 text-xs uppercase">
+                                                    <th className="p-3">Nom de l'Actif</th>
+                                                    <th className="p-3">Type</th>
+                                                    <th className="p-3 text-right">Valeur Théorique (WAX)</th>
+                                                    <th className="p-3 text-right">Valeur Théorique ($)</th>
+                                                    <th className="p-3">Détails Calcul</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="text-sm">
+                                                {filteredAssetValuations.map((asset, idx) => (
+                                                    <tr key={idx} className="border-b border-slate-700 hover:bg-slate-700/30 transition-colors">
+                                                        <td className="p-3 font-bold text-white flex items-center gap-2">
+                                                            {asset.name}
+                                                            {asset.isSupreme && <span className="bg-indigo-500 text-white text-[10px] px-1 rounded">💎 GAME CHANGER</span>}
+                                                        </td>
+                                                        <td className="p-3">
+                                                            <span className={`px-2 py-1 rounded text-xs border ${
+                                                                asset.type === 'Bâtiment' ? 'bg-blue-900/30 text-blue-300 border-blue-800' :
+                                                                asset.type === 'Token' ? 'bg-yellow-900/30 text-yellow-300 border-yellow-800' :
+                                                                asset.type === 'Clé Tactique' ? 'bg-purple-900/30 text-purple-300 border-purple-800' :
+                                                                'bg-emerald-900/30 text-emerald-300 border-emerald-800'
+                                                            }`}>
+                                                                {asset.type}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-3 text-right font-mono text-cyan-300 font-bold">{asset.valueWax.toFixed(2)} W</td>
+                                                        <td className="p-3 text-right font-mono text-slate-300">${asset.valueUsd.toFixed(2)}</td>
+                                                        <td className="p-3 text-xs text-slate-500 italic">{asset.details}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+                )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<DoVManager />);
+    </script>
+</body>
+</html>
