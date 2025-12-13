@@ -93,6 +93,15 @@
         const Sliders = ({size=20, className=""}) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
         );
+        const Package = ({size=20, className=""}) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m16.5 9.4-9-5.19"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        );
+        const Trash2 = ({size=20, className=""}) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        );
+        const Plus = ({size=20, className=""}) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        );
 
         // --- DATASETS ---
 
@@ -237,13 +246,21 @@
         // --- APP MAIN ---
 
         function DoVManager() {
-            const [activeTab, setActiveTab] = useState('production');
+            const [activeTab, setActiveTab] = useState('combat');
             const [marketPrices, setMarketPrices] = useState(INITIAL_MARKET_PRICES);
             const [waxPriceUsd, setWaxPriceUsd] = useState(0.06); 
             const [userInventory, setUserInventory] = useState(MOCK_INVENTORY);
             const [factoryFilter, setFactoryFilter] = useState('ALL');
             const [timeframe, setTimeframe] = useState('day'); // 'day' | 'month'
             const [tuRatio, setTuRatio] = useState(INITIAL_MARKET_PRICES.DOVF / INITIAL_MARKET_PRICES.DOVX);
+
+            // Pack Builder State
+            const [packBuilder, setPackBuilder] = useState({
+                name: 'Pack Personnalisé',
+                price: 100, // WAX
+                contents: [] // { factoryId: string, qty: number }
+            });
+            const [selectedFactoryToAdd, setSelectedFactoryToAdd] = useState(FACTORIES[0].id);
 
             // State Combat
             const [selectedZoneId, setSelectedZoneId] = useState(1);
@@ -269,9 +286,6 @@
             const handleManualDovxChange = (val) => {
                 const newDovx = parseFloat(val);
                 setMarketPrices({...marketPrices, DOVX: newDovx});
-                // When manually changing DOVX, we update the Ratio so future slider moves respect this new balance
-                // Ratio = Current TU / New DOVX. Or do we keep TU constant and just update Ratio?
-                // Let's keep TU constant, update ratio.
                 if(newDovx > 0) setTuRatio(marketPrices.DOVF / newDovx);
             };
 
@@ -281,9 +295,63 @@
                     ...marketPrices, 
                     DOVF: newTu, DOVR: newTu, DOVS: newTu, DOVH: newTu
                 });
-                // When manually changing TU, update Ratio
                 if(marketPrices.DOVX > 0) setTuRatio(newTu / marketPrices.DOVX);
             };
+
+            // -- PACK BUILDER HANDLERS --
+            const addToPack = () => {
+                const existing = packBuilder.contents.find(i => i.factoryId === selectedFactoryToAdd);
+                if (existing) {
+                    setPackBuilder({
+                        ...packBuilder,
+                        contents: packBuilder.contents.map(i => i.factoryId === selectedFactoryToAdd ? {...i, qty: i.qty + 1} : i)
+                    });
+                } else {
+                    setPackBuilder({
+                        ...packBuilder,
+                        contents: [...packBuilder.contents, { factoryId: selectedFactoryToAdd, qty: 1 }]
+                    });
+                }
+            };
+
+            const removeFromPack = (id) => {
+                setPackBuilder({
+                    ...packBuilder,
+                    contents: packBuilder.contents.filter(i => i.factoryId !== id)
+                });
+            };
+
+            const updatePackQty = (id, newQty) => {
+                if (newQty < 1) return;
+                setPackBuilder({
+                    ...packBuilder,
+                    contents: packBuilder.contents.map(i => i.factoryId === id ? {...i, qty: parseInt(newQty)} : i)
+                });
+            };
+
+            const packStats = useMemo(() => {
+                let totalDailyProdWax = 0;
+                let totalDailyCostWax = 0;
+
+                packBuilder.contents.forEach(item => {
+                    const factory = FACTORIES.find(f => f.id === item.factoryId);
+                    if (!factory) return;
+                    
+                    const resPrice = marketPrices[`DOV${factory.type.charAt(0)}`];
+                    const dovxPrice = marketPrices.DOVX;
+                    
+                    const prod = factory.output * 24 * resPrice * item.qty;
+                    const cost = factory.costDoVX * 24 * dovxPrice * item.qty;
+                    
+                    totalDailyProdWax += prod;
+                    totalDailyCostWax += cost;
+                });
+
+                const dailyNetWax = totalDailyProdWax - totalDailyCostWax;
+                const roiDays = dailyNetWax > 0 ? (packBuilder.price / dailyNetWax) : 0;
+
+                return { totalDailyProdWax, totalDailyCostWax, dailyNetWax, roiDays };
+            }, [packBuilder, marketPrices]);
 
 
             // --- LOGIC: PRODUCTION ---
@@ -476,18 +544,24 @@
                 </header>
 
                 {/* NAVIGATION */}
-                <div className="flex gap-4 mb-6">
+                <div className="flex gap-4 mb-6 overflow-x-auto pb-2">
                     <button 
                     onClick={() => setActiveTab('combat')}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${activeTab === 'combat' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'combat' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
                     >
                     <Crosshair size={18} /> simulateur COMBAT
                     </button>
                     <button 
                     onClick={() => setActiveTab('production')}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${activeTab === 'production' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'production' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
                     >
                     <FactoryIcon size={18} /> analyse PRODUCTION
+                    </button>
+                    <button 
+                    onClick={() => setActiveTab('packs')}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'packs' ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
+                    >
+                    <Package size={18} /> créateur de PACK
                     </button>
                 </div>
 
@@ -845,6 +919,169 @@
                         </table>
                         </div>
                     </Card>
+                    </div>
+                )}
+
+                {/* --- TAB: PACK BUILDER --- */}
+                {activeTab === 'packs' && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        
+                        {/* COLUMN 1: BUILDER */}
+                        <div className="space-y-6">
+                            <Card>
+                                <h3 className="text-lg font-bold text-purple-300 mb-4 flex items-center gap-2">
+                                    <Package size={20} /> Configuration du Pack
+                                </h3>
+                                
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="text-xs text-slate-400 block mb-1">Nom du Pack</label>
+                                        <input 
+                                            type="text" 
+                                            value={packBuilder.name}
+                                            onChange={(e) => setPackBuilder({...packBuilder, name: e.target.value})}
+                                            className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm focus:border-purple-500 outline-none"
+                                        />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="text-xs text-slate-400 block mb-1">Prix d'Achat (WAX)</label>
+                                        <div className="relative">
+                                            <input 
+                                                type="number" 
+                                                value={packBuilder.price}
+                                                onChange={(e) => setPackBuilder({...packBuilder, price: parseFloat(e.target.value)})}
+                                                className="w-full bg-slate-900 border border-slate-600 rounded p-2 pl-2 text-sm text-yellow-400 font-mono font-bold focus:border-purple-500 outline-none"
+                                            />
+                                            <span className="absolute right-3 top-2 text-xs text-slate-500">WAX</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="border-t border-slate-700 pt-4">
+                                        <label className="text-xs text-slate-400 block mb-2">Ajouter un Bâtiment</label>
+                                        <div className="flex gap-2">
+                                            <select 
+                                                className="flex-1 bg-slate-900 border border-slate-600 rounded p-2 text-sm outline-none"
+                                                value={selectedFactoryToAdd}
+                                                onChange={(e) => setSelectedFactoryToAdd(e.target.value)}
+                                            >
+                                                {FACTORIES.map(f => (
+                                                    <option key={f.id} value={f.id}>{f.name} (Prod: {f.output * 24}/j)</option>
+                                                ))}
+                                            </select>
+                                            <button 
+                                                onClick={addToPack}
+                                                className="bg-purple-600 hover:bg-purple-500 text-white p-2 rounded"
+                                            >
+                                                <Plus size={20} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
+
+                            <Card className="min-h-[200px]">
+                                <h3 className="text-sm font-bold text-slate-400 mb-2 uppercase">Contenu du Pack</h3>
+                                {packBuilder.contents.length === 0 ? (
+                                    <div className="text-slate-500 text-center py-8 text-sm italic">
+                                        Aucun bâtiment ajouté.
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {packBuilder.contents.map((item, idx) => {
+                                            const factory = FACTORIES.find(f => f.id === item.factoryId);
+                                            return (
+                                                <div key={idx} className="flex justify-between items-center bg-slate-900 p-2 rounded border border-slate-700">
+                                                    <div className="flex-1">
+                                                        <div className="text-sm font-bold">{factory.name}</div>
+                                                        <div className="text-xs text-slate-500 flex gap-2">
+                                                            <span>{factory.rarity}</span>
+                                                            <span className="text-slate-600">|</span>
+                                                            <span>{factory.type}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <input 
+                                                            type="number" 
+                                                            min="1"
+                                                            value={item.qty}
+                                                            onChange={(e) => updatePackQty(item.factoryId, e.target.value)}
+                                                            className="w-12 bg-slate-800 border border-slate-600 rounded p-1 text-center text-sm"
+                                                        />
+                                                        <button 
+                                                            onClick={() => removeFromPack(item.factoryId)}
+                                                            className="text-red-500 hover:text-red-400"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </Card>
+                        </div>
+
+                        {/* COLUMN 2: ANALYSIS */}
+                        <div className="space-y-6">
+                            <Card className="border-t-4 border-t-purple-500 h-full flex flex-col justify-between">
+                                <div>
+                                    <h3 className="text-lg font-bold text-white mb-6">Analyse de Rentabilité</h3>
+                                    
+                                    <div className="space-y-4 mb-8">
+                                        <div className="flex justify-between items-center text-sm border-b border-slate-700 pb-2">
+                                            <span className="text-slate-400">Investissement</span>
+                                            <span className="font-mono text-yellow-400 text-lg font-bold">{packBuilder.price} WAX</span>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <div className="text-xs text-slate-500 mb-1">Production Brute / Jour</div>
+                                                <div className="text-emerald-400 font-mono font-bold">
+                                                    {packStats.totalDailyProdWax.toFixed(4)} WAX
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="text-xs text-slate-500 mb-1">Coût Maintenance / Jour</div>
+                                                <div className="text-red-400 font-mono font-bold">
+                                                    {packStats.totalDailyCostWax.toFixed(4)} WAX
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-slate-900 p-4 rounded border border-slate-700">
+                                            <div className="text-center text-sm text-slate-400 mb-1">Profit Net Quotidien</div>
+                                            <div className={`text-center text-2xl font-bold font-mono ${packStats.dailyNetWax > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                {packStats.dailyNetWax > 0 ? '+' : ''}{packStats.dailyNetWax.toFixed(4)} WAX
+                                            </div>
+                                            <div className="text-center text-xs text-slate-500 mt-1">
+                                                ≈ ${(packStats.dailyNetWax * waxPriceUsd).toFixed(4)} / jour
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-6 rounded-lg border border-slate-600 text-center">
+                                    <div className="text-sm font-bold text-purple-300 uppercase tracking-wider mb-2">Retour sur Investissement</div>
+                                    {packStats.dailyNetWax > 0 ? (
+                                        <div>
+                                            <div className="text-4xl font-bold text-white mb-1">
+                                                {packStats.roiDays < 1 ? "< 1" : Math.ceil(packStats.roiDays)} <span className="text-lg font-normal text-slate-400">Jours</span>
+                                            </div>
+                                            <div className="text-xs text-slate-500">Pour récupérer vos {packBuilder.price} WAX</div>
+                                        </div>
+                                    ) : (
+                                        <div className="text-red-400 font-bold flex flex-col items-center gap-2">
+                                            <AlertTriangle size={32} />
+                                            <span>JAMAIS RENTABLE</span>
+                                            <span className="text-xs font-normal text-slate-400">Les coûts de maintenance dépassent la production.</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </Card>
+                        </div>
+
                     </div>
                 )}
 
