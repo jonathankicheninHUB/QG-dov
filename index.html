@@ -64,6 +64,9 @@
         const ArrowLeft = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>;
         const Briefcase = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>;
         const Database = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>;
+        const Gift = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.9 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>;
+        const Diamond = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>;
+        const Scale = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>;
 
         // --- DATASETS ---
 
@@ -74,6 +77,97 @@
             DOVH: 0.00045262,
             DOVF: 0.00045262,
             DOVS: 0.00045262,
+        };
+
+        const CHEST_DATA = {
+            'Bunker': {
+                zone: 4,
+                name: 'PACK Bunker',
+                tokenCost: 27, 
+                drops: [
+                    { type: 'building', pool: [
+                        { id: 'c_f1_fuel', name: 'C_F1_PRODUCER_FUEL', prob: 24.98 },
+                        { id: 'c_f1_repair', name: 'C_F1_PRODUCER_REPAIR', prob: 24.98 },
+                        { id: 'c_f1_supply', name: 'C_F1_PRODUCER_SUPPLY', prob: 24.98 },
+                        { id: 'c_f1_health', name: 'C_F1_PRODUCER_HEALTH', prob: 24.98 },
+                        { id: 'c_f4_fuel', name: 'C_F4_PRODUCER_FUEL', prob: 0.02 },
+                        { id: 'c_f4_supply', name: 'C_F4_PRODUCER_SUPPLY', prob: 0.02 },
+                        { id: 'c_f4_repair', name: 'C_F4_PRODUCER_REPAIR', prob: 0.02 },
+                        { id: 'c_f4_health', name: 'C_F4_PRODUCER_HEALTH', prob: 0.02 }
+                    ]},
+                    { type: 'key', pool: [
+                        { id: 'F1-KEY-CITY', name: 'F1-KEY-CITY', prob: 33.33 },
+                        { id: 'F1-KEY-BEACH', name: 'F1-KEY-BEACH', prob: 33.33 },
+                        { id: 'F1-KEY-FOREST', name: 'F1-KEY-FOREST', prob: 33.33 }
+                    ]}
+                ]
+            },
+            'Camp': {
+                zone: 8,
+                name: 'PACK Camp',
+                tokenCost: 27,
+                drops: [
+                    { type: 'building', pool: [
+                        { id: 'r_f1_fuel', name: 'R_F1_PRODUCER_FUEL', prob: 24.98 },
+                        { id: 'r_f1_repair', name: 'R_F1_PRODUCER_REPAIR', prob: 24.98 },
+                        { id: 'r_f1_supply', name: 'R_F1_PRODUCER_SUPPLY', prob: 24.98 },
+                        { id: 'r_f1_health', name: 'R_F1_PRODUCER_HEALTH', prob: 24.98 },
+                        { id: 'r_f4_fuel', name: 'R_F4_PRODUCER_FUEL', prob: 0.02 },
+                        { id: 'r_f4_supply', name: 'R_F4_PRODUCER_SUPPLY', prob: 0.02 },
+                        { id: 'r_f4_repair', name: 'R_F4_PRODUCER_REPAIR', prob: 0.02 },
+                        { id: 'r_f4_health', name: 'R_F4_PRODUCER_HEALTH', prob: 0.02 }
+                    ]},
+                    { type: 'key', pool: [
+                        { id: 'F2-KEY-CITY', name: 'F2-KEY-CITY', prob: 33.33 },
+                        { id: 'F1-KEY-HILL', name: 'F1-KEY-HILL', prob: 33.33 },
+                        { id: 'F1-KEY-FOREST', name: 'F1-KEY-FOREST', prob: 33.33 }
+                    ]}
+                ]
+            },
+            'Radar': {
+                zone: 12,
+                name: 'PACK Radar',
+                tokenCost: 27,
+                drops: [
+                    { type: 'building', pool: [
+                        { id: 'e_f1_fuel', name: 'E_F1_PRODUCER_FUEL', prob: 24.98 },
+                        { id: 'e_f1_repair', name: 'E_F1_PRODUCER_REPAIR', prob: 24.98 },
+                        { id: 'e_f1_supply', name: 'E_F1_PRODUCER_SUPPLY', prob: 24.98 },
+                        { id: 'e_f1_health', name: 'E_F1_PRODUCER_HEALTH', prob: 24.98 },
+                        { id: 'e_f4_fuel', name: 'E_F4_PRODUCER_FUEL', prob: 0.02 },
+                        { id: 'e_f4_supply', name: 'E_F4_PRODUCER_SUPPLY', prob: 0.02 },
+                        { id: 'e_f4_repair', name: 'E_F4_PRODUCER_REPAIR', prob: 0.02 },
+                        { id: 'e_f4_health', name: 'E_F4_PRODUCER_HEALTH', prob: 0.02 }
+                    ]},
+                    { type: 'key', pool: [
+                        { id: 'F3-KEY-CITY', name: 'F3-KEY-CITY', prob: 33.33 },
+                        { id: 'F1-KEY-HILL', name: 'F1-KEY-HILL', prob: 33.33 },
+                        { id: 'F1-KEY-PLAINE', name: 'F1-KEY-PLAINE', prob: 33.33 }
+                    ]}
+                ]
+            },
+            'HQ': {
+                zone: 16,
+                name: 'PACK HQ',
+                tokenCost: 27,
+                drops: [
+                    { type: 'building', pool: [
+                        { id: 'l_f1_fuel', name: 'L_F1_PRODUCER_FUEL', prob: 24.98 },
+                        { id: 'l_f1_repair', name: 'L_F1_PRODUCER_REPAIR', prob: 24.98 },
+                        { id: 'l_f1_supply', name: 'L_F1_PRODUCER_SUPPLY', prob: 24.98 },
+                        { id: 'l_f1_health', name: 'L_F1_PRODUCER_HEALTH', prob: 24.98 },
+                        { id: 'r_f4_fuel', name: 'R_F4_PRODUCER_FUEL', prob: 0.02 }, 
+                        { id: 'l_f4_supply', name: 'L_F4_PRODUCER_SUPPLY', prob: 0.02 },
+                        { id: 'l_f4_repair', name: 'L_F4_PRODUCER_REPAIR', prob: 0.02 },
+                        { id: 'r_f4_health', name: 'R_F4_PRODUCER_HEALTH', prob: 0.02 }
+                    ]},
+                    { type: 'key', pool: [
+                        { id: 'F4-KEY-CITY', name: 'F4-KEY-CITY', prob: 33.33 },
+                        { id: 'F1-KEY-PLAINE', name: 'F1-KEY-PLAINE', prob: 33.33 },
+                        { id: 'F1-KEY-HILL', name: 'F1-KEY-HILL', prob: 33.33 }
+                    ]}
+                ]
+            }
         };
 
         const generateFactories = () => {
@@ -107,24 +201,29 @@
 
         const FACTORIES = generateFactories();
 
-        // UPDATED: keyReq and officerReq based on strict Order logic
+        // UPDATED: Added bonusToken
         const ZONES = [
             { id: 1, name: 'Beach 1', type: 'Beach', order: 1, win: 400, usage: 1160, minWeight: 14, keyReq: 0, officerReq: 1 },
             { id: 2, name: 'Beach 2', type: 'Beach', order: 2, win: 2405, usage: 6968, minWeight: 28, keyReq: 5, officerReq: 2 },
             { id: 3, name: 'Beach 3', type: 'Beach', order: 3, win: 3037, usage: 8800, minWeight: 55, keyReq: 6, officerReq: 3 },
-            { id: 4, name: 'Bunker (Beach End)', type: 'Beach', order: 4, win: 3838, usage: 11120, minWeight: 109, keyReq: 7, officerReq: 4, isCheckpoint: true, unitReq: 'e2' }, 
+            { id: 4, name: 'Bunker', type: 'Beach', order: 4, win: 3838, usage: 11120, minWeight: 109, keyReq: 7, officerReq: 4, isCheckpoint: true, unitReq: 'e2', bonusToken: "TOKEN-BUNKER" }, 
             { id: 5, name: 'Forest 1', type: 'Forest', order: 5, win: 4840, usage: 14024, minWeight: 219, keyReq: 8, officerReq: 5 },
             { id: 6, name: 'Forest 2', type: 'Forest', order: 6, win: 6110, usage: 17704, minWeight: 342, keyReq: 9, officerReq: 6 },
             { id: 7, name: 'Forest 3', type: 'Forest', order: 7, win: 7714, usage: 22352, minWeight: 450, keyReq: 10, officerReq: 7 },
-            { id: 8, name: 'Camp (Forest End)', type: 'Forest', order: 8, win: 9739, usage: 28220, minWeight: 512, keyReq: 11, officerReq: 8, isCheckpoint: true, unitReq: 'e1' },
+            { id: 8, name: 'Camp', type: 'Forest', order: 8, win: 9739, usage: 28220, minWeight: 512, keyReq: 11, officerReq: 8, isCheckpoint: true, unitReq: 'e1', bonusToken: "TOKEN-CAMP" },
             { id: 9, name: 'Hill 1', type: 'Hill', order: 9, win: 12788, usage: 37052, minWeight: 695, keyReq: 12, officerReq: 9 },
             { id: 10, name: 'Hill 2', type: 'Hill', order: 10, win: 16791, usage: 48652, minWeight: 869, keyReq: 13, officerReq: 10 },
             { id: 11, name: 'Hill 3', type: 'Hill', order: 11, win: 22266, usage: 64516, minWeight: 1086, keyReq: 14, officerReq: 11 },
-            { id: 12, name: 'Radar (Hill End)', type: 'Hill', order: 12, win: 29236, usage: 84712, minWeight: 1358, keyReq: 15, officerReq: 12, isCheckpoint: true, unitReq: 'e3', godmotherReq: true },
+            { id: 12, name: 'Radar', type: 'Hill', order: 12, win: 29236, usage: 84712, minWeight: 1358, keyReq: 15, officerReq: 12, isCheckpoint: true, unitReq: 'e3', godmotherReq: true, bonusToken: "TOKEN-RADAR" },
             { id: 13, name: 'Plain 1', type: 'Plain', order: 13, win: 34300, usage: 99384, minWeight: 1697, keyReq: 16, officerReq: 13 },
             { id: 14, name: 'Plain 2', type: 'Plain', order: 14, win: 43385, usage: 125708, minWeight: 1866, keyReq: 17, officerReq: 14 },
             { id: 15, name: 'Plain 3', type: 'Plain', order: 15, win: 52171, usage: 151164, minWeight: 2052, keyReq: 18, officerReq: 15 },
-            { id: 16, name: 'HQ (Plain End)', type: 'Plain', order: 16, win: 64884, usage: 188000, minWeight: 2495, keyReq: 19, officerReq: 16, isCheckpoint: true, unitReq: 'l1', godmotherReq: true },
+            { id: 16, name: 'HQ', type: 'Plain', order: 16, win: 64884, usage: 188000, minWeight: 2495, keyReq: 19, officerReq: 16, isCheckpoint: true, unitReq: 'l1', godmotherReq: true, bonusToken: "TOKEN-HQ" },
+            // NEW ZONES
+            { id: 17, name: 'City 1', type: 'City', order: 17, win: 0, usage: 0, entryCostDovX: 777.35, minWeight: 108.53, keyReq: 9, officerReq: 1, bonusToken: "F1-TOKEN-CITY-2025", specificOfficer: 'o25', requiredUnits: ['e6', 'uc6', 'l2'] },
+            { id: 18, name: 'City 2', type: 'City', order: 18, win: 0, usage: 0, entryCostDovX: 2213.87, minWeight: 511.76, keyReq: 13, officerReq: 1, bonusToken: "F2-TOKEN-CITY-2025", specificOfficer: 'o26', requiredUnits: ['uc5', 'c6', 'r4'] },
+            { id: 19, name: 'City 3', type: 'City', order: 19, win: 0, usage: 0, entryCostDovX: 6677.85, minWeight: 1357.04, keyReq: 17, officerReq: 1, bonusToken: "F3-TOKEN-CITY-2025", specificOfficer: 'o27', requiredUnits: ['uc6', 'r5', 'e7', 'l2'] },
+            { id: 20, name: 'Bridge', type: 'City', order: 20, win: 0, usage: 0, entryCostDovX: 14850.80, minWeight: 2494.23, keyReq: 20, officerReq: 1, bonusToken: "F4-TOKEN-CITY-2025", specificOfficer: 'o11', requiredUnits: ['e7', 'l2', 'l2'] } // Simplified logic for dual unit requirement
         ];
 
         // --- UNIT TEMPLATES FOR GENERATOR ---
@@ -308,6 +407,23 @@
             const [selectedFactoryToAdd, setSelectedFactoryToAdd] = useState(FACTORIES[0].id);
             const [targetRoi, setTargetRoi] = useState('');
 
+            // CHEST SIMULATOR STATES
+            const [selectedChestType, setSelectedChestType] = useState('Bunker');
+            const [numChestsToOpen, setNumChestsToOpen] = useState(1);
+            const [chestSimulationResults, setChestSimulationResults] = useState(null);
+
+            // ROI ADVANCED STATES
+            const [chestEstimates, setChestEstimates] = useState({
+                'Bunker': 50,
+                'Camp': 100,
+                'Radar': 250,
+                'HQ': 1000,
+                'Bridge': 2000 // Estimated for new zone
+            });
+            
+            // New TARGET ROI States
+            const [roiTargetDays, setRoiTargetDays] = useState(30);
+
             const [selectedZoneId, setSelectedZoneId] = useState(1);
             const [selectedSquad, setSelectedSquad] = useState([]); 
             const [selectedSupport, setSelectedSupport] = useState(null);
@@ -346,6 +462,29 @@
                     setMarketPrices({ ...marketPrices, DOVF: newTu, DOVR: newTu, DOVS: newTu, DOVH: newTu });
                     if(marketPrices.DOVX > 0) setTuRatio(newTu / marketPrices.DOVX);
                 }
+            };
+
+            // -- CHEST SIMULATOR HANDLER --
+            const handleSimulateChests = () => {
+                const chest = CHEST_DATA[selectedChestType];
+                if (!chest) return;
+                let results = { buildingDrops: {}, keyDrops: {}, totalValueWax: 0 };
+                const pickItem = (pool) => {
+                   const totalWeight = pool.reduce((acc, item) => acc + item.prob, 0);
+                   let random = Math.random() * totalWeight;
+                   for (let item of pool) {
+                       if (random < item.prob) return item;
+                       random -= item.prob;
+                   }
+                   return pool[pool.length - 1];
+                };
+                for(let i=0; i<numChestsToOpen; i++) {
+                    const building = pickItem(chest.drops[0].pool);
+                    results.buildingDrops[building.name] = (results.buildingDrops[building.name] || 0) + 1;
+                    const key = pickItem(chest.drops[1].pool);
+                    results.keyDrops[key.name] = (results.keyDrops[key.name] || 0) + 1;
+                }
+                setChestSimulationResults(results);
             };
 
             const addToPack = () => {
@@ -445,9 +584,27 @@
                     const unitCost = (factory.costDoVX * marketPrices.DOVX) / factory.output;
                     const marketPrice = marketPrices[`DOV${factory.type.charAt(0)}`];
                     
-                    return { ...factory, displayProdWax: timeframe === 'day' ? dailyProdWax : monthlyProdWax, displayCostWax: timeframe === 'day' ? dailyCostWax : monthlyCostWax, displayProfitWax: timeframe === 'day' ? dailyProfitWax : monthlyProfitWax, displayProfitUsd: timeframe === 'day' ? dailyProfitUsd : monthlyProfitUsd, displayOutput: timeframe === 'day' ? (factory.output * 24) : (factory.output * 24 * 30), displayCostDoVX: timeframe === 'day' ? (factory.costDoVX * 24) : (factory.costDoVX * 24 * 30), unitCost, marketPrice, isProfitable: dailyProfitWax > 0, betterToBuy: unitCost > marketPrice };
+                    // FIX: Calculate Fair Value for Valuation Tab
+                    const fairValueWax = dailyProfitWax * roiTargetDays;
+                    const fairValueUsd = fairValueWax * waxPriceUsd;
+
+                    return { 
+                        ...factory, 
+                        displayProdWax: timeframe === 'day' ? dailyProdWax : monthlyProdWax, 
+                        displayCostWax: timeframe === 'day' ? dailyCostWax : monthlyCostWax, 
+                        displayProfitWax: timeframe === 'day' ? dailyProfitWax : monthlyProfitWax, 
+                        displayProfitUsd: timeframe === 'day' ? dailyProfitUsd : monthlyProfitUsd, 
+                        displayOutput: timeframe === 'day' ? (factory.output * 24) : (factory.output * 24 * 30), 
+                        displayCostDoVX: timeframe === 'day' ? (factory.costDoVX * 24) : (factory.costDoVX * 24 * 30), 
+                        unitCost, 
+                        marketPrice, 
+                        isProfitable: dailyProfitWax > 0, 
+                        betterToBuy: unitCost > marketPrice,
+                        fairValueWax, // <--- Essential
+                        fairValueUsd  // <--- Essential
+                    };
                 });
-            }, [marketPrices, waxPriceUsd, timeframe]);
+            }, [marketPrices, waxPriceUsd, timeframe, roiTargetDays]);
 
             const filteredFactories = useMemo(() => {
                 if (factoryFilter === 'ALL') return productionAnalysis;
@@ -458,7 +615,13 @@
             const getKeyNameFromOrder = (order) => {
                 if (order === 0) return null;
                 const key = ALL_KEYS.find(k => k.order === order);
-                return key ? key.name : `Order ${order}`;
+                return key ? key.name.replace('F1-KEY-', '').replace('F2-KEY-', '').replace('F3-KEY-', '').replace('F4-KEY-', 'Key ') : `Order ${order}`;
+            };
+            
+            const getRequiredKeyName = (order) => {
+                if (order === 0) return null;
+                const key = ALL_KEYS.find(k => k.order === order);
+                return key ? key.name : `Key Lvl ${order}`;
             };
 
             const zonesAnalysis = useMemo(() => {
@@ -468,14 +631,121 @@
                     const costF = z.usage * marketPrices.DOVF;
                     const costS = z.usage * marketPrices.DOVS;
                     
-                    const totalCostWAX = costR + costH + costF + costS;
+                    // Special Handling for City/Bridge with DOV-X Cost
+                    let totalCostWAX = 0;
+                    if(z.entryCostDovX) {
+                        totalCostWAX = z.entryCostDovX * marketPrices.DOVX;
+                    } else {
+                        totalCostWAX = costR + costH + costF + costS;
+                    }
+                    
                     const rewardWAX = z.win * marketPrices.DOVX;
                     const profitWAX = rewardWAX - totalCostWAX;
+                    const profitUSD = profitWAX * waxPriceUsd;
                     const roi = totalCostWAX > 0 ? (profitWAX / totalCostWAX) * 100 : 0;
                     
-                    return { ...z, totalCostWAX, rewardWAX, profitWAX, profitUSD: profitWAX * waxPriceUsd, roi };
+                    const monthlyProfitWAX = profitWAX * 30;
+                    const monthlyProfitUSD = profitUSD * 30;
+                    
+                    return { ...z, totalCostWAX, rewardWAX, profitWAX, profitUSD, monthlyProfitWAX, monthlyProfitUSD, roi };
                 });
             }, [marketPrices, waxPriceUsd]);
+
+            // --- ROI ADVANCED LOGIC ---
+            const advancedRoiAnalysis = useMemo(() => {
+                const checkpoints = ZONES.filter(z => z.bonusToken);
+                return checkpoints.map(z => {
+                    const baseStats = zonesAnalysis.find(za => za.id === z.id);
+                    let chestType = 'Bunker';
+                    if (z.id === 8) chestType = 'Camp';
+                    if (z.id === 12) chestType = 'Radar';
+                    if (z.id === 16) chestType = 'HQ';
+                    
+                    let tokenValWax = 0;
+                    if (z.id >= 17) {
+                        // Bridge/City Logic
+                        if (z.bonusToken === "F1-TOKEN-CITY-2025") tokenValWax = chestEstimates['Bunker'] || 0;
+                        else if (z.bonusToken === "F2-TOKEN-CITY-2025") tokenValWax = chestEstimates['Camp'] || 0;
+                        else if (z.bonusToken === "F3-TOKEN-CITY-2025") tokenValWax = chestEstimates['Radar'] || 0;
+                        else if (z.bonusToken === "F4-TOKEN-CITY-2025") tokenValWax = chestEstimates['HQ'] || 0;
+
+                    } else {
+                        // Classic Logic
+                        const chestValWax = chestEstimates[chestType] || 0;
+                        tokenValWax = chestValWax / 27;
+                    }
+
+                    const totalProfitWax = baseStats.profitWAX + tokenValWax;
+                    const totalRoi = baseStats.totalCostWAX > 0 ? (totalProfitWax / baseStats.totalCostWAX) * 100 : 0;
+                    return { ...baseStats, chestType: z.id>=17 ? 'Bridge' : chestType, tokenValWax, totalProfitWax, totalRoi, roiBoost: totalRoi - baseStats.roi };
+                });
+            }, [zonesAnalysis, chestEstimates]);
+
+            // --- ASSET VALUATION LOGIC ---
+            const assetValuations = useMemo(() => {
+                // 1. Buildings (Already calc in productionAnalysis)
+                const buildings = productionAnalysis.map(b => ({
+                    name: b.name,
+                    type: 'Bâtiment',
+                    valueWax: b.fairValueWax,
+                    valueUsd: b.fairValueUsd,
+                    details: `Prod: ${(b.output * 24).toFixed(1)}/j`
+                }));
+
+                // 2. Tokens (Derived from Chest Value)
+                const tokens = Object.keys(chestEstimates).map(type => {
+                    const val = chestEstimates[type] / 27;
+                    return {
+                        name: `Token ${type}`,
+                        type: 'Token',
+                        valueWax: val,
+                        valueUsd: val * waxPriceUsd,
+                        details: `1/27ème Coffre`
+                    };
+                });
+
+                // 3. Keys (Derived from Zone Profitability)
+                const keys = ALL_KEYS.map(k => {
+                    const targetZone = ZONES.find(z => z.keyReq === k.order);
+                    let valWax = 0;
+                    if (targetZone) {
+                        const zoneStats = zonesAnalysis.find(z => z.id === targetZone.id);
+                        if (zoneStats && zoneStats.profitWAX > 0) {
+                            valWax = zoneStats.monthlyProfitWAX * 0.20; // 20% Tax
+                        }
+                    } else {
+                        if (k.name.includes('BEACH')) valWax = 50; 
+                        else if (k.name.includes('FOREST')) valWax = 150;
+                        else if (k.name.includes('HILL')) valWax = 500;
+                        else if (k.name.includes('PLAINE') || k.name.includes('CITY')) valWax = 2000;
+                    }
+                    
+                    return {
+                        name: k.name,
+                        type: 'Clé Tactique',
+                        valueWax: valWax,
+                        valueUsd: valWax * waxPriceUsd,
+                        details: targetZone ? `Unlock Zone ${targetZone.name}` : 'Unlock General'
+                    };
+                });
+                
+                // 4. Units (Derived from Weight Contribution)
+                const weightValueMultiplier = 0.05; 
+                const units = UNITS.map(u => {
+                    const dailyValue = u.baseWeight * weightValueMultiplier;
+                    const valWax = dailyValue * roiTargetDays;
+                    return {
+                        name: u.name,
+                        type: 'Unité',
+                        valueWax: valWax,
+                        valueUsd: valWax * waxPriceUsd,
+                        details: `Poids: ${u.baseWeight}`
+                    };
+                });
+
+                return [...buildings, ...tokens, ...keys, ...units];
+            }, [productionAnalysis, chestEstimates, zonesAnalysis, roiTargetDays, waxPriceUsd]);
+
 
             const selectedZone = ZONES.find(z => z.id === parseInt(selectedZoneId));
             const hasRequiredKey = useMemo(() => {
@@ -483,16 +753,40 @@
                 if (!selectedKey) return false;
                 return selectedKey.order >= selectedZone.keyReq;
             }, [selectedZone, selectedKey]);
+            
             const hasRequiredOfficer = useMemo(() => {
+                // If specific officer is required (string ID)
+                if (selectedZone.specificOfficer) {
+                    return selectedOfficer && selectedOfficer.id === selectedZone.specificOfficer;
+                }
                 const req = selectedZone.officerReq || 0;
                 if (req === 0) return true;
                 if (!selectedOfficer) return false;
                 return selectedOfficer.order >= req;
             }, [selectedZone, selectedOfficer]);
+
             const hasRequiredGodmother = useMemo(() => {
                 if (!selectedZone.godmotherReq) return true;
                 return !!selectedGodmother;
             }, [selectedZone, selectedGodmother]);
+            
+            // CHECK UNIT REQUIREMENTS
+            const missingUnits = useMemo(() => {
+                if (!selectedZone.requiredUnits) return [];
+                // Check if selectedSquad contains units that start with or match required baseIds
+                // Simplified check: Just count how many required types are present
+                const missing = [];
+                selectedZone.requiredUnits.forEach(reqId => {
+                    // Try to find a unit in squad that matches this req (by ID or BaseID logic)
+                    // The reqId in ZONES is like 'e2', 'uc5'. 
+                    // Our units have IDs like 'e2_f1'.
+                    const found = selectedSquad.find(u => u.id.startsWith(reqId));
+                    if (!found) missing.push(reqId);
+                });
+                return missing;
+            }, [selectedZone, selectedSquad]);
+
+
             const filteredUnits = useMemo(() => {
                 if (unitRarityFilter === 'ALL') return userInventory.units;
                 return userInventory.units.filter(u => u.rarity === unitRarityFilter);
@@ -516,7 +810,14 @@
                 const costH = selectedZone.usage * marketPrices.DOVH;
                 const costF = selectedZone.usage * marketPrices.DOVF;
                 const costS = selectedZone.usage * marketPrices.DOVS;
-                const totalCostWAX = costR + costH + costF + costS;
+                
+                let totalCostWAX = 0;
+                if (selectedZone.entryCostDovX) {
+                    totalCostWAX = selectedZone.entryCostDovX * marketPrices.DOVX;
+                } else {
+                    totalCostWAX = costR + costH + costF + costS;
+                }
+
                 const rewardWAX = selectedZone.win * marketPrices.DOVX;
                 const profitWAX = rewardWAX - totalCostWAX;
                 const totalCostUsd = totalCostWAX * waxPriceUsd;
@@ -538,15 +839,33 @@
             const handleAutoBuild = () => {
                 const zone = ZONES.find(z => z.id === parseInt(selectedZoneId));
                 if (!zone) return;
+                
+                // 1. Mandatory Slots
                 if (zone.keyReq > 0) { const neededKey = userInventory.keys.find(k => k.order >= zone.keyReq); if (neededKey) setSelectedKey(neededKey); }
-                const highestOfficer = [...userInventory.officers].sort((a, b) => b.order - a.order)[0];
-                if (highestOfficer) setSelectedOfficer(highestOfficer);
-                if (userInventory.godmothers.length > 0) setSelectedGodmother(userInventory.godmothers[0]);
+                
+                // Officer Logic
+                if (zone.specificOfficer) {
+                     const specOff = userInventory.officers.find(o => o.id === zone.specificOfficer);
+                     if (specOff) setSelectedOfficer(specOff);
+                } else {
+                    const highestOfficer = [...userInventory.officers].sort((a, b) => b.order - a.order)[0];
+                    if (highestOfficer) setSelectedOfficer(highestOfficer);
+                }
+
+                if (zone.godmotherReq) {
+                    if (userInventory.godmothers.length > 0) setSelectedGodmother(userInventory.godmothers[0]);
+                } else {
+                    if (userInventory.godmothers.length > 0) setSelectedGodmother(userInventory.godmothers[0]);
+                }
+
                 const bestSupport = [...userInventory.supports].sort((a, b) => b.bonusPct - a.bonusPct)[0];
                 if (bestSupport) setSelectedSupport(bestSupport);
+
                 let newSquad = [];
                 let currentSlots = 0;
                 let currentWeight = 0;
+
+                // 2a. Prerequisite Unit (Old Logic)
                 if (zone.unitReq) {
                     const prereqUnit = userInventory.units.find(u => u.baseId === zone.unitReq || u.id.startsWith(zone.unitReq));
                     if (prereqUnit) {
@@ -556,11 +875,27 @@
                         currentSlots++;
                     }
                 }
+                
+                // 2b. New Required Units Logic (Array)
+                if (zone.requiredUnits) {
+                    zone.requiredUnits.forEach(reqId => {
+                         const unit = userInventory.units.find(u => u.baseId === reqId || u.id.startsWith(reqId));
+                         if (unit && currentSlots < 10) {
+                             newSquad.push(unit);
+                             const bonus = unit.bonuses[zone.type] || 0;
+                             currentWeight += unit.baseWeight * bonus;
+                             currentSlots++; 
+                         }
+                    });
+                }
+
+                // 2c. Fill remaining slots
                 const candidates = userInventory.units.map(u => { const bonus = u.bonuses[zone.type] || 0; return { ...u, effectiveW: u.baseWeight * bonus }; });
                 candidates.sort((a, b) => b.effectiveW - a.effectiveW);
                 for (let unit of candidates) {
                     if (currentSlots >= 10) break;
                     if (unit.effectiveW <= 0.01) continue;
+                    
                     if (currentWeight >= zone.minWeight * 1.05) break;
                     newSquad.push(unit);
                     currentWeight += unit.effectiveW;
@@ -595,7 +930,81 @@
                     <button onClick={() => setActiveTab('combat')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'combat' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Crosshair size={18} /> tableau de bord STRATÉGIQUE</button>
                     <button onClick={() => setActiveTab('production')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'production' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><FactoryIcon size={18} /> analyse PRODUCTION</button>
                     <button onClick={() => setActiveTab('packs')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'packs' ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Package size={18} /> créateur de PACK</button>
+                    <button onClick={() => setActiveTab('chests')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'chests' ? 'bg-yellow-600 text-white shadow-lg shadow-yellow-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Gift size={18} /> simulateur COFFRES</button>
+                    <button onClick={() => setActiveTab('zone_roi_advanced')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'zone_roi_advanced' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Diamond size={18} /> ROI AVANCÉ (TOKENS)</button>
+                    <button onClick={() => setActiveTab('valuation')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'valuation' ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Scale size={18} /> VALORISATION ACTIFS</button>
                 </div>
+
+                {/* --- TAB: ZONE ROI ADVANCED (New) --- */}
+                {activeTab === 'zone_roi_advanced' && (
+                    <div className="space-y-6">
+                        <Card>
+                            <h3 className="text-lg font-bold text-indigo-400 mb-6 flex items-center gap-2"><Diamond size={20} /> Rentabilité Avancée : Impact des Reward Tokens</h3>
+                            
+                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+                                {['Bunker', 'Camp', 'Radar', 'HQ'].map(type => (
+                                    <div key={type} className="bg-indigo-900/20 p-3 rounded border border-indigo-700/50">
+                                        <label className="text-xs text-indigo-300 block mb-1">Val. Estimée Coffre {type} (WAX)</label>
+                                        <input 
+                                            type="number" 
+                                            value={chestEstimates[type]}
+                                            onChange={(e) => setChestEstimates({...chestEstimates, [type]: parseFloat(e.target.value) || 0})}
+                                            className="w-full bg-slate-900 border border-indigo-600 rounded p-2 text-sm text-white font-bold focus:outline-none"
+                                        />
+                                        <div className="text-[10px] text-slate-500 mt-1">1 Token ≈ {(chestEstimates[type]/27).toFixed(2)} WAX</div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="text-slate-400 border-b border-slate-700 text-xs uppercase bg-slate-800/50">
+                                            <th className="p-3">Zone Checkpoint</th>
+                                            <th className="p-3 text-right">Coût Entrée</th>
+                                            <th className="p-3 text-right">Gain DOV-X</th>
+                                            <th className="p-3 text-right text-indigo-300">+ Gain Token (1u)</th>
+                                            <th className="p-3 text-right font-bold text-white">Profit Total</th>
+                                            <th className="p-3 text-center">ROI Boosté</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="text-sm">
+                                        {advancedRoiAnalysis.map(z => (
+                                            <tr key={z.id} className="border-b border-slate-700 hover:bg-slate-800/50 transition-colors">
+                                                <td className="p-3 font-bold text-white">
+                                                    <div>{z.name}</div>
+                                                    <div className="text-[10px] text-slate-500 uppercase">{z.bonusToken.replace('TOKEN-', '')} TOKEN DROP</div>
+                                                </td>
+                                                <td className="p-3 text-right font-mono text-red-400">
+                                                    -{z.totalCostWAX.toFixed(2)} W
+                                                </td>
+                                                <td className="p-3 text-right font-mono text-emerald-400">
+                                                    +{z.rewardWAX.toFixed(2)} W
+                                                </td>
+                                                <td className="p-3 text-right font-mono text-indigo-300 bg-indigo-900/10">
+                                                    +{z.tokenValWax.toFixed(2)} W
+                                                </td>
+                                                <td className="p-3 text-right font-mono font-bold">
+                                                    <div className={z.totalProfitWax > 0 ? "text-emerald-400" : "text-red-400"}>
+                                                        {z.totalProfitWax > 0 ? "+" : ""}{z.totalProfitWax.toFixed(2)} W
+                                                    </div>
+                                                    <div className="text-[10px] opacity-70">${(z.totalProfitWax * waxPriceUsd).toFixed(2)}</div>
+                                                </td>
+                                                <td className="p-3 text-center">
+                                                    <div className={`px-2 py-1 rounded text-xs font-bold inline-block ${z.totalRoi > 0 ? "bg-emerald-900/50 text-emerald-300" : "bg-red-900/50 text-red-300"}`}>
+                                                        {z.totalRoi.toFixed(1)}%
+                                                    </div>
+                                                    {z.roiBoost > 0 && <div className="text-[10px] text-indigo-400 mt-1">+{z.roiBoost.toFixed(1)}% boost</div>}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </Card>
+                    </div>
+                )}
+
 
                 {activeTab === 'combat' && (
                     <div>
@@ -609,7 +1018,7 @@
                                         <table className="w-full text-left border-collapse">
                                             <thead>
                                                 <tr className="text-slate-400 border-b border-slate-700 text-xs uppercase bg-slate-800/50">
-                                                    <th className="p-3">Zone</th><th className="p-3">Prérequis (Gatekeepers)</th><th className="p-3 text-right">Poids Min</th><th className="p-3 text-right">Coût Entrée</th><th className="p-3 text-right">Gain (Win)</th><th className="p-3 text-right">Profit Net</th><th className="p-3 text-center">ROI / Combat</th><th className="p-3 text-center">Action</th>
+                                                    <th className="p-3">Zone</th><th className="p-3">Prérequis (Gatekeepers)</th><th className="p-3 text-right">Poids Min</th><th className="p-3 text-right">Coût Entrée</th><th className="p-3 text-right">Gain (Win)</th><th className="p-3 text-right">Profit / Combat</th><th className="p-3 text-right text-purple-300">Profit / Mois (x30)</th><th className="p-3 text-center">ROI</th><th className="p-3 text-center">Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="text-sm">
@@ -617,11 +1026,13 @@
                                                     <tr key={z.id} className="border-b border-slate-700 hover:bg-slate-800/50 transition-colors">
                                                         <td className="p-3 font-bold text-white"><div>{z.name}</div><div className="text-[10px] text-slate-500 uppercase">{z.type}</div></td>
                                                         <td className="p-3">
-                                                            <div className="flex gap-2">
-                                                                {z.keyReq > 0 && <div title={`Clé Niveau ${z.keyReq} requise`} className="flex items-center gap-1 bg-purple-900/40 text-purple-300 px-2 py-1 rounded text-xs border border-purple-800"><KeyIcon size={12}/> {getKeyNameFromOrder(z.keyReq)} +</div>}
+                                                            <div className="flex gap-2 flex-wrap max-w-xs">
+                                                                {z.keyReq > 0 && <div title={`Clé requise : ${getRequiredKeyName(z.keyReq)}`} className="flex items-center gap-1 bg-purple-900/40 text-purple-300 px-2 py-1 rounded text-xs border border-purple-800"><KeyIcon size={12}/> {getRequiredKeyName(z.keyReq).replace('F1-KEY-', '').replace('F2-KEY-', '').replace('F3-KEY-', '').replace('F4-KEY-', '')} ou +</div>}
                                                                 {z.officerReq > 0 && <div title={`Officier Niveau ${z.officerReq} requis`} className="flex items-center gap-1 bg-blue-900/40 text-blue-300 px-2 py-1 rounded text-xs border border-blue-800"><Users size={12}/> Lvl {z.officerReq}</div>}
                                                                 {z.godmotherReq && <div title="Godmother requise" className="flex items-center gap-1 bg-pink-900/40 text-pink-300 px-2 py-1 rounded text-xs border border-pink-800"><Heart size={12}/> GM</div>}
                                                                 {z.unitReq && <div title="Unité Spéciale requise" className="flex items-center gap-1 bg-yellow-900/40 text-yellow-300 px-2 py-1 rounded text-xs border border-yellow-800"><Shield size={12}/> Unit</div>}
+                                                                {z.requiredUnits && z.requiredUnits.length > 0 && <div title="Unités Spécifiques requises" className="flex items-center gap-1 bg-orange-900/40 text-orange-300 px-2 py-1 rounded text-xs border border-orange-800"><Shield size={12}/> {z.requiredUnits.length} Spec.</div>}
+                                                                {z.bonusToken && <div title={`Bonus Token: ${z.bonusToken}`} className="flex items-center gap-1 bg-yellow-600/40 text-yellow-200 px-2 py-1 rounded text-xs border border-yellow-500"><Gift size={12}/> Token</div>}
                                                                 {z.keyReq===0 && z.officerReq===0 && <span className="text-slate-600 text-xs">- Aucun -</span>}
                                                             </div>
                                                         </td>
@@ -629,13 +1040,34 @@
                                                         <td className="p-3 text-right font-mono text-red-400">
                                                             {z.totalCostWAX.toFixed(2)} W
                                                             <div className="text-[10px] opacity-70">${(z.totalCostWAX * waxPriceUsd).toFixed(2)}</div>
-                                                            <div className="text-[10px] text-slate-400 mt-1">{z.usage.toLocaleString()} TU x4</div>
+                                                            <div className="text-[10px] text-slate-400 mt-1">{z.entryCostDovX ? `${z.entryCostDovX.toLocaleString()} DOV-X` : `${z.usage.toLocaleString()} TU x4`}</div>
                                                         </td>
                                                         <td className="p-3 text-right font-mono text-emerald-400">
                                                             {z.rewardWAX.toFixed(2)} W
                                                             <div className="text-[10px] opacity-70">${(z.rewardWAX * waxPriceUsd).toFixed(2)}</div>
+                                                            {z.bonusToken && <div className="text-[10px] text-yellow-500 mt-1">+ {z.bonusToken.replace('F1-TOKEN-', '')}</div>}
                                                         </td>
-                                                        <td className="p-3 text-right font-bold font-mono"><span className={z.profitWAX > 0 ? "text-emerald-500" : "text-red-500"}>{z.profitWAX > 0 ? "+" : ""}{z.profitWAX.toFixed(2)} W</span></td>
+                                                        
+                                                        {/* Profit / Combat */}
+                                                        <td className="p-3 text-right font-bold font-mono">
+                                                            <div className={z.profitWAX > 0 ? "text-emerald-500" : "text-red-500"}>
+                                                                {z.profitWAX > 0 ? "+" : ""}{z.profitWAX.toFixed(2)} W
+                                                            </div>
+                                                            <div className="text-[10px] opacity-70">
+                                                                ${z.profitUSD.toFixed(2)}
+                                                            </div>
+                                                        </td>
+
+                                                        {/* Profit / Mois */}
+                                                        <td className="p-3 text-right font-bold font-mono bg-slate-800/30">
+                                                            <div className={z.monthlyProfitWAX > 0 ? "text-purple-400" : "text-red-400"}>
+                                                                {z.monthlyProfitWAX > 0 ? "+" : ""}{z.monthlyProfitWAX.toLocaleString(undefined, {maximumFractionDigits: 0})} W
+                                                            </div>
+                                                            <div className="text-[10px] opacity-70">
+                                                                ${z.monthlyProfitUSD.toFixed(2)}
+                                                            </div>
+                                                        </td>
+
                                                         <td className="p-3 text-center"><span className={`px-2 py-1 rounded text-xs font-bold ${z.roi > 0 ? "bg-emerald-900/50 text-emerald-300" : "bg-red-900/50 text-red-300"}`}>{z.roi.toFixed(1)}%</span></td>
                                                         <td className="p-3 text-center"><button onClick={() => switchToDetailMode(z.id)} className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded text-xs flex items-center gap-1 mx-auto">PRÉPARER <ChevronRight size={12}/></button></td>
                                                     </tr>
@@ -646,7 +1078,7 @@
                                 </Card>
                             </div>
                         ) : (
-                            /* DETAIL BUILDER VIEW (Unchanged logic, just re-rendering) */
+                            /* DETAIL BUILDER VIEW */
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 <div className="col-span-3 mb-2 flex items-center gap-4">
                                     <button onClick={() => setViewMode('dashboard')} className="flex items-center gap-2 text-slate-400 hover:text-white font-bold text-sm"><ArrowLeft size={16}/> Retour Tableau de Bord</button>
@@ -659,6 +1091,7 @@
                                         <div className="space-y-4">
                                             <div>
                                                 <label className={`text-xs uppercase font-bold mb-1 flex items-center gap-1 ${selectedZone.officerReq > 0 ? (hasRequiredOfficer ? 'text-green-400' : 'text-red-400') : 'text-slate-400'}`}>Officier {selectedZone.officerReq > 0 ? `(Req Lvl ${selectedZone.officerReq})` : '(Optionnel)'}</label>
+                                                {selectedZone.specificOfficer && <div className="text-[10px] text-orange-400 mb-1">Spécifique Requis : {selectedZone.specificOfficer}</div>}
                                                 <select className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm focus:outline-none focus:border-blue-500" onChange={(e) => setSelectedOfficer(userInventory.officers.find(o => o.id === e.target.value))} value={selectedOfficer?.id || ''}>
                                                     <option value="">-- Choisir Officier --</option>
                                                     {userInventory.officers.map(off => <option key={off.id} value={off.id}>{off.name} (Lvl {off.order})</option>)}
@@ -666,7 +1099,7 @@
                                             </div>
                                             <div>
                                                 <label className={`text-xs uppercase font-bold mb-1 flex items-center gap-1 ${selectedZone.keyReq > 0 ? (hasRequiredKey ? 'text-green-400' : 'text-red-400') : 'text-purple-400'}`}>
-                                                    <KeyIcon size={12}/> Slot Tactique {selectedZone.keyReq > 0 ? `(${getKeyNameFromOrder(selectedZone.keyReq)} + Req)` : '(Optionnel)'}
+                                                    <KeyIcon size={12}/> Slot Tactique {selectedZone.keyReq > 0 ? `(${getRequiredKeyName(selectedZone.keyReq)} ou +)` : '(Optionnel)'}
                                                 </label>
                                                 <select className="w-full bg-slate-900 border border-purple-500/50 rounded p-2 text-sm focus:outline-none focus:border-purple-500" onChange={(e) => setSelectedKey(userInventory.keys.find(k => k.id === e.target.value))} value={selectedKey?.id || ''}>
                                                     <option value="">-- Sélectionner Clé --</option>
@@ -701,7 +1134,19 @@
                                         </div>
                                     </div>
                                     <button onClick={handleAutoBuild} className="w-full mb-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-2 px-4 rounded shadow-lg flex items-center justify-center gap-2 text-sm"><Zap size={16} /> ⚡ AUTO-BUILD (OPTIMISÉ)</button>
-                                    <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                                    
+                                    {selectedZone.requiredUnits && (
+                                        <div className="mb-2 p-2 bg-orange-900/30 border border-orange-700/50 rounded text-xs text-orange-200">
+                                            <div className="font-bold mb-1">Unités Spéciales Requises :</div>
+                                            <div className="flex flex-wrap gap-1">
+                                                {selectedZone.requiredUnits.map(req => (
+                                                    <span key={req} className={`px-1 rounded ${missingUnits.includes(req) ? 'bg-red-500/50 text-white' : 'bg-green-500/50 text-white'}`}>{req}</span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="space-y-3 max-h-[450px] overflow-y-auto pr-2">
                                         {filteredUnits.map(unit => {
                                         const bonus = unit.bonuses[selectedZone.type] || 0;
                                         const effectiveW = unit.baseWeight * bonus;
@@ -729,13 +1174,14 @@
                                         <div className="flex justify-between items-center border-b border-slate-700 pb-2"><span className="text-sm text-slate-400">Accès Zone (Key)</span>{hasRequiredKey ? <Badge color="green">AUTORISÉ</Badge> : <Badge color="red">VERROUILLÉ</Badge>}</div>
                                         <div className="flex justify-between items-center border-b border-slate-700 pb-2"><span className="text-sm text-slate-400">Commandement</span>{hasRequiredOfficer ? <Badge color="green">PRÊT</Badge> : <Badge color="red">OFFICIER REQUIS</Badge>}</div>
                                         <div className="flex justify-between items-center border-b border-slate-700 pb-2"><span className="text-sm text-slate-400">Godmother</span>{hasRequiredGodmother ? <Badge color="green">OK</Badge> : <Badge color="red">REQUISE</Badge>}</div>
+                                        {selectedZone.requiredUnits && <div className="flex justify-between items-center border-b border-slate-700 pb-2"><span className="text-sm text-slate-400">Unités Spéciales</span>{missingUnits.length === 0 ? <Badge color="green">COMPLET</Badge> : <Badge color="red">MANQUANTES</Badge>}</div>}
                                         <div className="bg-slate-900 p-3 rounded border border-slate-700">
                                         <div className="flex justify-between text-sm mb-1"><span className="text-slate-400">Poids Requis (Win)</span><span className="font-mono text-white">{selectedZone.minWeight.toFixed(2)}</span></div>
                                         <div className="flex justify-between text-lg font-bold mb-2"><span className={squadStats.finalWeight >= selectedZone.minWeight ? "text-emerald-400" : "text-red-400"}>Puissance Totale</span><span className="font-mono text-white">{squadStats.finalWeight.toFixed(2)}</span></div>
                                         <div className="w-full bg-slate-700 h-2 rounded-full overflow-hidden"><div className={`h-full ${squadStats.finalWeight >= selectedZone.minWeight ? 'bg-emerald-500' : 'bg-red-500'}`} style={{ width: `${Math.min((squadStats.finalWeight / selectedZone.minWeight) * 100, 100)}%` }}></div></div>
                                         </div>
                                         <div className="mt-4 text-center">
-                                        {!hasRequiredKey ? (<div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 font-bold flex items-center justify-center gap-2"><Lock size={18} /> CLÉ TACTIQUE REQUISE</div>) : !hasRequiredOfficer ? (<div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 font-bold flex items-center justify-center gap-2"><Users size={18} /> OFFICIER REQUIS</div>) : !hasRequiredGodmother ? (<div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 font-bold flex items-center justify-center gap-2"><Heart size={18} /> GODMOTHER REQUISE</div>) : squadStats.finalWeight >= selectedZone.minWeight ? (<div className="p-3 bg-emerald-900/50 border border-emerald-500 rounded text-emerald-200 font-bold flex items-center justify-center gap-2"><CheckCircle size={18} /> VICTOIRE ASSURÉE</div>) : (<div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 font-bold flex items-center justify-center gap-2"><AlertTriangle size={18} /> DÉFAITE PROBABLE</div>)}
+                                        {!hasRequiredKey ? (<div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 font-bold flex items-center justify-center gap-2"><Lock size={18} /> CLÉ TACTIQUE REQUISE</div>) : !hasRequiredOfficer ? (<div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 font-bold flex items-center justify-center gap-2"><Users size={18} /> OFFICIER REQUIS</div>) : !hasRequiredGodmother ? (<div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 font-bold flex items-center justify-center gap-2"><Heart size={18} /> GODMOTHER REQUISE</div>) : missingUnits.length > 0 ? (<div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 font-bold flex items-center justify-center gap-2"><Shield size={18} /> UNITÉS MANQUANTES</div>) : squadStats.finalWeight >= selectedZone.minWeight ? (<div className="p-3 bg-emerald-900/50 border border-emerald-500 rounded text-emerald-200 font-bold flex items-center justify-center gap-2"><CheckCircle size={18} /> VICTOIRE ASSURÉE</div>) : (<div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-200 font-bold flex items-center justify-center gap-2"><AlertTriangle size={18} /> DÉFAITE PROBABLE</div>)}
                                         </div>
                                     </div>
                                     </Card>
@@ -743,7 +1189,7 @@
                                     <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><DollarSign size={20} /> Rentabilité / Combat</h3>
                                     <div className="space-y-3 text-sm">
                                         <div className="grid grid-cols-2 gap-4">
-                                        <div><span className="text-slate-400 text-xs block">COÛT RESSOURCES</span><div className="text-red-400 font-mono">-{combatROI.totalCostWAX.toFixed(2)} WAX</div><div className="text-red-500/70 text-xs font-mono">(-${combatROI.totalCostUsd.toFixed(3)})</div><div className="text-[10px] text-slate-400 mt-1">{selectedZone.usage.toLocaleString()} TU x4</div></div>
+                                        <div><span className="text-slate-400 text-xs block">COÛT RESSOURCES</span><div className="text-red-400 font-mono">-{combatROI.totalCostWAX.toFixed(2)} WAX</div><div className="text-red-500/70 text-xs font-mono">(-${combatROI.totalCostUsd.toFixed(3)})</div><div className="text-[10px] text-slate-400 mt-1">{selectedZone.entryCostDovX ? `${selectedZone.entryCostDovX} DOV-X` : `${selectedZone.usage.toLocaleString()} TU x4`}</div></div>
                                         <div className="text-right"><span className="text-slate-400 text-xs block">GAIN DOV-X</span><div className="text-emerald-400 font-mono">+{combatROI.rewardWAX.toFixed(2)} WAX</div><div className="text-emerald-500/70 text-xs font-mono">(+${combatROI.rewardUsd.toFixed(3)})</div></div>
                                         </div>
                                         <div className="border-t border-slate-700 pt-2"><div className="flex justify-between items-baseline mb-1"><span className="font-bold text-slate-300">Profit Net</span><span className={`text-lg font-bold ${combatROI.profitWAX > 0 ? "text-emerald-400" : "text-red-400"}`}>{combatROI.profitWAX > 0 ? "+" : ""}{combatROI.profitWAX.toFixed(2)} WAX</span></div><div className={`text-right font-mono text-sm ${combatROI.profitUsd > 0 ? "text-emerald-500" : "text-red-500"}`}>{combatROI.profitUsd > 0 ? "+" : ""}${combatROI.profitUsd.toFixed(4)}</div></div>
@@ -802,6 +1248,131 @@
                                 <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-6 rounded-lg border border-slate-600 text-center"><div className="text-sm font-bold text-purple-300 uppercase tracking-wider mb-2">Retour sur Investissement</div>{packStats.dailyNetWax > 0 ? (<div><div className="text-5xl font-bold text-white mb-2">{packStats.roiDays < 1 ? "< 1" : Math.ceil(packStats.roiDays)} <span className="text-xl font-normal text-slate-400">Jours</span></div><div className="text-xs text-slate-500">Pour rentabiliser vos ${(packBuilder.price * waxPriceUsd).toFixed(2)}</div></div>) : (<div className="text-red-400 font-bold flex flex-col items-center gap-2"><AlertTriangle size={32} /><span>JAMAIS RENTABLE</span><span className="text-xs font-normal text-slate-400">Les coûts de maintenance dépassent la production.</span></div>)}</div>
                             </Card>
                         </div>
+                    </div>
+                )}
+                
+                {/* CHESTS TAB */}
+                {activeTab === 'chests' && (
+                    <div className="space-y-6">
+                        <Card>
+                            <h3 className="text-lg font-bold text-yellow-500 mb-4 flex items-center gap-2"><Gift size={20} /> Simulateur de Coffres & Drops</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <div><label className="text-xs text-slate-400 uppercase font-bold mb-1 block">Type de Coffre</label><select className="w-full bg-slate-900 border border-yellow-600/50 rounded p-2 text-sm focus:outline-none focus:border-yellow-500 text-yellow-200 font-bold" value={selectedChestType} onChange={(e) => { setSelectedChestType(e.target.value); setChestSimulationResults(null); }}>{Object.keys(CHEST_DATA).map(type => (<option key={type} value={type}>{CHEST_DATA[type].name} (Zone {CHEST_DATA[type].zone})</option>))}</select></div>
+                                    <div><label className="text-xs text-slate-400 uppercase font-bold mb-1 block">Quantité à ouvrir</label><div className="flex gap-2">{[1, 5, 10, 27, 50, 100].map(n => (<button key={n} onClick={() => setNumChestsToOpen(n)} className={`px-3 py-1 rounded text-xs font-bold transition-all ${numChestsToOpen === n ? 'bg-yellow-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>x{n}</button>))}<input type="number" min="1" value={numChestsToOpen} onChange={(e) => setNumChestsToOpen(parseInt(e.target.value) || 1)} className="w-16 bg-slate-900 border border-slate-600 rounded px-2 text-center text-sm focus:outline-none" /></div></div>
+                                    <div className="bg-slate-900 p-3 rounded border border-slate-700 text-sm"><div className="flex justify-between mb-1"><span className="text-slate-400">Coût en Reward Tokens</span><span className="text-yellow-400 font-mono font-bold">{numChestsToOpen * 27} Tokens</span></div><div className="text-xs text-slate-500 italic">Basé sur le ratio de blend : 27 Tokens = 1 Coffre 4★</div></div>
+                                    <button onClick={handleSimulateChests} className="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white font-bold py-3 px-4 rounded shadow-lg flex items-center justify-center gap-2"><Gift size={18} /> SIMULER OUVERTURE</button>
+                                </div>
+                                <div className="bg-slate-900/50 p-4 rounded border border-slate-700 h-full">
+                                    {!chestSimulationResults ? (<div className="h-full flex flex-col justify-center items-center text-slate-500 text-center"><div className="mb-2 opacity-50"><Database size={48} /></div><p className="text-sm">Cliquez sur "Simuler Ouverture"<br/>pour générer les drops aléatoires.</p><div className="mt-4 text-xs text-slate-600 border-t border-slate-700 pt-2 w-full text-left"><div className="font-bold mb-1 uppercase">Probabilités Officielles :</div><div>• Bâtiments Communs/Rares/Epiques/Légendaires : ~25% chacun</div><div>• Jackpot F4 (T4) : 0.02% (Très Rare)</div><div>• Clés : ~33% chacune</div></div></div>) : (
+                                        <div className="space-y-4 animate-fade-in">
+                                            <div className="flex justify-between items-center border-b border-slate-700 pb-2"><h4 className="font-bold text-white">Résultats ({numChestsToOpen} Coffres)</h4><span className="text-xs text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded">Succès</span></div>
+                                            <div><div className="text-xs font-bold text-slate-400 uppercase mb-2 flex justify-between"><span>Bâtiments (100% Drop Rate)</span><span>{Object.values(chestSimulationResults.buildingDrops).reduce((a,b)=>a+b,0)} recus</span></div><div className="space-y-1 max-h-[150px] overflow-y-auto pr-2">{Object.entries(chestSimulationResults.buildingDrops).map(([name, count]) => { const isJackpot = name.includes('_F4_') || name.includes('L_F4') || name.includes('R_F4'); return ( <div key={name} className={`flex justify-between text-sm p-1 rounded ${isJackpot ? 'bg-yellow-900/40 border border-yellow-700/50' : 'hover:bg-slate-800'}`}><span className={isJackpot ? "text-yellow-200 font-bold" : "text-slate-300"}>{name} {isJackpot && "🌟"}</span><span className="font-mono font-bold text-white">x{count}</span></div> ) })}</div></div>
+                                            <div><div className="text-xs font-bold text-slate-400 uppercase mb-2 flex justify-between"><span>Clés Tactiques (100% Drop Rate)</span><span>{Object.values(chestSimulationResults.keyDrops).reduce((a,b)=>a+b,0)} recus</span></div><div className="space-y-1">{Object.entries(chestSimulationResults.keyDrops).map(([name, count]) => ( <div key={name} className="flex justify-between text-sm p-1 hover:bg-slate-800 rounded"><span className="text-purple-300">{name}</span><span className="font-mono font-bold text-white">x{count}</span></div> ))}</div></div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+                )}
+                
+                {/* ROI ADVANCED TAB */}
+                {activeTab === 'zone_roi_advanced' && (
+                    <div className="space-y-6">
+                        <Card>
+                            <h3 className="text-lg font-bold text-indigo-400 mb-6 flex items-center gap-2"><Diamond size={20} /> Rentabilité Avancée : Impact des Reward Tokens</h3>
+                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+                                {['Bunker', 'Camp', 'Radar', 'HQ'].map(type => (
+                                    <div key={type} className="bg-indigo-900/20 p-3 rounded border border-indigo-700/50">
+                                        <label className="text-xs text-indigo-300 block mb-1">Val. Estimée Coffre {type} (WAX)</label>
+                                        <input type="number" value={chestEstimates[type]} onChange={(e) => setChestEstimates({...chestEstimates, [type]: parseFloat(e.target.value) || 0})} className="w-full bg-slate-900 border border-indigo-600 rounded p-2 text-sm text-white font-bold focus:outline-none" />
+                                        <div className="text-[10px] text-slate-500 mt-1">1 Token ≈ {(chestEstimates[type]/27).toFixed(2)} WAX</div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="text-slate-400 border-b border-slate-700 text-xs uppercase bg-slate-800/50"><th className="p-3">Zone Checkpoint</th><th className="p-3 text-right">Coût Entrée</th><th className="p-3 text-right">Gain DOV-X</th><th className="p-3 text-right text-indigo-300">+ Gain Token (1u)</th><th className="p-3 text-right font-bold text-white">Profit Total</th><th className="p-3 text-center">ROI Boosté</th></tr>
+                                    </thead>
+                                    <tbody className="text-sm">
+                                        {advancedRoiAnalysis.map(z => (
+                                            <tr key={z.id} className="border-b border-slate-700 hover:bg-slate-800/50 transition-colors">
+                                                <td className="p-3 font-bold text-white"><div>{z.name}</div><div className="text-[10px] text-slate-500 uppercase">{z.bonusToken.replace('TOKEN-', '')} TOKEN DROP</div></td>
+                                                <td className="p-3 text-right font-mono text-red-400">-{z.totalCostWAX.toFixed(2)} W</td>
+                                                <td className="p-3 text-right font-mono text-emerald-400">+{z.rewardWAX.toFixed(2)} W</td>
+                                                <td className="p-3 text-right font-mono text-indigo-300 bg-indigo-900/10">+{z.tokenValWax.toFixed(2)} W</td>
+                                                <td className="p-3 text-right font-mono font-bold"><div className={z.totalProfitWax > 0 ? "text-emerald-400" : "text-red-400"}>{z.totalProfitWax > 0 ? "+" : ""}{z.totalProfitWax.toFixed(2)} W</div><div className="text-[10px] opacity-70">${(z.totalProfitWax * waxPriceUsd).toFixed(2)}</div></td>
+                                                <td className="p-3 text-center"><div className={`px-2 py-1 rounded text-xs font-bold inline-block ${z.totalRoi > 0 ? "bg-emerald-900/50 text-emerald-300" : "bg-red-900/50 text-red-300"}`}>{z.totalRoi.toFixed(1)}%</div>{z.roiBoost > 0 && <div className="text-[10px] text-indigo-400 mt-1">+{z.roiBoost.toFixed(1)}% boost</div>}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </Card>
+                    </div>
+                )}
+
+                {/* --- TAB: VALUATION (New) --- */}
+                {activeTab === 'valuation' && (
+                    <div className="space-y-6">
+                        <Card>
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                                <div>
+                                    <h3 className="text-lg font-bold text-cyan-400 mb-1 flex items-center gap-2"><Scale size={20} /> Valorisation "Fair Value" des Actifs</h3>
+                                    <p className="text-slate-400 text-sm">Calcul basé sur le rendement et l'utilité théorique sur une période donnée.</p>
+                                </div>
+                                <div className="flex items-center gap-2 bg-slate-900 p-2 rounded-lg border border-slate-700">
+                                    <span className="text-xs text-slate-400">ROI Cible (Jours) :</span>
+                                    <input 
+                                        type="number" 
+                                        value={roiTargetDays}
+                                        onChange={(e) => setRoiTargetDays(parseInt(e.target.value) || 30)}
+                                        className="w-16 bg-slate-800 border border-slate-600 rounded text-center text-sm focus:outline-none focus:border-cyan-500"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {/* LISTING */}
+                                <div className="col-span-2">
+                                    <div className="overflow-x-auto max-h-[600px]">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead className="sticky top-0 bg-slate-800 z-10 shadow-lg">
+                                                <tr className="text-slate-400 border-b border-slate-700 text-xs uppercase">
+                                                    <th className="p-3">Nom de l'Actif</th>
+                                                    <th className="p-3">Type</th>
+                                                    <th className="p-3 text-right">Valeur Théorique (WAX)</th>
+                                                    <th className="p-3 text-right">Valeur Théorique ($)</th>
+                                                    <th className="p-3">Détails Calcul</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="text-sm">
+                                                {assetValuations.map((asset, idx) => (
+                                                    <tr key={idx} className="border-b border-slate-700 hover:bg-slate-700/30 transition-colors">
+                                                        <td className="p-3 font-bold text-white">{asset.name}</td>
+                                                        <td className="p-3">
+                                                            <span className={`px-2 py-1 rounded text-xs border ${
+                                                                asset.type === 'Bâtiment' ? 'bg-blue-900/30 text-blue-300 border-blue-800' :
+                                                                asset.type === 'Token' ? 'bg-yellow-900/30 text-yellow-300 border-yellow-800' :
+                                                                asset.type === 'Clé Tactique' ? 'bg-purple-900/30 text-purple-300 border-purple-800' :
+                                                                'bg-emerald-900/30 text-emerald-300 border-emerald-800'
+                                                            }`}>
+                                                                {asset.type}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-3 text-right font-mono text-cyan-300 font-bold">{asset.valueWax.toFixed(2)} W</td>
+                                                        <td className="p-3 text-right font-mono text-slate-300">${asset.valueUsd.toFixed(2)}</td>
+                                                        <td className="p-3 text-xs text-slate-500 italic">{asset.details}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
                     </div>
                 )}
                 </div>
