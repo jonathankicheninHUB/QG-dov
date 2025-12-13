@@ -65,8 +65,10 @@
         const Briefcase = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>;
         const Database = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>;
         const Gift = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.9 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>;
+        const Flask = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M10 2v7.31"/><path d="M14 2v7.31"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/></svg>;
         const Diamond = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>;
         const Scale = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>;
+        const Building = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>;
 
         // --- DATASETS ---
 
@@ -185,7 +187,8 @@
                 rarity.levels.forEach(level => {
                     if (level.l === 5 && rarity.name !== 'Common' && (type === 'SUPPLY' || type === 'HEALTH')) return; 
 
-                    let name = `${rarity.name} ${type} L${level.l}`;
+                    // MODIFICATION ICI : Suppression du 'L' avant le niveau
+                    let name = `${rarity.name} ${type} ${level.l}`;
                     if (level.isBlend) {
                         name = `Supreme ${rarity.name} ${type} (Blend 10x F4)`;
                     }
@@ -197,7 +200,10 @@
                         rarity: rarity.name,
                         level: level.l,
                         output: level.out,
-                        costDoVX: level.cost
+                        costDoVX: level.cost,
+                        efficiency: 100, // Default 100%
+                        accountsNeeded: 1,
+                        equivalentF1s: 1 // Baseline
                     });
                 });
                 });
@@ -207,6 +213,7 @@
 
         const FACTORIES = generateFactories();
 
+        // UPDATED: Added bonusToken
         const ZONES = [
             { id: 1, name: 'Beach 1', type: 'Beach', order: 1, win: 400, usage: 1160, minWeight: 14, keyReq: 0, officerReq: 1 },
             { id: 2, name: 'Beach 2', type: 'Beach', order: 2, win: 2405, usage: 6968, minWeight: 28, keyReq: 5, officerReq: 2 },
@@ -228,36 +235,57 @@
             { id: 17, name: 'City 1', type: 'City', order: 17, win: 0, usage: 0, entryCostDovX: 777.35, minWeight: 108.53, keyReq: 9, officerReq: 1, bonusToken: "F1-TOKEN-CITY-2025", specificOfficer: 'o25', requiredUnits: ['e6', 'uc6', 'l2'] },
             { id: 18, name: 'City 2', type: 'City', order: 18, win: 0, usage: 0, entryCostDovX: 2213.87, minWeight: 511.76, keyReq: 13, officerReq: 1, bonusToken: "F2-TOKEN-CITY-2025", specificOfficer: 'o26', requiredUnits: ['uc5', 'c6', 'r4'] },
             { id: 19, name: 'City 3', type: 'City', order: 19, win: 0, usage: 0, entryCostDovX: 6677.85, minWeight: 1357.04, keyReq: 17, officerReq: 1, bonusToken: "F3-TOKEN-CITY-2025", specificOfficer: 'o27', requiredUnits: ['uc6', 'r5', 'e7', 'l2'] },
-            { id: 20, name: 'Bridge', type: 'City', order: 20, win: 0, usage: 0, entryCostDovX: 14850.80, minWeight: 2494.23, keyReq: 20, officerReq: 1, bonusToken: "F4-TOKEN-CITY-2025", specificOfficer: 'o11', requiredUnits: ['e7', 'l2', 'l2'] }
+            { id: 20, name: 'Bridge', type: 'City', order: 20, win: 0, usage: 0, entryCostDovX: 14850.80, minWeight: 2494.23, keyReq: 20, officerReq: 1, bonusToken: "F4-TOKEN-CITY-2025", specificOfficer: 'o11', requiredUnits: ['e7', 'l2', 'l2'] } // Simplified logic for dual unit requirement
         ];
 
+        // --- UNIT TEMPLATES FOR GENERATOR ---
+        // Excluded: Plane, Ship. Included: Infantry, Tank, Artillery, etc.
         const UNIT_TEMPLATES = [
+            // COMMON
             { baseId: 'c1', name: '26th Infantry', type: 'Infantry', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 0.01 } },
             { baseId: 'c2', name: '18th Infantry', type: 'Infantry', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 0.01 } },
             { baseId: 'c3', name: '507th Parachute', type: 'Parachute', rarity: 'Common', base: 0.3, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 0.01 } },
             { baseId: 'c4', name: '32nd Field Artillery', type: 'Artillery', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 1.0, Forest: 0.72, Hill: 1.0, City: 0.01 } },
             { baseId: 'c5', name: '82nd Armored Reconn', type: 'Reconn', rarity: 'Common', base: 0.3, b: { Beach: 0.22, Plain: 1.0, Forest: 1.0, Hill: 1.0, City: 1.0 } },
-            { baseId: 'c6', name: 'HMS Glasgow', type: 'Ship', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 1.0 } },
+            // Removed HMS Glasgow (Ship) for blending
+
+            // UNCOMMON
             { baseId: 'uc1', name: '505th Parachute', type: 'Parachute', rarity: 'Uncommon', base: 0.9, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 0.01 } },
             { baseId: 'uc2', name: '5th Field Artillery', type: 'Artillery', rarity: 'Uncommon', base: 0.9, b: { Beach: 1.0, Plain: 1.0, Forest: 1.0, Hill: 1.0, City: 0.01 } },
             { baseId: 'uc3', name: '325th Glider', type: 'Glider', rarity: 'Uncommon', base: 0.9, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 0.01 } },
             { baseId: 'uc4', name: 'Anti-tank Xmas', type: 'Anti-Tank', rarity: 'Uncommon', base: 0.9, b: { Beach: 0.22, Plain: 1.0, Forest: 1.0, Hill: 1.0, City: 1.0 } },
-            { baseId: 'uc5', name: 'Mosquito B.IV', type: 'Plane', rarity: 'Uncommon', base: 0.9, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 1.0 } },
-            { baseId: 'uc6', name: 'Avro Lancaster', type: 'Plane', rarity: 'Uncommon', base: 0.9, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 1.0 } },
+            // Removed Mosquito & Lancaster (Planes)
+
+            // RARE
             { baseId: 'r1', name: '16th Infantry', type: 'Infantry', rarity: 'Rare', base: 3.6, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 1.0, City: 0.01 } },
             { baseId: 'r2', name: '635th Anti-Tank', type: 'Anti-Tank', rarity: 'Rare', base: 3.6, b: { Beach: 0.22, Plain: 0.72, Forest: 1.0, Hill: 1.0, City: 1.0 } },
-            { baseId: 'r3', name: '346th Guyenne', type: 'Plane', rarity: 'Rare', base: 3.6, b: { Beach: 1.0, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 1.0 } },
-            { baseId: 'r4', name: 'USS Texas', type: 'Ship', rarity: 'Rare', base: 3.6, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
-            { baseId: 'r5', name: 'USS Baldwin', type: 'Ship', rarity: 'Rare', base: 3.6, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
+            // Removed Guyenne (Plane), Texas/Baldwin (Ships)
+
+            // EPIC
             { baseId: 'e1', name: '502nd Parachute', type: 'Parachute', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 1.0 } },
             { baseId: 'e2', name: '37th Engineer', type: 'Engineer', rarity: 'Epic', base: 8.42, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 1.0, City: 0.01 } },
             { baseId: 'e3', name: '741st Tank', type: 'Tank', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 0.72, City: 0.01 } },
             { baseId: 'e4', name: 'Afterland', type: 'Special', rarity: 'Epic', base: 8.42, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 1.0, City: 0.01 } },
-            { baseId: 'e5', name: 'USS Frankford', type: 'Ship', rarity: 'Epic', base: 8.42, b: { Beach: 1.25, Plain: 1.0, Forest: 1.0, Hill: 0.75, City: 1.0 } },
-            { baseId: 'e6', name: 'B-26 Marauder', type: 'Plane', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
-            { baseId: 'e7', name: 'Georges Leygues', type: 'Ship', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
+            // Removed Frankford/Leygues (Ships), Marauder (Plane)
+
+            // LEGENDARY
             { baseId: 'l1', name: '741 Tank Xmas', type: 'Tank', rarity: 'Legendary', base: 57.6, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 0.72, City: 0.01 } },
-            { baseId: 'l2', name: 'USS Arkansas', type: 'Ship', rarity: 'Legendary', base: 57.6, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } }
+            // Removed Arkansas (Ship)
+        ];
+
+        // FULL UNITS FOR COMBAT (INCLUDES PLANES/SHIPS MANUALLY ADDED BACK FOR COMBAT SIM BUT NOT FOR BLEND LIST)
+        const COMBAT_TEMPLATES = [
+             ...UNIT_TEMPLATES,
+             { baseId: 'c6', name: 'HMS Glasgow', type: 'Ship', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 1.0 } },
+             { baseId: 'uc5', name: 'Mosquito B.IV', type: 'Plane', rarity: 'Uncommon', base: 0.9, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 1.0 } },
+             { baseId: 'uc6', name: 'Avro Lancaster', type: 'Plane', rarity: 'Uncommon', base: 0.9, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 1.0 } },
+             { baseId: 'r3', name: '346th Guyenne', type: 'Plane', rarity: 'Rare', base: 3.6, b: { Beach: 1.0, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 1.0 } },
+             { baseId: 'r4', name: 'USS Texas', type: 'Ship', rarity: 'Rare', base: 3.6, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
+             { baseId: 'r5', name: 'USS Baldwin', type: 'Ship', rarity: 'Rare', base: 3.6, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
+             { baseId: 'e5', name: 'USS Frankford', type: 'Ship', rarity: 'Epic', base: 8.42, b: { Beach: 1.25, Plain: 1.0, Forest: 1.0, Hill: 0.75, City: 1.0 } },
+             { baseId: 'e6', name: 'B-26 Marauder', type: 'Plane', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
+             { baseId: 'e7', name: 'Georges Leygues', type: 'Ship', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
+             { baseId: 'l2', name: 'USS Arkansas', type: 'Ship', rarity: 'Legendary', base: 57.6, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } }
         ];
 
         const generateUnits = (templates) => {
@@ -280,7 +308,8 @@
             return list;
         };
 
-        const UNITS = generateUnits(UNIT_TEMPLATES);
+        const UNITS = generateUnits(COMBAT_TEMPLATES);
+        const BLENDABLE_UNITS = generateUnits(UNIT_TEMPLATES); // Excludes ships/planes
 
         const ALL_OFFICERS = [
             { id: 'o1', name: 'F1-BRIGADIER-GEN-CLIFT-ANDRUS', order: 1 },
@@ -394,6 +423,7 @@
             const [userInventory, setUserInventory] = useState(MOCK_INVENTORY);
             const [factoryFilter, setFactoryFilter] = useState('ALL');
             const [unitRarityFilter, setUnitRarityFilter] = useState('ALL');
+            const [valuationFilter, setValuationFilter] = useState('ALL'); // Add filter state
             const [timeframe, setTimeframe] = useState('day');
             const [tuRatio, setTuRatio] = useState(INITIAL_MARKET_PRICES.DOVF / INITIAL_MARKET_PRICES.DOVX);
 
@@ -405,8 +435,8 @@
             const [targetRoi, setTargetRoi] = useState('');
 
             // ACCOUNT SIMULATOR STATES (NEW)
-            const [accountBuildings, setAccountBuildings] = useState([FACTORIES[0].id, FACTORIES[1].id, FACTORIES[2].id, FACTORIES[3].id]); 
-            const [accountDivisions, setAccountDivisions] = useState([1, 1, 1]); 
+            const [accountBuildings, setAccountBuildings] = useState([FACTORIES[0].id, FACTORIES[1].id, FACTORIES[2].id, FACTORIES[3].id]); // 4 Slots
+            const [accountDivisions, setAccountDivisions] = useState([1, 1, 1]); // Zone IDs for 3 Divisions
 
             // CHEST SIMULATOR STATES
             const [selectedChestType, setSelectedChestType] = useState('Bunker');
@@ -419,7 +449,7 @@
                 'Camp': 100,
                 'Radar': 250,
                 'HQ': 1000,
-                'Bridge': 2000 
+                'Bridge': 2000 // Estimated for new zone
             });
             
             // New TARGET ROI States
@@ -554,6 +584,7 @@
                 if (!targetPriceUsd || !targetRoi || targetRoi <= 0) return;
 
                 // 1. Calculate required daily net profit in USD to meet ROI
+                // Price = Profit * ROI => Profit = Price / ROI
                 const requiredDailyProfitUsd = targetPriceUsd / targetRoi;
 
                 // 2. Prepare Candidates (Factories with positive net profit)
@@ -566,13 +597,18 @@
                     return { ...f, dailyNetUsd };
                 }).filter(f => f.dailyNetUsd > 0);
 
+                // Sort by efficiency (Profit per Slot)? Or just highest profit?
+                // If limited slots, we want highest profit per slot.
                 candidates.sort((a, b) => b.dailyNetUsd - a.dailyNetUsd);
 
                 let selectedContents = [];
                 let currentProfit = 0;
                 let slotsUsed = 0;
 
+                // Greedy approach
+                // If diverse option is on, try to pick different types first
                 if (diversify) {
+                    // Try to pick one of each type if possible and profitable
                     const types = ['FUEL', 'REPAIR', 'SUPPLY', 'HEALTH'];
                     for (let type of types) {
                          if (limitBuildings && slotsUsed >= 4) break;
@@ -585,6 +621,7 @@
                     }
                 }
                 
+                // Fill the rest
                 for (let factory of candidates) {
                     if (currentProfit >= requiredDailyProfitUsd) break;
                     if (limitBuildings && slotsUsed >= 4) break;
@@ -597,6 +634,7 @@
                         count = Math.min(count, slotsLeft);
                     }
                     
+                    // Add to existing or new
                     if (count > 0) {
                         const existingIdx = selectedContents.findIndex(i => i.factoryId === factory.id);
                         if (existingIdx >= 0) {
@@ -615,7 +653,7 @@
                     contents: selectedContents
                 });
                 setPackPriceUsdStr(targetPriceUsd.toString());
-                setTargetRoi(targetRoi.toString()); 
+                setTargetRoi(targetRoi.toString()); // Lock the ROI calc display
             };
 
 
@@ -668,24 +706,32 @@
                     const unitCost = (factory.costDoVX * marketPrices.DOVX) / factory.output;
                     const marketPrice = marketPrices[`DOV${factory.type.charAt(0)}`];
                     
+                    // FIX: Calculate Fair Value for Valuation Tab
                     const fairValueWax = dailyProfitWax * roiTargetDays;
                     const fairValueUsd = fairValueWax * waxPriceUsd;
 
-                    // Account Equivalence Logic (Mocked baseFactory as first factory of same type if no Common L1 found, which should exist)
-                    const baseFactory = FACTORIES.find(f => f.type === factory.type && f.rarity === 'Common' && f.level === 1) || factory;
-                    const baseOutput = baseFactory.output * 24;
+                    // NEW: Account Equivalence Logic
+                    const baseFactory = FACTORIES.find(f => f.type === factory.type && f.rarity === 'Common' && f.level === 1);
+                    const baseOutput = baseFactory ? (baseFactory.output * 24) : (factory.output * 24);
+                    
                     const equivalentF1s = baseOutput > 0 ? (factory.output * 24) / baseOutput : 1;
                     const accountsNeeded = equivalentF1s / 4; 
                     
-                    // Efficiency Logic
+                    // NEW: Efficiency Logic (Input Cost vs Output)
+                    // F1 Cost = 1 (Baseline)
+                    // F2 Cost = 3 F1s. F2 Output = 12.15. 3 F1 Output = 16.2. Eff = 12.15/16.2 = 75%
+                    // F5 Cost = 270 F1s. F5 Output = 1458. 270 F1 Output = 1458. Eff = 100%
+                    
+                    // Determine cost in F1s based on ID/Level
                     let costInF1s = 1;
                     if (factory.level === 2) costInF1s = 3;
                     if (factory.level === 3) costInF1s = 9;
                     if (factory.level === 4) costInF1s = 27;
-                    if (factory.level === 5) costInF1s = 270; 
+                    if (factory.level === 5) costInF1s = 270; // 10 x F4 = 10 * 27 = 270
                     
-                    const f1DailyProd = baseOutput;
+                    const f1DailyProd = baseFactory ? baseFactory.output * 24 : 5.4 * 24;
                     const theoreticalMax = costInF1s * f1DailyProd;
+                    
                     const actualOutput = factory.output * 24;
                     const efficiency = theoreticalMax > 0 ? (actualOutput / theoreticalMax) * 100 : 0;
 
@@ -704,9 +750,9 @@
                         betterToBuy: unitCost > marketPrice,
                         fairValueWax, 
                         fairValueUsd,
-                        equivalentF1s,
-                        accountsNeeded,
-                        efficiency
+                        equivalentF1s, // Added
+                        accountsNeeded, // Added
+                        efficiency // Added
                     };
                 });
             }, [marketPrices, waxPriceUsd, timeframe, roiTargetDays]);
@@ -736,6 +782,7 @@
                     const costF = z.usage * marketPrices.DOVF;
                     const costS = z.usage * marketPrices.DOVS;
                     
+                    // Special Handling for City/Bridge with DOV-X Cost
                     let totalCostWAX = 0;
                     if(z.entryCostDovX) {
                         totalCostWAX = z.entryCostDovX * marketPrices.DOVX;
@@ -765,6 +812,7 @@
                     if (z.id === 12) chestType = 'Radar';
                     if (z.id === 16) chestType = 'HQ';
                     
+                    // ALGO: (Entry Cost * 0.25) + (Min Weight * 0.1)
                     let tokenValWax = 0;
                     if (z.id >= 17) {
                          // Bridge/City Logic (100% Value)
@@ -782,16 +830,21 @@
             }, [zonesAnalysis, chestEstimates]);
 
             // --- ASSET VALUATION LOGIC ---
-            const assetValuations = useMemo(() => {
+            // ASSET VALUATION FILTER
+            const filteredAssetValuations = useMemo(() => {
+                // 1. Buildings (Uses Production Analysis with Density Premium)
                 const buildings = productionAnalysis.map(b => {
+                    // Density Premium Formula:
                     let finalValWax = b.fairValueWax;
                     let premiumNote = "";
+                    
                     if (b.accountsNeeded > 1) {
                          const savedAccounts = b.accountsNeeded - 1;
                          const densityPremium = savedAccounts * 2000; 
                          finalValWax += densityPremium;
                          premiumNote = ` + Prime Densité (${savedAccounts.toFixed(1)} cptes)`;
                     }
+
                     return {
                         name: b.name,
                         type: 'Bâtiment',
@@ -802,6 +855,7 @@
                     };
                 });
 
+                // 2. Tokens (Derived from Advanced ROI Analysis)
                 const tokens = advancedRoiAnalysis.map(roi => ({
                     name: `Token ${roi.bonusToken.replace('TOKEN-', '')}`,
                     type: 'Token',
@@ -810,6 +864,7 @@
                     details: `Algo: Coût + Poids`
                 }));
 
+                // 3. Keys
                 const keys = ALL_KEYS.map(k => {
                     const targetZone = ZONES.find(z => z.keyReq === k.order);
                     let valWax = 0;
@@ -830,6 +885,7 @@
                     };
                 });
                 
+                // 4. Units
                 const weightValueMultiplier = 0.1; 
                 const units = UNITS.map(u => {
                     const dailyValue = u.baseWeight * weightValueMultiplier;
@@ -843,8 +899,17 @@
                     };
                 });
 
-                return [...buildings, ...tokens, ...keys, ...units];
-            }, [productionAnalysis, advancedRoiAnalysis, zonesAnalysis, roiTargetDays, waxPriceUsd]);
+                const allAssets = [...buildings, ...tokens, ...keys, ...units];
+
+                if (valuationFilter === 'ALL') return allAssets;
+                return allAssets.filter(a => {
+                    if (valuationFilter === 'BUILDING') return a.type === 'Bâtiment';
+                    if (valuationFilter === 'TOKEN') return a.type === 'Token';
+                    if (valuationFilter === 'KEY') return a.type === 'Clé Tactique';
+                    if (valuationFilter === 'UNIT') return a.type === 'Unité';
+                    return true;
+                });
+            }, [productionAnalysis, advancedRoiAnalysis, zonesAnalysis, roiTargetDays, waxPriceUsd, valuationFilter]);
 
 
             // --- ACCOUNT SIMULATOR LOGIC ---
@@ -971,8 +1036,10 @@
                 const zone = ZONES.find(z => z.id === parseInt(selectedZoneId));
                 if (!zone) return;
                 
+                // 1. Mandatory Slots
                 if (zone.keyReq > 0) { const neededKey = userInventory.keys.find(k => k.order >= zone.keyReq); if (neededKey) setSelectedKey(neededKey); }
                 
+                // Officer Logic
                 if (zone.specificOfficer) {
                      const specOff = userInventory.officers.find(o => o.id === zone.specificOfficer);
                      if (specOff) setSelectedOfficer(specOff);
@@ -994,6 +1061,7 @@
                 let currentSlots = 0;
                 let currentWeight = 0;
 
+                // 2a. Prerequisite Unit (Old Logic)
                 if (zone.unitReq) {
                     const prereqUnit = userInventory.units.find(u => u.baseId === zone.unitReq || u.id.startsWith(zone.unitReq));
                     if (prereqUnit) {
@@ -1004,6 +1072,7 @@
                     }
                 }
                 
+                // 2b. New Required Units Logic (Array)
                 if (zone.requiredUnits) {
                     zone.requiredUnits.forEach(reqId => {
                          const unit = userInventory.units.find(u => u.baseId === reqId || u.id.startsWith(reqId));
@@ -1016,11 +1085,13 @@
                     });
                 }
 
+                // 2c. Fill remaining slots
                 const candidates = userInventory.units.map(u => { const bonus = u.bonuses[zone.type] || 0; return { ...u, effectiveW: u.baseWeight * bonus }; });
                 candidates.sort((a, b) => b.effectiveW - a.effectiveW);
                 for (let unit of candidates) {
                     if (currentSlots >= 10) break;
                     if (unit.effectiveW <= 0.01) continue;
+                    
                     if (currentWeight >= zone.minWeight * 1.05) break;
                     newSquad.push(unit);
                     currentWeight += unit.effectiveW;
@@ -1251,6 +1322,14 @@
                                 </div>
                             </div>
                             
+                            <div className="flex items-center gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700 mb-4">
+                                <button onClick={() => setValuationFilter('ALL')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'ALL' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'}`}>TOUT</button>
+                                <button onClick={() => setValuationFilter('BUILDING')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'BUILDING' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>BÂTIMENTS</button>
+                                <button onClick={() => setValuationFilter('TOKEN')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'TOKEN' ? 'bg-yellow-600 text-white' : 'text-slate-400 hover:text-white'}`}>TOKENS</button>
+                                <button onClick={() => setValuationFilter('KEY')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'KEY' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>CLÉS</button>
+                                <button onClick={() => setValuationFilter('UNIT')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'UNIT' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}>UNITÉS</button>
+                            </div>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {/* LISTING */}
                                 <div className="col-span-2">
@@ -1266,7 +1345,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody className="text-sm">
-                                                {assetValuations.map((asset, idx) => (
+                                                {filteredAssetValuations.map((asset, idx) => (
                                                     <tr key={idx} className="border-b border-slate-700 hover:bg-slate-700/30 transition-colors">
                                                         <td className="p-3 font-bold text-white flex items-center gap-2">
                                                             {asset.name}
@@ -1369,7 +1448,7 @@
                                 </Card>
                             </div>
                         ) : (
-                            /* DETAIL BUILDER VIEW (Unchanged logic, just re-rendering) */
+                            /* DETAIL BUILDER VIEW */
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 <div className="col-span-3 mb-2 flex items-center gap-4">
                                     <button onClick={() => setViewMode('dashboard')} className="flex items-center gap-2 text-slate-400 hover:text-white font-bold text-sm"><ArrowLeft size={16}/> Retour Tableau de Bord</button>
@@ -1600,6 +1679,48 @@
                     </div>
                 )}
                 
+                {/* BLEND TAB */}
+                {activeTab === 'blending' && (
+                    <div className="space-y-6">
+                        <Card>
+                            <h3 className="text-lg font-bold text-indigo-400 mb-4 flex items-center gap-2"><Flask size={20} /> Simulateur de Fusion (Blend)</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-4">
+                                    <div className="bg-indigo-900/20 border border-indigo-700/50 p-3 rounded text-sm text-indigo-200">
+                                        <p className="font-bold mb-1">Règle de Fusion :</p>
+                                        <p>3 Cartes (Même Rareté) ➜ 1 Carte (Niveau Supérieur)</p>
+                                        <p className="text-xs text-indigo-400 mt-2 italic">* Ne fonctionne pas pour les Avions, Bateaux et Officiers 'Wave'</p>
+                                    </div>
+                                    <div><label className="text-xs text-slate-400 block mb-1">Choisir une Unité de Base (F1)</label><select className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm focus:outline-none focus:border-indigo-500" value={selectedBlendUnitId} onChange={(e) => setSelectedBlendUnitId(e.target.value)}>{BLENDABLE_UNITS.filter(u => u.level === 1).map(u => (<option key={u.id} value={u.id}>{u.name}</option>))}</select></div>
+                                    <div><label className="text-xs text-slate-400 block mb-1">Quantité possédée (F1)</label><div className="flex items-center gap-2"><input type="number" min="0" value={ownedF1Count} onChange={(e) => setOwnedF1Count(parseInt(e.target.value) || 0)} className="flex-1 bg-slate-900 border border-slate-600 rounded p-2 text-sm focus:outline-none focus:border-indigo-500" /><span className="text-slate-500 text-sm">Unités</span></div></div>
+                                </div>
+                                <div className="space-y-4">
+                                    {blendCalculation ? (
+                                        <div className="h-full flex flex-col justify-between">
+                                            <div>
+                                                <h4 className="font-bold text-white mb-4 border-b border-slate-700 pb-2">Résultats de Fusion pour : <span className="text-indigo-400">{blendCalculation.unitName.replace('F1-', '')}</span></h4>
+                                                <div className="space-y-3">
+                                                    <div className="flex justify-between items-center bg-slate-900 p-2 rounded border border-slate-700"><div className="text-slate-400 text-sm">Vers <strong>F2 (★★)</strong></div><div className="font-mono text-white font-bold">{blendCalculation.f2Count} unités <span className="text-xs text-slate-500 font-normal">(Coût: {blendCalculation.f2Count * 3})</span></div></div>
+                                                    <div className="flex justify-between items-center bg-slate-900 p-2 rounded border border-slate-700"><div className="text-slate-400 text-sm">Vers <strong>F3 (★★★)</strong></div><div className="font-mono text-white font-bold">{blendCalculation.f3Count} unités <span className="text-xs text-slate-500 font-normal">(Coût: {blendCalculation.f3Count * 9})</span></div></div>
+                                                    <div className="flex justify-between items-center bg-indigo-900/30 p-2 rounded border border-indigo-600/50"><div className="text-indigo-300 text-sm">Vers <strong>F4 (★★★★)</strong></div><div className="font-mono text-white font-bold text-lg">{blendCalculation.f4Count} unités <span className="text-xs text-slate-400 font-normal block text-right">(Coût: {blendCalculation.f4Count * 27})</span></div></div>
+                                                </div>
+                                            </div>
+                                            {blendCalculation.f4Count > 0 && (
+                                                <div className="mt-4 p-3 bg-emerald-900/20 border border-emerald-600/30 rounded text-center">
+                                                    <div className="text-xs text-emerald-400 uppercase font-bold mb-1">Optimisation des Slots</div>
+                                                    <div className="text-sm text-slate-300">En fusionnant vers F4, vous libérez <strong className="text-white">{blendCalculation.slotsSavedF4} slots</strong> dans votre armée pour la même puissance de feu.</div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="h-full flex items-center justify-center text-slate-500 italic text-sm">Entrez une quantité pour voir les calculs.</div>
+                                    )}
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+                )}
+                
                 {/* ROI ADVANCED TAB */}
                 {activeTab === 'zone_roi_advanced' && (
                     <div className="space-y-6">
@@ -1609,7 +1730,12 @@
                                 {['Bunker', 'Camp', 'Radar', 'HQ'].map(type => (
                                     <div key={type} className="bg-indigo-900/20 p-3 rounded border border-indigo-700/50">
                                         <label className="text-xs text-indigo-300 block mb-1">Val. Estimée Coffre {type} (WAX)</label>
-                                        <input type="number" value={chestEstimates[type]} onChange={(e) => setChestEstimates({...chestEstimates, [type]: parseFloat(e.target.value) || 0})} className="w-full bg-slate-900 border border-indigo-600 rounded p-2 text-sm text-white font-bold focus:outline-none" />
+                                        <input 
+                                            type="number" 
+                                            value={chestEstimates[type]}
+                                            onChange={(e) => setChestEstimates({...chestEstimates, [type]: parseFloat(e.target.value) || 0})}
+                                            className="w-full bg-slate-900 border border-indigo-600 rounded p-2 text-sm text-white font-bold focus:outline-none"
+                                        />
                                         <div className="text-[10px] text-slate-500 mt-1">1 Token ≈ {(chestEstimates[type]/27).toFixed(2)} WAX</div>
                                     </div>
                                 ))}
@@ -1657,6 +1783,14 @@
                                 </div>
                             </div>
                             
+                            <div className="flex items-center gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700 mb-4">
+                                <button onClick={() => setValuationFilter('ALL')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'ALL' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'}`}>TOUT</button>
+                                <button onClick={() => setValuationFilter('BUILDING')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'BUILDING' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>BÂTIMENTS</button>
+                                <button onClick={() => setValuationFilter('TOKEN')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'TOKEN' ? 'bg-yellow-600 text-white' : 'text-slate-400 hover:text-white'}`}>TOKENS</button>
+                                <button onClick={() => setValuationFilter('KEY')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'KEY' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>CLÉS</button>
+                                <button onClick={() => setValuationFilter('UNIT')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'UNIT' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}>UNITÉS</button>
+                            </div>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {/* LISTING */}
                                 <div className="col-span-2">
@@ -1672,7 +1806,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody className="text-sm">
-                                                {assetValuations.map((asset, idx) => (
+                                                {filteredAssetValuations.map((asset, idx) => (
                                                     <tr key={idx} className="border-b border-slate-700 hover:bg-slate-700/30 transition-colors">
                                                         <td className="p-3 font-bold text-white flex items-center gap-2">
                                                             {asset.name}
