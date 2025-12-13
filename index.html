@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DoV Manager v3.3 (Valuation Expert)</title>
+    <title>DoV Manager v3.4 (Net/Brut & APR)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -429,8 +429,6 @@
             
             // ROI TARGET
             const [roiTargetDays, setRoiTargetDays] = useState(365);
-            
-            // CPU CAPITAL (New Feature)
             const [cpuPerAccount, setCpuPerAccount] = useState(50); // Default 50 WAX per account
 
             // COMBAT STATES
@@ -658,12 +656,16 @@
                 const dailyNetWax = totalDailyProdWax - totalDailyCostWax;
                 const roiDays = dailyNetWax > 0 ? (packBuilder.price / dailyNetWax) : 0;
                 
-                // NEW: Detailed projections
+                // Detailed projections
                 const monthlyNetWax = dailyNetWax * 30;
                 const yearlyNetWax = dailyNetWax * 365;
                 const totalRoiPeriodWax = dailyNetWax * roiDays;
+                
+                // NEW: APR Calculation (Annual Percentage Rate)
+                // APR = (Yearly Profit / Investment) * 100
+                const apr = packBuilder.price > 0 ? (yearlyNetWax / packBuilder.price) * 100 : 0;
 
-                return { totalDailyProdWax, totalDailyCostWax, dailyNetWax, roiDays, monthlyNetWax, yearlyNetWax, totalRoiPeriodWax };
+                return { totalDailyProdWax, totalDailyCostWax, dailyNetWax, roiDays, monthlyNetWax, yearlyNetWax, totalRoiPeriodWax, apr };
             }, [packBuilder, marketPrices]);
 
             const productionAnalysis = useMemo(() => {
@@ -795,7 +797,6 @@
                     // NEW LOGIC: CPU STAKING COST SAVINGS
                     if (b.accountsNeeded > 1) {
                          const savedAccounts = b.accountsNeeded - 1;
-                         // Using the dynamic CPU variable
                          const cpuCapitalSaved = savedAccounts * cpuPerAccount;
                          
                          finalValWax += cpuCapitalSaved;
@@ -1067,7 +1068,7 @@
                 <header className="flex flex-col xl:flex-row justify-between items-center mb-8 border-b border-slate-700 pb-4 gap-4">
                     <div className="flex items-center gap-3">
                         <div className="bg-blue-600 p-2 rounded-lg"><Shield size={32} className="text-white" /></div>
-                        <div><h1 className="text-2xl font-bold tracking-wider text-white">DoV <span className="text-blue-400">COMMANDER</span> v3.3</h1><p className="text-slate-400 text-sm">Optimiseur Tactique & Financier</p></div>
+                        <div><h1 className="text-2xl font-bold tracking-wider text-white">DoV <span className="text-blue-400">COMMANDER</span> v3.4</h1><p className="text-slate-400 text-sm">Optimiseur Tactique & Financier</p></div>
                     </div>
                     <div className="flex flex-wrap gap-4 bg-slate-800 p-3 rounded-lg border border-slate-700 text-sm justify-center items-end">
                         <div className="flex flex-col"><span className="text-xs text-green-400 font-bold mb-1">Prix WAX ($)</span><div className="relative"><span className="absolute left-2 top-1.5 text-slate-500">$</span><input type="number" value={waxPriceUsd} step="0.001" onChange={(e) => handleGlobalWaxPriceChange(e.target.value)} className="bg-slate-700 text-white w-20 pl-5 pr-2 py-1 rounded border border-slate-600 focus:outline-none focus:border-blue-500"/></div></div>
@@ -1116,7 +1117,7 @@
                                 </div>
                                 <div className="mt-4 pt-4 border-t border-slate-700 grid grid-cols-2 gap-4 text-sm">
                                     <div>
-                                        <div className="text-slate-400 text-xs">Production Totale /j</div>
+                                        <div className="text-slate-400 text-xs">Production Brute /j</div>
                                         <div className="text-emerald-400 font-mono font-bold">
                                             {accountSimStats.totalProdWax.toFixed(2)} WAX
                                         </div>
@@ -1170,11 +1171,11 @@
                         </div>
 
                         <Card className="border-t-4 border-t-emerald-500 bg-slate-800/80">
-                            <div className="text-center mb-2 text-emerald-400 font-bold tracking-widest text-sm uppercase">Bilan Consolidé (Net)</div>
+                            <div className="text-center mb-2 text-emerald-400 font-bold tracking-widest text-sm uppercase">Bilan Consolidé (Profit Net)</div>
                             <div className="grid grid-cols-3 gap-4 text-center">
                                 {/* Jour */}
                                 <div className="p-2 bg-slate-900/50 rounded">
-                                    <div className="text-xs text-slate-400 mb-1">PAR JOUR</div>
+                                    <div className="text-xs text-slate-400 mb-1">PAR JOUR (NET)</div>
                                     <div className={`text-xl font-bold font-mono ${accountSimStats.dailyNetProfitWax > 0 ? "text-white" : "text-red-400"}`}>
                                         {accountSimStats.dailyNetProfitWax > 0 ? "+" : ""}{accountSimStats.dailyNetProfitWax.toFixed(2)} W
                                     </div>
@@ -1182,7 +1183,7 @@
                                 </div>
                                 {/* Mois */}
                                 <div className="p-2 bg-slate-900/50 rounded border border-slate-700">
-                                    <div className="text-xs text-purple-300 mb-1">PAR MOIS (30j)</div>
+                                    <div className="text-xs text-purple-300 mb-1">PAR MOIS (NET)</div>
                                     <div className={`text-xl font-bold font-mono ${accountSimStats.monthlyNetProfitWax > 0 ? "text-purple-100" : "text-red-400"}`}>
                                         {accountSimStats.monthlyNetProfitWax > 0 ? "+" : ""}{accountSimStats.monthlyNetProfitWax.toLocaleString(undefined, {maximumFractionDigits: 0})} W
                                     </div>
@@ -1190,7 +1191,7 @@
                                 </div>
                                 {/* Année */}
                                 <div className="p-2 bg-slate-900/50 rounded">
-                                    <div className="text-xs text-slate-400 mb-1">PAR AN (365j)</div>
+                                    <div className="text-xs text-slate-400 mb-1">PAR AN (NET)</div>
                                     <div className={`text-xl font-bold font-mono ${accountSimStats.yearlyNetProfitWax > 0 ? "text-white" : "text-red-400"}`}>
                                         {accountSimStats.yearlyNetProfitWax > 0 ? "+" : ""}{accountSimStats.yearlyNetProfitWax.toLocaleString(undefined, {maximumFractionDigits: 0})} W
                                     </div>
@@ -1198,7 +1199,7 @@
                                 </div>
                             </div>
                             <div className="mt-4 text-center text-[10px] text-slate-500 italic">
-                                Inclut : Production + Maintenance - Coût Entrée Zones + Rewards DOV-X + Valeur Estimée Tokens
+                                Formule : Production Brute - Maintenance - Coût Entrée + Rewards DOV-X + Valeur Tokens
                             </div>
                         </Card>
                     </div>
@@ -1236,7 +1237,7 @@
                                             <th className="p-3 text-right">Coût Entrée</th>
                                             <th className="p-3 text-right">Gain DOV-X</th>
                                             <th className="p-3 text-right text-indigo-300">+ Gain Token (1u)</th>
-                                            <th className="p-3 text-right font-bold text-white">Profit Total</th>
+                                            <th className="p-3 text-right font-bold text-white">Profit Net Total</th>
                                             <th className="p-3 text-center">ROI Boosté</th>
                                         </tr>
                                     </thead>
@@ -1383,7 +1384,7 @@
                                         <table className="w-full text-left border-collapse">
                                             <thead>
                                                 <tr className="text-slate-400 border-b border-slate-700 text-xs uppercase bg-slate-800/50">
-                                                    <th className="p-3">Zone</th><th className="p-3">Prérequis (Gatekeepers)</th><th className="p-3 text-right">Poids Min</th><th className="p-3 text-right">Coût Entrée</th><th className="p-3 text-right">Gain (Win)</th><th className="p-3 text-right">Profit / Combat</th><th className="p-3 text-right text-purple-300">Profit / Mois (x30)</th><th className="p-3 text-center">ROI</th><th className="p-3 text-center">Action</th>
+                                                    <th className="p-3">Zone</th><th className="p-3">Prérequis (Gatekeepers)</th><th className="p-3 text-right">Poids Min</th><th className="p-3 text-right">Coût Entrée</th><th className="p-3 text-right">Gain (Win)</th><th className="p-3 text-right">Profit Net / Combat</th><th className="p-3 text-right text-purple-300">Profit Net / Mois</th><th className="p-3 text-center">ROI</th><th className="p-3 text-center">Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="text-sm">
@@ -1575,7 +1576,7 @@
                         <div><h2 className="text-xl font-bold flex items-center gap-2 text-emerald-400"><FactoryIcon /> Analyse Rentabilité Usines</h2><p className="text-slate-400 text-sm mt-1">Comparez le coût de production vs prix d'achat Alcor.</p></div>
                         <div className="flex items-center gap-4"><div className="flex items-center gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700"><button onClick={() => setTimeframe('day')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${timeframe === 'day' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>24H</button><button onClick={() => setTimeframe('month')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${timeframe === 'month' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>30 JOURS</button></div><div className="flex items-center gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700 hidden md:flex"><Filter size={14} className="text-slate-500 ml-2" />{['ALL', 'FUEL', 'REPAIR', 'SUPPLY', 'HEALTH'].map(f => (<button key={f} onClick={() => setFactoryFilter(f)} className={`px-3 py-1 rounded text-xs font-bold transition-all ${factoryFilter === f ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}>{f}</button>))}</div></div>
                         </div>
-                        <div className="overflow-x-auto max-h-[700px]"><table className="w-full text-left border-collapse"><thead className="sticky top-0 bg-slate-800 z-10 shadow-lg"><tr className="text-slate-400 border-b border-slate-700 text-xs uppercase"><th className="p-3">Usine</th><th className="p-3">Type</th><th className="p-3">Rareté</th><th className="p-3 text-right">Prod/{timeframe === 'day' ? '24h' : 'Mois'}</th><th className="p-3 text-right">Coût Unit (WAX)</th><th className="p-3 text-right text-emerald-300">Profit {timeframe === 'day' ? '24h' : '30j'} ($)</th><th className="p-3 text-center">Action</th></tr></thead><tbody className="overflow-y-auto">{filteredFactories.map(factory => (<tr key={factory.id} className="border-b border-slate-700 hover:bg-slate-700/30 transition-colors"><td className="p-3 font-bold text-white text-sm">{factory.name}</td><td className="p-3 text-xs text-slate-400">{factory.type}</td><td className="p-3"><Badge color={factory.rarity === 'Legendary' ? 'yellow' : factory.rarity === 'Epic' ? 'purple' : factory.rarity === 'Supreme' ? 'red' : 'blue'}>{factory.rarity} {factory.level < 5 ? `L${factory.level}` : ''}</Badge></td><td className="p-3 text-right font-mono text-emerald-400 text-sm">{factory.displayOutput.toLocaleString(undefined, {maximumFractionDigits: 0})}</td><td className="p-3 text-right font-mono text-sm"><div className={factory.betterToBuy ? "text-red-300" : "text-slate-300"}>{factory.unitCost.toFixed(6)}</div><div className="text-[10px] text-slate-500">Mkt: {factory.marketPrice.toFixed(6)}</div></td><td className="p-3 text-right font-mono text-sm font-bold"><div className={factory.displayProfitUsd > 0 ? "text-emerald-400" : "text-red-400"}>${factory.displayProfitUsd.toFixed(timeframe === 'day' ? 4 : 2)}</div><div className="text-[10px] text-slate-500">{factory.displayProfitWax.toFixed(2)} WAX</div></td><td className="p-3 text-center">{factory.betterToBuy ? (<div className="inline-flex items-center gap-1 text-red-400 font-bold bg-red-900/30 px-2 py-1 rounded text-xs"><AlertTriangle size={12} /> BUY</div>) : (<div className="inline-flex items-center gap-1 text-emerald-400 font-bold bg-emerald-900/30 px-2 py-1 rounded text-xs"><CheckCircle size={12} /> PROD</div>)}</td></tr>))}</tbody></table></div>
+                        <div className="overflow-x-auto max-h-[700px]"><table className="w-full text-left border-collapse"><thead className="sticky top-0 bg-slate-800 z-10 shadow-lg"><tr className="text-slate-400 border-b border-slate-700 text-xs uppercase"><th className="p-3">Usine</th><th className="p-3">Type</th><th className="p-3">Rareté</th><th className="p-3 text-right">Prod. Brute ({timeframe === 'day' ? '24h' : 'Mois'})</th><th className="p-3 text-right">Coût Unit (WAX)</th><th className="p-3 text-right text-emerald-300">Profit Net ($)</th><th className="p-3 text-center">Action</th></tr></thead><tbody className="overflow-y-auto">{filteredFactories.map(factory => (<tr key={factory.id} className="border-b border-slate-700 hover:bg-slate-700/30 transition-colors"><td className="p-3 font-bold text-white text-sm">{factory.name}</td><td className="p-3 text-xs text-slate-400">{factory.type}</td><td className="p-3"><Badge color={factory.rarity === 'Legendary' ? 'yellow' : factory.rarity === 'Epic' ? 'purple' : factory.rarity === 'Supreme' ? 'red' : 'blue'}>{factory.rarity} {factory.level < 5 ? `L${factory.level}` : ''}</Badge></td><td className="p-3 text-right font-mono text-emerald-400 text-sm">{factory.displayOutput.toLocaleString(undefined, {maximumFractionDigits: 0})}</td><td className="p-3 text-right font-mono text-sm"><div className={factory.betterToBuy ? "text-red-300" : "text-slate-300"}>{factory.unitCost.toFixed(6)}</div><div className="text-[10px] text-slate-500">Mkt: {factory.marketPrice.toFixed(6)}</div></td><td className="p-3 text-right font-mono text-sm font-bold"><div className={factory.displayProfitUsd > 0 ? "text-emerald-400" : "text-red-400"}>${factory.displayProfitUsd.toFixed(timeframe === 'day' ? 4 : 2)}</div><div className="text-[10px] text-slate-500">{factory.displayProfitWax.toFixed(2)} WAX</div></td><td className="p-3 text-center">{factory.betterToBuy ? (<div className="inline-flex items-center gap-1 text-red-400 font-bold bg-red-900/30 px-2 py-1 rounded text-xs"><AlertTriangle size={12} /> BUY</div>) : (<div className="inline-flex items-center gap-1 text-emerald-400 font-bold bg-emerald-900/30 px-2 py-1 rounded text-xs"><CheckCircle size={12} /> PROD</div>)}</td></tr>))}</tbody></table></div>
                     </Card>
                     </div>
                 )}
@@ -1646,9 +1647,9 @@
                                                             <button onClick={() => removeFromPack(item.factoryId)} className="text-red-500 hover:text-red-400"><Trash2 size={16} /></button>
                                                         </div>
                                                     </div>
-                                                    {/* NEW: DETAIL LINE PER ITEM */}
+                                                    {/* DETAIL LINE PER ITEM */}
                                                     <div className="flex justify-between text-[10px] bg-slate-800/50 p-1 rounded">
-                                                        <span className="text-emerald-400">Prod: {dailyProd.toFixed(2)} W</span>
+                                                        <span className="text-emerald-400">Prod Brut: {dailyProd.toFixed(2)} W</span>
                                                         <span className="text-red-400">Coût: {dailyCost.toFixed(2)} W</span>
                                                         <span className={dailyNet > 0 ? "text-emerald-300 font-bold" : "text-red-300 font-bold"}>Net: {dailyNet > 0 ? "+" : ""}{dailyNet.toFixed(2)} W</span>
                                                     </div>
@@ -1675,9 +1676,9 @@
                                             <div className="text-center text-sm text-emerald-500 mt-1 font-bold">≈ ${(packStats.dailyNetWax * waxPriceUsd).toFixed(4)} / jour</div>
                                         </div>
 
-                                        {/* NEW: PROJECTIONS TABLE */}
+                                        {/* PROJECTIONS TABLE */}
                                         <div className="border border-slate-700 rounded overflow-hidden">
-                                            <div className="bg-slate-800 px-3 py-1 text-xs font-bold text-slate-400 uppercase tracking-wide">Projections Financières</div>
+                                            <div className="bg-slate-800 px-3 py-1 text-xs font-bold text-slate-400 uppercase tracking-wide">Projections Financières (Net)</div>
                                             <table className="w-full text-xs text-right">
                                                 <tbody>
                                                     <tr className="border-b border-slate-700/50 hover:bg-slate-800/30">
@@ -1701,7 +1702,18 @@
 
                                     </div>
                                 </div>
-                                <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-6 rounded-lg border border-slate-600 text-center"><div className="text-sm font-bold text-purple-300 uppercase tracking-wider mb-2">Retour sur Investissement</div>{packStats.dailyNetWax > 0 ? (<div><div className="text-5xl font-bold text-white mb-2">{packStats.roiDays < 1 ? "< 1" : Math.ceil(packStats.roiDays)} <span className="text-xl font-normal text-slate-400">Jours</span></div><div className="text-xs text-slate-500">Pour rentabiliser vos ${(packBuilder.price * waxPriceUsd).toFixed(2)}</div></div>) : (<div className="text-red-400 font-bold flex flex-col items-center gap-2"><AlertTriangle size={32} /><span>JAMAIS RENTABLE</span><span className="text-xs font-normal text-slate-400">Les coûts de maintenance dépassent la production.</span></div>)}</div>
+                                <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-6 rounded-lg border border-slate-600 text-center">
+                                    <div className="text-sm font-bold text-purple-300 uppercase tracking-wider mb-2">Retour sur Investissement</div>
+                                    {packStats.dailyNetWax > 0 ? (
+                                        <div>
+                                            <div className="text-5xl font-bold text-white mb-2">{packStats.roiDays < 1 ? "< 1" : Math.ceil(packStats.roiDays)} <span className="text-xl font-normal text-slate-400">Jours</span></div>
+                                            <div className="inline-block bg-emerald-900/50 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold border border-emerald-700 mb-2">APR: {packStats.apr.toFixed(2)}% / an</div>
+                                            <div className="text-xs text-slate-500">Pour rentabiliser vos ${(packBuilder.price * waxPriceUsd).toFixed(2)}</div>
+                                        </div>
+                                    ) : (
+                                        <div className="text-red-400 font-bold flex flex-col items-center gap-2"><AlertTriangle size={32} /><span>JAMAIS RENTABLE</span><span className="text-xs font-normal text-slate-400">Les coûts de maintenance dépassent la production.</span></div>
+                                    )}
+                                </div>
                             </Card>
                         </div>
                     </div>
