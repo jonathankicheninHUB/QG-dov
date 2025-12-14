@@ -553,7 +553,7 @@
             
             // ROI TARGET
             const [roiTargetDays, setRoiTargetDays] = useState(365);
-            const [cpuPerAccount, setCpuPerAccount] = useState(250); 
+            const [cpuPerAccount, setCpuPerAccount] = useState(250); // Valeur par défaut 250 WAX
             
             // COMBAT STATES
             const [selectedZoneId, setSelectedZoneId] = useState(1);
@@ -571,6 +571,33 @@
                 limit4: false,
                 diverse: false
             });
+
+            // --- NOUVELLE LOGIQUE: Récupération du prix WAX en temps réel ---
+            useEffect(() => {
+                const fetchWaxPrice = async () => {
+                    try {
+                        // Utilisation de CoinGecko pour un prix stable et public (mis en cache)
+                        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=wax&vs_currencies=usd');
+                        if (!response.ok) throw new Error('API request failed');
+                        const data = await response.json();
+                        const newPrice = data.wax.usd;
+                        
+                        // Mise à jour si le prix a changé
+                        if (newPrice && newPrice !== waxPriceUsd) {
+                            setWaxPriceUsd(newPrice);
+                        }
+                    } catch (error) {
+                        console.error("Erreur lors de la récupération du prix WAX:", error);
+                        // Conserve la valeur par défaut si l'API échoue
+                    }
+                };
+
+                // Exécuter immédiatement et ensuite toutes les 60 secondes (limite CoinGecko)
+                fetchWaxPrice(); 
+                const intervalId = setInterval(fetchWaxPrice, 60000); 
+
+                return () => clearInterval(intervalId); // Nettoyage lors du démontage du composant
+            }, [waxPriceUsd]); // Dépendance ajoutée pour recalculer si le prix change
 
             const handleGlobalWaxPriceChange = (val) => {
                 const newWaxPrice = parseFloat(val);
