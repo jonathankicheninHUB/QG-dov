@@ -71,6 +71,7 @@
         const Shuffle = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="9" x2="19" y2="13"/><line x1="4" y1="4" x2="8" y2="8"/></svg>;
         const TrendingUp = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
         const ZapOff = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="22" x2="12" y2="16"/><line x1="2" y1="12" x2="8" y2="12"/><path d="M13.88 9.94 17 6H10l-4 8h3l-2.61 3.51"/></svg>;
+        const Globe = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10zM2.5 13H21.5"/></svg>;
 
 
         // --- DATASETS ---
@@ -292,83 +293,115 @@
             return list;
         };
 
-        const UNITS = generateUnits(COMBAT_TEMPLATES);
+        const FACTORIES = generateFactories();
 
-        const ALL_OFFICERS = [
-            { id: 'o1', name: 'F1-BRIGADIER-GEN-CLIFT-ANDRUS', order: 1 },
-            { id: 'o2', name: 'F2-BRIGADIER-GEN-CLIFT-ANDRUS', order: 2 },
-            { id: 'o3', name: 'F3-BRIGADIER-GEN-CLIFT-ANDRUS', order: 3 },
-            { id: 'o4', name: 'F4-BRIGADIER-GEN-CLIFT-ANDRUS', order: 4 },
-            { id: 'o5', name: 'F1-COLONEL-JOHN-F-R-SEITZ', order: 5 },
-            { id: 'o6', name: 'F2-COLONEL-JOHN-F-R-SEITZ', order: 6 },
-            { id: 'o7', name: 'F3-COLONEL-JOHN-F-R-SEITZ', order: 7 },
-            { id: 'o8', name: 'F4-COLONEL-JOHN-F-R-SEITZ', order: 8 },
-            { id: 'o9', name: 'F1-MAJOR-ERNEST-L-SMITH', order: 9 },
-            { id: 'o10', name: 'F1-Major_Gen_C_R_HUEBNER', order: 13 },
-            { id: 'o11', name: 'F1-L_COLONEL_G_A_TAYLOR', order: 17 },
-            { id: 'o12', name: 'F1-MAJOR-GENERAL-WHAOU', order: 20 },
-            { id: 'o13', name: 'F1-MAJOR-GENERAL-PANCAKE', order: 20 },
-            { id: 'o14', name: 'F1-MAJOR-GENERAL-RAPHI', order: 1 },
-            { id: 'o15', name: 'F1-MAJOR-GENERAL-ROLAND', order: 0 },
-            { id: 'o16', name: 'F1-DOCTEUR-GENERAL-B.ANDREW', order: 0 },
-            { id: 'o17', name: 'F1-MAJOR-GENERAL-DAGDAG', order: 0 },
-            { id: 'o18', name: 'F1-BRIGADIER-GENERAL-KEVIN', order: 0 },
-            { id: 'o19', name: 'F1-BRIGADIER-GENERAL-LUCAS', order: 0 },
-            { id: 'o20', name: 'F1-LIEUTENANT-COMMANDER-ELODIE', order: 0 },
-            { id: 'o21', name: 'F1-LIEUTENANT-GENERAL-GREG', order: 20 },
-            { id: 'o22', name: 'F1-LIEUTENANT-GENERAL-OLIVER', order: 20 },
-            { id: 'o23', name: 'F1-DIVISION-GENERAL-FLO', order: 1 },
-            { id: 'o24', name: 'F1-BRIGADIER-GENERAL-NIMAJ', order: 1 },
-            { id: 'o25', name: 'F1-CAP-JOY-BRIGHT-HANCOCK', order: 19 },
-            { id: 'o26', name: 'F1-CAP-JEAN-PALMER', order: 20 },
-            { id: 'o27', name: 'F1-COMMAND-RITA-LENIHAN', order: 21 },
+        const ZONES = [
+            { id: 1, name: 'Beach 1', type: 'Beach', order: 1, win: 400, usage: 1160, minWeight: 14, keyReq: 0, officerReq: 1 },
+            { id: 2, name: 'Beach 2', type: 'Beach', order: 2, win: 2405, usage: 6968, minWeight: 28, keyReq: 5, officerReq: 2 },
+            { id: 3, name: 'Beach 3', type: 'Beach', order: 3, win: 3037, usage: 8800, minWeight: 55, keyReq: 6, officerReq: 3 },
+            { id: 4, name: 'Bunker', type: 'Beach', order: 4, win: 3838, usage: 11120, minWeight: 109, keyReq: 7, officerReq: 4, isCheckpoint: true, unitReq: 'e2', bonusToken: "TOKEN-BUNKER" }, 
+            { id: 5, name: 'Forest 1', type: 'Forest', order: 5, win: 4840, usage: 14024, minWeight: 219, keyReq: 8, officerReq: 5 },
+            { id: 6, name: 'Forest 2', type: 'Forest', order: 6, win: 6110, usage: 17704, minWeight: 342, keyReq: 9, officerReq: 6 },
+            { id: 7, name: 'Forest 3', type: 'Forest', order: 7, win: 7714, usage: 22352, minWeight: 450, keyReq: 10, officerReq: 7 },
+            { id: 8, name: 'Camp', type: 'Forest', order: 8, win: 9739, usage: 28220, minWeight: 512, keyReq: 11, officerReq: 8, isCheckpoint: true, unitReq: 'e1', bonusToken: "TOKEN-CAMP" },
+            { id: 9, name: 'Hill 1', type: 'Hill', order: 9, win: 12788, usage: 37052, minWeight: 695, keyReq: 12, officerReq: 9 },
+            { id: 10, name: 'Hill 2', type: 'Hill', order: 10, win: 16791, usage: 48652, minWeight: 869, keyReq: 13, officerReq: 10 },
+            { id: 11, name: 'Hill 3', type: 'Hill', order: 11, win: 22266, usage: 64516, minWeight: 1086, keyReq: 14, officerReq: 11 },
+            { id: 12, name: 'Radar', type: 'Hill', order: 12, win: 29236, usage: 84712, minWeight: 1358, keyReq: 15, officerReq: 12, isCheckpoint: true, unitReq: 'e3', godmotherReq: true, bonusToken: "TOKEN-RADAR" },
+            { id: 13, name: 'Plain 1', type: 'Plain', order: 13, win: 34300, usage: 99384, minWeight: 1697, keyReq: 16, officerReq: 13 },
+            { id: 14, name: 'Plain 2', type: 'Plain', order: 14, win: 43385, usage: 125708, minWeight: 1866, keyReq: 17, officerReq: 14 },
+            { id: 15, name: 'Plain 3', type: 'Plain', order: 15, win: 52171, usage: 151164, minWeight: 2052, keyReq: 18, officerReq: 15 },
+            { id: 16, name: 'HQ', type: 'Plain', order: 16, win: 64884, usage: 188000, minWeight: 2495, keyReq: 19, officerReq: 16, isCheckpoint: true, unitReq: 'l1', godmotherReq: true, bonusToken: "TOKEN-HQ" },
+            { id: 17, name: 'City 1', type: 'City', order: 17, win: 0, usage: 0, entryCostDovX: 777.35, minWeight: 108.53, keyReq: 9, officerReq: 1, bonusToken: "F1-TOKEN-CITY-2025", specificOfficer: 'o25', requiredUnits: ['e6', 'uc6', 'l2'] },
+            { id: 18, name: 'City 2', type: 'City', order: 18, win: 0, usage: 0, entryCostDovX: 2213.87, minWeight: 511.76, keyReq: 13, officerReq: 1, bonusToken: "F2-TOKEN-CITY-2025", specificOfficer: 'o26', requiredUnits: ['uc5', 'c6', 'r4'] },
+            { id: 19, name: 'City 3', type: 'City', order: 19, win: 0, usage: 0, entryCostDovX: 6677.85, minWeight: 1357.04, keyReq: 17, officerReq: 1, bonusToken: "F3-TOKEN-CITY-2025", specificOfficer: 'o27', requiredUnits: ['uc6', 'r5', 'e7', 'l2'] },
+            { id: 20, name: 'Bridge', type: 'City', order: 20, win: 0, usage: 0, entryCostDovX: 14850.80, minWeight: 2494.23, keyReq: 20, officerReq: 1, bonusToken: "F4-TOKEN-CITY-2025", specificOfficer: 'o11', requiredUnits: ['e7', 'l2', 'l2'] } 
         ];
 
-        const ALL_SUPPORTS = [
-            { id: 's1', name: 'F1-1st-MEDICAL-BATTALION', bonusPct: 0.5 },
-            { id: 's2', name: 'F4-1st-MEDICAL-BATTALION', bonusPct: 3.0 },
-            { id: 's3', name: 'F1-56th-SIGNAL-BATTALION', bonusPct: 1.5 },
-            { id: 's4', name: 'F4-56th-SIGNAL-BATTALION', bonusPct: 4.5 },
-            { id: 's5', name: 'F1-104th-MEDICAL-BATTALION', bonusPct: 2.5 },
-            { id: 's6', name: 'F4-104th-MEDICAL-BATTALION', bonusPct: 10.0 },
-            { id: 's7', name: 'F1-29-SIGNAL-COMPAGNY-XMAS', bonusPct: 2.5 },
-            { id: 's8', name: 'F4-29-SIGNAL-COMPAGNY-XMAS', bonusPct: 10.0 },
-            { id: 's9', name: 'F1-ASPIRANT-KIYO', bonusPct: 12.0 },
-            { id: 's10', name: 'F2E-F4-104th-MEDICAL-BATTALION', bonusPct: 10.0 },
+        // --- UNIT TEMPLATES ---
+        const UNIT_TEMPLATES = [
+            { baseId: 'c1', name: '26th Infantry', type: 'Infantry', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 0.01 } },
+            { baseId: 'c2', name: '18th Infantry', type: 'Infantry', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 0.01 } },
+            { baseId: 'c3', name: '507th Parachute', type: 'Parachute', rarity: 'Common', base: 0.3, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 0.01 } },
+            { baseId: 'c4', name: '32nd Field Artillery', type: 'Artillery', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 1.0, Forest: 0.72, Hill: 1.0, City: 0.01 } },
+            { baseId: 'c5', name: '82nd Armored Reconn', type: 'Reconn', rarity: 'Common', base: 0.3, b: { Beach: 0.22, Plain: 1.0, Forest: 1.0, Hill: 1.0, City: 1.0 } },
+            { baseId: 'uc1', name: '505th Parachute', type: 'Parachute', rarity: 'Uncommon', base: 0.9, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 0.01 } },
+            { baseId: 'uc2', name: '5th Field Artillery', type: 'Artillery', rarity: 'Uncommon', base: 0.9, b: { Beach: 1.0, Plain: 1.0, Forest: 1.0, Hill: 1.0, City: 0.01 } },
+            { baseId: 'uc3', name: '325th Glider', type: 'Glider', rarity: 'Uncommon', base: 0.9, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 0.01 } },
+            { baseId: 'uc4', name: 'Anti-tank Xmas', type: 'Anti-Tank', rarity: 'Uncommon', base: 0.9, b: { Beach: 0.22, Plain: 1.0, Forest: 1.0, Hill: 1.0, City: 1.0 } },
+            { baseId: 'r1', name: '16th Infantry', type: 'Infantry', rarity: 'Rare', base: 3.6, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 1.0, City: 0.01 } },
+            { baseId: 'r2', name: '635th Anti-Tank', type: 'Anti-Tank', rarity: 'Rare', base: 3.6, b: { Beach: 0.22, Plain: 0.72, Forest: 1.0, Hill: 1.0, City: 1.0 } },
+            { baseId: 'e1', name: '502nd Parachute', type: 'Parachute', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 1.0 } },
+            { baseId: 'e2', name: '37th Engineer', type: 'Engineer', rarity: 'Epic', base: 8.42, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 1.0, City: 0.01 } },
+            { baseId: 'e3', name: '741st Tank', type: 'Tank', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 0.72, City: 0.01 } },
+            { baseId: 'e4', name: 'Afterland', type: 'Special', rarity: 'Epic', base: 8.42, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 1.0, City: 0.01 } },
+            { baseId: 'l1', name: '741 Tank Xmas', type: 'Tank', rarity: 'Legendary', base: 57.6, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 0.72, City: 0.01 } },
         ];
 
-        const ALL_KEYS = [
-            { id: 'k1', name: 'F1-KEY-BEACH', order: 4 },
-            { id: 'k2', name: 'F2-KEY-BEACH', order: 5 },
-            { id: 'k3', name: 'F3-KEY-BEACH', order: 6 },
-            { id: 'k4', name: 'F4-KEY-BEACH', order: 7 },
-            { id: 'k5', name: 'F1-KEY-FOREST', order: 8 },
-            { id: 'k6', name: 'F2-KEY-FOREST', order: 9 },
-            { id: 'k7', name: 'F3-KEY-FOREST', order: 10 },
-            { id: 'k8', name: 'F4-KEY-FOREST', order: 11 },
-            { id: 'k9', name: 'F1-KEY-HILL', order: 12 },
-            { id: 'k10', name: 'F2-KEY-HILL', order: 13 },
-            { id: 'k11', name: 'F3-KEY-HILL', order: 14 },
-            { id: 'k12', name: 'F4-KEY-HILL', order: 15 },
-            { id: 'k13', name: 'F1-KEY-PLAINE', order: 16 },
-            { id: 'k14', name: 'F2-KEY-PLAINE', order: 17 },
-            { id: 'k15', name: 'F3-KEY-PLAINE', order: 18 },
-            { id: 'k16', name: 'F4-KEY-PLAINE', order: 19 },
-            { id: 'k17', name: 'F1-KEY-CITY', order: 9 },
-            { id: 'k18', name: 'F2-KEY-CITY', order: 13 },
-            { id: 'k19', name: 'F3-KEY-CITY', order: 17 },
-            { id: 'k20', name: 'F4-KEY-CITY', order: 20 },
+        const COMBAT_TEMPLATES = [
+             ...UNIT_TEMPLATES,
+             { baseId: 'c6', name: 'HMS Glasgow', type: 'Ship', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 1.0 } },
+             { baseId: 'uc5', name: 'Mosquito B.IV', type: 'Plane', rarity: 'Uncommon', base: 0.9, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 1.0 } },
+             { baseId: 'uc6', name: 'Avro Lancaster', type: 'Plane', rarity: 'Uncommon', base: 0.9, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 1.0 } },
+             { baseId: 'r3', name: '346th Guyenne', type: 'Plane', rarity: 'Rare', base: 3.6, b: { Beach: 1.0, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 1.0 } },
+             { baseId: 'r4', name: 'USS Texas', type: 'Ship', rarity: 'Rare', base: 3.6, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
+             { baseId: 'r5', name: 'USS Baldwin', type: 'Ship', rarity: 'Rare', base: 3.6, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
+             { baseId: 'e5', name: 'USS Frankford', type: 'Ship', rarity: 'Epic', base: 8.42, b: { Beach: 1.25, Plain: 1.0, Forest: 1.0, Hill: 0.75, City: 1.0 } },
+             { baseId: 'e6', name: 'B-26 Marauder', type: 'Plane', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
+             { baseId: 'e7', name: 'Georges Leygues', type: 'Ship', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
+             { baseId: 'l2', name: 'USS Arkansas', type: 'Ship', rarity: 'Legendary', base: 57.6, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } }
         ];
 
-        const ALL_GODMOTHERS = [
-            { id: 'gm1', name: 'F1-Sonja-Henie-Xmas' },
-            { id: 'gm2', name: 'F2-Sonja-Henie-Xmas' },
-            { id: 'gm3', name: 'F3-Sonja-Henie-Xmas' },
-            { id: 'gm4', name: 'F4-Sonja-Henie-Xmas' },
-            { id: 'gm5', name: 'F4-GODMOTHER-SONJA-HENIE' },
-            { id: 'gm6', name: 'F1-Miss-Betty-QTT' },
-            { id: 'gm7', name: 'F1-DOROTHY-STRATTON' },
+        const generateUnits = (templates) => {
+            let list = [];
+            templates.forEach(tpl => {
+                for (let lvl = 1; lvl <= 4; lvl++) {
+                    const multiplier = Math.pow(3, lvl - 1); 
+                    list.push({
+                        id: `${tpl.baseId}_f${lvl}`, 
+                        baseId: tpl.baseId,
+                        name: `${tpl.rarity} F${lvl}-${tpl.name}`,
+                        type: tpl.type,
+                        rarity: tpl.rarity,
+                        level: lvl,
+                        baseWeight: tpl.base * multiplier,
+                        bonuses: tpl.b
+                    });
+                }
+            });
+            return list;
+        };
+
+        const FACTORIES = generateFactories();
+
+        const ZONES = [
+            { id: 1, name: 'Beach 1', type: 'Beach', order: 1, win: 400, usage: 1160, minWeight: 14, keyReq: 0, officerReq: 1 },
+            { id: 2, name: 'Beach 2', type: 'Beach', order: 2, win: 2405, usage: 6968, minWeight: 28, keyReq: 5, officerReq: 2 },
+            { id: 3, name: 'Beach 3', type: 'Beach', order: 3, win: 3037, usage: 8800, minWeight: 55, keyReq: 6, officerReq: 3 },
+            { id: 4, name: 'Bunker', type: 'Beach', order: 4, win: 3838, usage: 11120, minWeight: 109, keyReq: 7, officerReq: 4, isCheckpoint: true, unitReq: 'e2', bonusToken: "TOKEN-BUNKER" }, 
+            { id: 5, name: 'Forest 1', type: 'Forest', order: 5, win: 4840, usage: 14024, minWeight: 219, keyReq: 8, officerReq: 5 },
+            { id: 6, name: 'Forest 2', type: 'Forest', order: 6, win: 6110, usage: 17704, minWeight: 342, keyReq: 9, officerReq: 6 },
+            { id: 7, name: 'Forest 3', type: 'Forest', order: 7, win: 7714, usage: 22352, minWeight: 450, keyReq: 10, officerReq: 7 },
+            { id: 8, name: 'Camp', type: 'Forest', order: 8, win: 9739, usage: 28220, minWeight: 512, keyReq: 11, officerReq: 8, isCheckpoint: true, unitReq: 'e1', bonusToken: "TOKEN-CAMP" },
+            { id: 9, name: 'Hill 1', type: 'Hill', order: 9, win: 12788, usage: 37052, minWeight: 695, keyReq: 12, officerReq: 9 },
+            { id: 10, name: 'Hill 2', type: 'Hill', order: 10, win: 16791, usage: 48652, minWeight: 869, keyReq: 13, officerReq: 10 },
+            { id: 11, name: 'Hill 3', type: 'Hill', order: 11, win: 22266, usage: 64516, minWeight: 1086, keyReq: 14, officerReq: 11 },
+            { id: 12, name: 'Radar', type: 'Hill', order: 12, win: 29236, usage: 84712, minWeight: 1358, keyReq: 15, officerReq: 12, isCheckpoint: true, unitReq: 'e3', godmotherReq: true, bonusToken: "TOKEN-RADAR" },
+            { id: 13, name: 'Plain 1', type: 'Plain', order: 13, win: 34300, usage: 99384, minWeight: 1697, keyReq: 16, officerReq: 13 },
+            { id: 14, name: 'Plain 2', type: 'Plain', order: 14, win: 43385, usage: 125708, minWeight: 1866, keyReq: 17, officerReq: 14 },
+            { id: 15, name: 'Plain 3', type: 'Plain', order: 15, win: 52171, usage: 151164, minWeight: 2052, keyReq: 18, officerReq: 15 },
+            { id: 16, name: 'HQ', type: 'Plain', order: 16, win: 64884, usage: 188000, minWeight: 2495, keyReq: 19, officerReq: 16, isCheckpoint: true, unitReq: 'l1', godmotherReq: true, bonusToken: "TOKEN-HQ" },
+            { id: 17, name: 'City 1', type: 'City', order: 17, win: 0, usage: 0, entryCostDovX: 777.35, minWeight: 108.53, keyReq: 9, officerReq: 1, bonusToken: "F1-TOKEN-CITY-2025", specificOfficer: 'o25', requiredUnits: ['e6', 'uc6', 'l2'] },
+            { id: 18, name: 'City 2', type: 'City', order: 18, win: 0, usage: 0, entryCostDovX: 2213.87, minWeight: 511.76, keyReq: 13, officerReq: 1, bonusToken: "F2-TOKEN-CITY-2025", specificOfficer: 'o26', requiredUnits: ['uc5', 'c6', 'r4'] },
+            { id: 19, name: 'City 3', type: 'City', order: 19, win: 0, usage: 0, entryCostDovX: 6677.85, minWeight: 1357.04, keyReq: 17, officerReq: 1, bonusToken: "F3-TOKEN-CITY-2025", specificOfficer: 'o27', requiredUnits: ['uc6', 'r5', 'e7', 'l2'] },
+            { id: 20, name: 'Bridge', type: 'City', order: 20, win: 0, usage: 0, entryCostDovX: 14850.80, minWeight: 2494.23, keyReq: 20, officerReq: 1, bonusToken: "F4-TOKEN-CITY-2025", specificOfficer: 'o11', requiredUnits: ['e7', 'l2', 'l2'] } 
         ];
+
+        // --- MOCK INVENTORY ---
+        const ALL_OFFICERS = [ /* ... officers data ... */ ];
+        const ALL_SUPPORTS = [ /* ... supports data ... */ ];
+        const ALL_KEYS = [ /* ... keys data ... */ ];
+        const ALL_GODMOTHERS = [ /* ... godmothers data ... */ ];
 
         const MOCK_INVENTORY = {
             keys: ALL_KEYS,
@@ -493,8 +526,165 @@
                 </Card>
             );
         };
+        
+        // --- NOUVEAU COMPOSANT : GLOBAL STATS ---
+        const GlobalStats = () => {
+            const [globalStats, setGlobalStats] = useState([]);
+            const [isLoading, setIsLoading] = useState(true);
+            const [error, setError] = useState(null);
 
-        // --- COMPONENTS ---
+            // Mapping des IDs de template aux noms de production
+            const templateMapping = {
+                'c1': 'Common Fuel',
+                'c2': 'Common Repair',
+                'c3': 'Common Supply',
+                'c4': 'Common Health',
+                'c20': 'Rare Fuel',
+                'c21': 'Rare Repair',
+                'c22': 'Rare Supply',
+                'c23': 'Rare Health',
+                'c39': 'Epic Fuel',
+                'c40': 'Epic Repair',
+                'c41': 'Epic Supply',
+                'c42': 'Epic Health',
+                'c58': 'Legendary Fuel',
+                'c59': 'Legendary Repair',
+                'c60': 'Legendary Supply',
+                'c61': 'Legendary Health',
+                'c77': 'Supreme Blend' 
+                // Note: Il faudrait une liste plus complète pour inclure tous les niveaux
+            };
+            
+            // Mapping des couleurs par rareté pour le style
+            const rarityColors = {
+                'Common': 'blue',
+                'Rare': 'emerald',
+                'Epic': 'purple',
+                'Legendary': 'yellow',
+                'Supreme': 'red'
+            };
+
+            const rarityLabels = {
+                'Common': 'Commun',
+                'Rare': 'Rare',
+                'Epic': 'Épique',
+                'Legendary': 'Légendaire',
+                'Supreme': 'Suprême'
+            }
+
+            useEffect(() => {
+                const fetchGlobalStats = async () => {
+                    setIsLoading(true);
+                    setError(null);
+                    try {
+                        const API_ENDPOINT = 'https://wax.api.atomicassets.io/atomicassets/v1/templates?collection_name=dovdivisions&schema_name=factory&limit=100&page=1&order=desc&sort=created';
+                        
+                        const response = await fetch(API_ENDPOINT);
+                        if (!response.ok) {
+                            throw new Error(`Erreur API: ${response.status}`);
+                        }
+                        const data = await response.json();
+                        
+                        // Structure de données pour agréger par rareté et type de ressource
+                        const aggregated = {};
+                        let totalNFTs = 0;
+
+                        if (data.data && data.data.length > 0) {
+                            data.data.forEach(template => {
+                                // Récupérer la rareté et le type de production du template
+                                const rarity = template.immutable_data.rarity || 'Unknown';
+                                const prodType = template.immutable_data.type || 'Unknown';
+                                
+                                const key = `${rarity}_${prodType}`;
+                                const supply = parseInt(template.circulating_supply);
+                                
+                                if (!aggregated[key]) {
+                                    aggregated[key] = {
+                                        rarity: rarity,
+                                        prodType: prodType,
+                                        count: 0
+                                    };
+                                }
+                                
+                                aggregated[key].count += supply;
+                                totalNFTs += supply;
+                            });
+                        }
+                        
+                        // Convertir l'objet agrégé en tableau pour l'affichage
+                        const finalStats = Object.values(aggregated).map(item => ({
+                            ...item,
+                            name: `${rarityLabels[item.rarity] || item.rarity} ${item.prodType}`,
+                            color: rarityColors[item.rarity] || 'slate'
+                        }));
+                        
+                        finalStats.sort((a, b) => b.count - a.count); // Trier par quantité
+
+                        setGlobalStats([{ name: "Total Bâtiments Uniques", count: totalNFTs, color: 'orange', isTotal: true }, ...finalStats]);
+                        
+                    } catch (err) {
+                        console.error("Erreur de récupération des stats NFT:", err);
+                        setError("Échec de la connexion à l'API AtomicAssets.");
+                    } finally {
+                        setIsLoading(false);
+                    }
+                };
+
+                // Exécuter l'appel
+                fetchGlobalStats(); 
+
+                // Note: AtomicAssets a des limites de taux, on rafraîchit moins souvent que le WAX Monitor.
+                const intervalId = setInterval(fetchGlobalStats, 120000); // Rafraîchir toutes les 2 minutes (120000ms)
+
+                return () => clearInterval(intervalId);
+            }, []);
+
+            if (isLoading) {
+                return <Card className="text-center py-6"><div className="text-orange-400 font-bold">Chargement des données NFT globales...</div><p className="text-xs text-slate-500 mt-2">Interrogation de l'API AtomicAssets (Dovdivisions)</p></Card>;
+            }
+
+            if (error) {
+                return <Card className="text-center py-6 bg-red-900/30 border-red-700/50"><div className="text-red-400 font-bold flex items-center justify-center gap-2"><AlertTriangle size={20} /> {error}</div><p className="text-xs text-red-300 mt-2">Veuillez réessayer plus tard.</p></Card>;
+            }
+
+            return (
+                <Card>
+                    <h3 className="text-xl font-bold text-orange-400 mb-6 flex items-center gap-2">
+                        <Globe size={24} /> Inventaire Global de Bâtiments (NFT)
+                    </h3>
+                    <p className="text-slate-400 text-sm mb-4">
+                        Comptage des *Factory* NFT **existants** dans l'inventaire total du jeu sur la blockchain WAX (Collection `dovdivisions`).
+                    </p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {globalStats.map((stat, index) => (
+                            <div 
+                                key={stat.name} 
+                                className={`p-4 rounded-lg shadow-lg ${
+                                    stat.isTotal 
+                                        ? 'bg-orange-900/50 border-2 border-orange-500 col-span-full md:col-span-1' 
+                                        : 'bg-slate-900 border border-slate-700'
+                                }`}
+                            >
+                                <div className="text-xs text-slate-400 uppercase font-bold truncate">
+                                    {stat.isTotal ? 'TOTAL BÂTIMENTS NFT EN CIRCULATION' : stat.name}
+                                </div>
+                                <div className={`mt-1 text-2xl font-mono font-bold ${stat.isTotal ? 'text-white' : `text-${stat.color}-400`}`}>
+                                    {stat.count.toLocaleString()}
+                                </div>
+                                {!stat.isTotal && (
+                                    <div className="text-[10px] text-slate-500 mt-1">
+                                        {rarityLabels[stat.rarity] || stat.rarity} | Prod {stat.prodType}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </Card>
+            );
+        }
+
+        // --- COMPONENTS STANDARDS ---
 
         const Card = ({ children, className = "" }) => <div className={`bg-slate-800 border border-slate-700 rounded-lg p-4 shadow-xl ${className}`}>{children}</div>;
         const Badge = ({ children, color = "blue" }) => {
@@ -508,6 +698,8 @@
                 slate: "bg-slate-700 text-slate-300 border-slate-600",
                 indigo: "bg-indigo-900 text-indigo-200 border-indigo-700",
                 cyan: "bg-cyan-900 text-cyan-200 border-cyan-700",
+                orange: "bg-orange-900 text-orange-200 border-orange-700", // Ajouté pour le total
+                emerald: "bg-emerald-900 text-emerald-200 border-emerald-700", 
             };
             return <span className={`px-2 py-1 rounded text-xs font-bold border ${colors[color] || colors.blue}`}>{children}</span>;
         };
@@ -572,32 +764,28 @@
                 diverse: false
             });
 
-            // --- NOUVELLE LOGIQUE: Récupération du prix WAX en temps réel ---
+            // --- LOGIQUE: Récupération du prix WAX en temps réel ---
             useEffect(() => {
                 const fetchWaxPrice = async () => {
                     try {
-                        // Utilisation de CoinGecko pour un prix stable et public (mis en cache)
                         const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=wax&vs_currencies=usd');
                         if (!response.ok) throw new Error('API request failed');
                         const data = await response.json();
                         const newPrice = data.wax.usd;
                         
-                        // Mise à jour si le prix a changé
                         if (newPrice && newPrice !== waxPriceUsd) {
                             setWaxPriceUsd(newPrice);
                         }
                     } catch (error) {
                         console.error("Erreur lors de la récupération du prix WAX:", error);
-                        // Conserve la valeur par défaut si l'API échoue
                     }
                 };
 
-                // Exécuter immédiatement et ensuite toutes les 60 secondes (limite CoinGecko)
                 fetchWaxPrice(); 
-                const intervalId = setInterval(fetchWaxPrice, 60000); 
+                const intervalId = setInterval(fetchWaxPrice, 60000); // Rafraîchir toutes les 60 secondes
 
-                return () => clearInterval(intervalId); // Nettoyage lors du démontage du composant
-            }, [waxPriceUsd]); // Dépendance ajoutée pour recalculer si le prix change
+                return () => clearInterval(intervalId); 
+            }, [waxPriceUsd]); 
 
             const handleGlobalWaxPriceChange = (val) => {
                 const newWaxPrice = parseFloat(val);
@@ -1240,11 +1428,15 @@
                     <button onClick={() => setActiveTab('account_sim')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'account_sim' ? 'bg-orange-600 text-white shadow-lg shadow-orange-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Briefcase size={18} /> 🏢 COMPTE COMPLET</button>
                     <button onClick={() => setActiveTab('combat')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'combat' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Crosshair size={18} /> COMBAT</button>
                     <button onClick={() => setActiveTab('production')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'production' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><FactoryIcon size={18} /> PRODUCTION</button>
+                    <button onClick={() => setActiveTab('global_stats')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'global_stats' ? 'bg-orange-600 text-white shadow-lg shadow-orange-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Globe size={18} /> STATS GLOBALES</button>
                     <button onClick={() => setActiveTab('packs')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'packs' ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Package size={18} /> PACKS</button>
                     <button onClick={() => setActiveTab('chests')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'chests' ? 'bg-yellow-600 text-white shadow-lg shadow-yellow-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Gift size={18} /> COFFRES</button>
                     <button onClick={() => setActiveTab('zone_roi_advanced')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'zone_roi_advanced' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Diamond size={18} /> ROI AVANCÉ (TOKENS)</button>
                     <button onClick={() => setActiveTab('valuation')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'valuation' ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Scale size={18} /> VALORISATION ACTIFS</button>
                 </div>
+
+                {/* --- NOUVEL ONGLET: STATS GLOBALES --- */}
+                {activeTab === 'global_stats' && <GlobalStats />}
 
                 {/* --- TAB: ACCOUNT SIMULATOR (New) --- */}
                 {activeTab === 'account_sim' && (
