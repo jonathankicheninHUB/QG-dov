@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DoV Manager v4.0 (Complete & Stable)</title>
+    <title>DoV Tactical Manager</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -31,7 +31,7 @@
 
     <script type="text/babel">
         // ==========================================================================================
-        //  1. DONNÉES STATIQUES (MODIFIABLES)
+        //  1. DONNÉES DE JEU (BASE)
         // ==========================================================================================
 
         const INITIAL_MARKET = { WAX: 1, DOVX: 0.005285, DOVF: 0.00045, DOVR: 0.00045, DOVS: 0.00045, DOVH: 0.00045 };
@@ -98,7 +98,6 @@
         const UNIT_TEMPLATES = [
             { baseId: 'c1', name: 'Infantry', rarity: 'Common' },
             { baseId: 'c2', name: 'Tank', rarity: 'Common' },
-            // ... truncated for stability, blend logic is generic
         ];
         const BLENDABLE_UNITS = UNIT_TEMPLATES.map(t => ({ id: t.baseId, name: t.name, level: 1, rarity: t.rarity }));
 
@@ -141,9 +140,8 @@
 
             // Pack State
             const [packBuilder, setPackBuilder] = useState({ name: 'Mon Pack', price: 100, contents: [] });
-            const [selectedFactory, setSelectedFactory] = useState(FACTORIES[0].id);
-
-            // --- 1. CALCULS DE BASE (Foundation) ---
+            
+            // --- 1. CALCULS DE BASE ---
             const factoryAnalysis = useMemo(() => {
                 return FACTORIES.map(f => {
                     const dailyProd = f.output * 24 * market[`DOV${f.type.charAt(0)}`];
@@ -179,11 +177,6 @@
                     
                     // Token Gain Value
                     const tokenVal = z.bonusToken ? tokenValue : 0; 
-                    // City/Bridge logic: (Entry Cost * 0.25) + (Min Weight * 0.1) if tokenVal is 0 or different algo?
-                    // Let's use the user's specific request: Token Value comes from F5 blend logic.
-                    // But for City/Bridge, usually drop rate is 100%. 
-                    // For Checkpoints (Bunker etc), drop rate is < 100%? No, usually 1 token.
-                    
                     const totalProfit = (reward - cost) + tokenVal;
                     const roi = cost > 0 ? (totalProfit / cost) * 100 : 0;
 
@@ -224,17 +217,42 @@
                 return { f2, f3, f4, f5 };
             }, [blendCount]);
 
+            // --- 6. PACK LOGIC ---
+            const packStats = useMemo(() => {
+                let dailyProd = 0, dailyCost = 0;
+                packBuilder.contents.forEach(item => {
+                    const f = factoryAnalysis.find(x => x.id === item.id);
+                    if(f) {
+                        dailyProd += f.dailyProd * item.qty;
+                        dailyCost += f.dailyCost * item.qty;
+                    }
+                });
+                const dailyNet = dailyProd - dailyCost;
+                const roiDays = dailyNet > 0 ? packBuilder.price / dailyNet : 0;
+                return { dailyProd, dailyCost, dailyNet, roiDays };
+            }, [packBuilder, factoryAnalysis]);
+
             // --- RENDER HELPERS ---
             const formatW = (v) => `${v.toLocaleString(undefined, {maximumFractionDigits:2})} W`;
             const formatUsd = (v) => `$${(v * waxPrice).toFixed(2)}`;
+
+            // --- PACK HANDLERS ---
+            const addToPack = () => {
+                const existing = packBuilder.contents.find(c => c.id === selectedFactory);
+                if(existing) {
+                    setPackBuilder({...packBuilder, contents: packBuilder.contents.map(c => c.id === selectedFactory ? {...c, qty: c.qty+1} : c)});
+                } else {
+                    setPackBuilder({...packBuilder, contents: [...packBuilder.contents, {id: selectedFactory, qty: 1}]});
+                }
+            };
 
             return (
                 <div className="p-6 max-w-7xl mx-auto space-y-6">
                     {/* HEADER */}
                     <div className="flex justify-between items-center border-b border-slate-700 pb-4">
                         <div>
-                            <h1 className="text-2xl font-bold text-blue-400">DoV COMMANDER v4.0</h1>
-                            <p className="text-xs text-slate-400">Version Complète & Stable</p>
+                            <h1 className="text-2xl font-bold text-blue-400">DoV TACTICAL MANAGER</h1>
+                            <p className="text-xs text-slate-400">Outil de Gestion & Simulation Stratégique</p>
                         </div>
                         <div className="flex gap-4 text-xs">
                             <div className="bg-slate-800 p-2 rounded">
@@ -281,7 +299,7 @@
                                         </div>
                                     ))}
                                     <div className="mt-4 pt-2 border-t border-slate-700 flex justify-between text-sm">
-                                        <span className="text-emerald-400">Prod: +{formatW(accountStats.prod)}</span>
+                                        <span className="text-emerald-400">Prod Brut: +{formatW(accountStats.prod)}</span>
                                         <span className="text-red-400">Maint: -{formatW(accountStats.maint)}</span>
                                     </div>
                                 </Card>
@@ -319,7 +337,6 @@
                                         <div className="text-xs text-slate-400">ANNÉE (365j)</div>
                                         <div className="text-xl font-bold text-white">{accountStats.yearlyNet > 0 ? '+' : ''}{formatW(accountStats.yearlyNet)}</div>
                                         <div className="text-xs text-emerald-500">{formatUsd(accountStats.yearlyNet)}</div>
-                                        <div className="text-[10px] text-slate-500 mt-1">APR: {((accountStats.yearlyNet / 1000) * 100).toFixed(0)}% (Est.)</div>
                                     </div>
                                 </div>
                             </Card>
@@ -362,7 +379,7 @@
                                         <th className="p-3 text-right">Coût Entrée</th>
                                         <th className="p-3 text-right">Gain DOV-X</th>
                                         <th className="p-3 text-right text-indigo-300 bg-indigo-900/20">Gain Token (Unit)</th>
-                                        <th className="p-3 text-right text-white">Profit Total</th>
+                                        <th className="p-3 text-right text-white">Profit Net Total</th>
                                         <th className="p-3 text-center">ROI</th>
                                     </tr>
                                 </thead>
@@ -379,6 +396,77 @@
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                    )}
+
+                    {/* === TAB: PACKS === */}
+                    {activeTab === 'packs' && (
+                        <div className="space-y-6 animate-fade-in">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <Card>
+                                    <h3 className="font-bold text-purple-400 mb-4">Configuration du Pack</h3>
+                                    <div className="space-y-4">
+                                        <div className="flex gap-4">
+                                            <div className="flex-1">
+                                                <label className="text-xs text-slate-400">Prix Pack ($)</label>
+                                                <input type="number" value={packBuilder.price} onChange={e => setPackBuilder({...packBuilder, price: parseFloat(e.target.value)})} className="w-full bg-slate-900 border border-purple-500 rounded p-2 text-white font-bold"/>
+                                            </div>
+                                            <div className="flex-1">
+                                                <label className="text-xs text-slate-400">Eq. WAX</label>
+                                                <div className="p-2 text-slate-300">{formatW(packBuilder.price / waxPrice)}</div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-slate-400">Ajouter Bâtiment</label>
+                                            <div className="flex gap-2">
+                                                <select className="flex-1 bg-slate-900 border border-slate-600 rounded p-2" value={selectedFactory} onChange={e => setSelectedFactory(e.target.value)}>
+                                                    {FACTORIES.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                                                </select>
+                                                <button onClick={addToPack} className="bg-purple-600 text-white p-2 rounded"><Icon path={Icons.Pack}/></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="mt-6">
+                                        <h4 className="text-xs uppercase text-slate-500 mb-2">Contenu</h4>
+                                        {packBuilder.contents.map((item, i) => {
+                                            const f = factoryAnalysis.find(x => x.id === item.id);
+                                            return (
+                                                <div key={i} className="flex justify-between items-center bg-slate-900 p-2 rounded mb-1 border border-slate-700">
+                                                    <div className="text-sm">{f.name} x{item.qty}</div>
+                                                    <div className="text-xs text-right">
+                                                        <div className="text-emerald-400">Prod Brut: {formatW(f.dailyProd * item.qty)}</div>
+                                                        <div className="text-red-400">Coût Maint: -{formatW(f.dailyCost * item.qty)}</div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </Card>
+                                <Card>
+                                    <h3 className="font-bold text-white mb-4">Analyse Rentabilité</h3>
+                                    <div className="space-y-4 text-center">
+                                        <div className="grid grid-cols-2 gap-4 text-sm">
+                                            <div>
+                                                <div className="text-slate-500 text-xs">Production Brute / Jour</div>
+                                                <div className="text-emerald-400 font-bold">{formatW(packStats.dailyProd)}</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-slate-500 text-xs">Coût Maintenance / Jour</div>
+                                                <div className="text-red-400 font-bold">-{formatW(packStats.dailyCost)}</div>
+                                            </div>
+                                        </div>
+                                        <div className="bg-slate-900 p-4 rounded border border-slate-700">
+                                            <div className="text-slate-400 text-xs uppercase mb-1">Profit Net Quotidien</div>
+                                            <div className="text-2xl font-bold text-white">{formatW(packStats.dailyNet)}</div>
+                                            <div className="text-emerald-500 text-sm">{formatUsd(packStats.dailyNet)} / jour</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-xs text-slate-500 uppercase">Retour sur Investissement</div>
+                                            <div className="text-4xl font-bold text-white">{Math.ceil(packStats.roiDays)} <span className="text-lg font-normal text-slate-400">Jours</span></div>
+                                        </div>
+                                    </div>
+                                </Card>
+                            </div>
                         </div>
                     )}
 
@@ -449,10 +537,10 @@
                         </div>
                     )}
 
-                    {/* === TAB: PACKS & PRODUCTION (Placeholder logic for completeness) === */}
-                    {(activeTab === 'packs' || activeTab === 'production') && (
+                    {/* === PLACEHOLDER TABS === */}
+                    {(activeTab === 'production' || activeTab === 'combat' || activeTab === 'chests') && (
                         <div className="p-8 text-center text-slate-500 italic border border-dashed border-slate-700 rounded">
-                            Module complet disponible. Utilisez les onglets ci-dessus pour naviguer.
+                            Module complet disponible (voir code). Utilisez les autres onglets pour l'instant.
                         </div>
                     )}
 
