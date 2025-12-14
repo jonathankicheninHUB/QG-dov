@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DoV Manager v4.2 (Business & Network)</title>
+    <title>DoV Manager v3.4 + Network Monitor</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -53,7 +53,7 @@
             { id: 14, name: 'Plain 2', type: 'Plain', win: 43385, usage: 125708, minWeight: 1866, officerReq: 14 },
             { id: 15, name: 'Plain 3', type: 'Plain', win: 52171, usage: 151164, minWeight: 2052, officerReq: 15 },
             { id: 16, name: 'HQ', type: 'Plain', win: 64884, usage: 188000, minWeight: 2495, officerReq: 16, isCheckpoint: true, bonusToken: "TOKEN-HQ" },
-            { id: 17, name: 'City 1', type: 'City', win: 0, usage: 0, entryCostDovX: 777.35, minWeight: 108.53, officerReq: 1, bonusToken: "F1-TOKEN-CITY", requiredUnits: ['e6', 'uc6', 'l2'] },
+            { id: 17, name: 'City 1', type: 'City', win: 0, usage: 0, entryCostDovX: 777.35, minWeight: 108.53, officerReq: 1, bonusToken: "F1-TOKEN-CITY-2025", requiredUnits: ['e6', 'uc6', 'l2'] },
             { id: 20, name: 'Bridge', type: 'City', win: 0, usage: 0, entryCostDovX: 14850, minWeight: 2494, officerReq: 1, bonusToken: "F4-TOKEN-BRIDGE", requiredUnits: ['e7', 'l2'] }
         ];
 
@@ -94,6 +94,7 @@
         };
         const FACTORIES = generateFactories();
 
+        // Basic Unit Templates for Blending
         const UNIT_TEMPLATES = [
             { baseId: 'c1', name: 'Infantry', rarity: 'Common' },
             { baseId: 'c2', name: 'Tank', rarity: 'Common' },
@@ -108,7 +109,10 @@
 
         // Components
         const Card = ({ children, className = "" }) => <div className={`bg-slate-800 border border-slate-700 rounded-lg p-4 shadow-xl ${className}`}>{children}</div>;
-        const Badge = ({ children, color = "blue" }) => <span className={`px-2 py-1 rounded text-xs font-bold border bg-${color}-900/30 text-${color}-300 border-${color}-700`}>{children}</span>;
+        const Badge = ({ children, color = "blue" }) => {
+            const colors = { blue: "bg-blue-900 text-blue-200 border-blue-700", green: "bg-emerald-900 text-emerald-200 border-emerald-700", red: "bg-red-900 text-red-200 border-red-700", yellow: "bg-yellow-900 text-yellow-200 border-yellow-700", purple: "bg-purple-900 text-purple-200 border-purple-700", pink: "bg-pink-900 text-pink-200 border-pink-700", indigo: "bg-indigo-900 text-indigo-200 border-indigo-700", cyan: "bg-cyan-900 text-cyan-200 border-cyan-700", slate: "bg-slate-700 text-slate-300 border-slate-600" };
+            return <span className={`px-2 py-1 rounded text-xs font-bold border ${colors[color] || colors.blue}`}>{children}</span>;
+        };
         
         // Icons
         const Icon = ({ path }) => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={path} /></svg>;
@@ -124,7 +128,7 @@
 
         function DoVManager() {
             // States
-            const [activeTab, setActiveTab] = useState('network'); // Start on Network for focus
+            const [activeTab, setActiveTab] = useState('network'); // Start on Network for visibility
             const [market, setMarket] = useState(INITIAL_MARKET);
             const [waxPrice, setWaxPrice] = useState(0.008);
             
@@ -133,7 +137,7 @@
             const [accDivisions, setAccDivisions] = useState([1, 1, 1]);
             const [roiTarget, setRoiTarget] = useState(365);
             
-            // --- NETWORK MONITORING STATE ---
+            // --- NETWORK MONITORING STATE (NEW) ---
             // 50 = Calme, 200 = Chargé, 500 = Saturé
             const [cpuCost, setCpuCost] = useState(50); 
             const [networkStatus, setNetworkStatus] = useState("Calme (Standard)");
@@ -151,6 +155,9 @@
             const [numChestsToOpen, setNumChestsToOpen] = useState(1);
             const [chestSimulationResults, setChestSimulationResults] = useState(null);
             
+            // Auto Gen Options
+            const [autoGenOptions, setAutoGenOptions] = useState({ budget: "50", roi: "30", limit4: false, diverse: false });
+
             // --- 1. CALCULS DE BASE ---
             const factoryAnalysis = useMemo(() => {
                 return FACTORIES.map(f => {
@@ -164,11 +171,29 @@
                     const cpuVal = savedAccounts * cpuCost; // Dynamic based on Network Tab
                     const fairValueWax = prodVal + cpuVal;
 
-                    return { ...f, dailyProd, dailyCost, dailyNet, fairValueWax, cpuVal };
+                    // Efficiency Logic
+                    let costInF1s = 1;
+                    if (f.level === 2) costInF1s = 3;
+                    if (f.level === 3) costInF1s = 9;
+                    if (f.level === 4) costInF1s = 27;
+                    if (f.level === 5) costInF1s = 270;
+                    
+                    const baseFactory = FACTORIES.find(bf => bf.type === f.type && bf.rarity === 'Common' && bf.level === 1);
+                    const f1DailyProd = baseFactory ? baseFactory.output * 24 : 5.4 * 24;
+                    const theoreticalMax = costInF1s * f1DailyProd;
+                    const actualOutput = f.output * 24;
+                    const efficiency = theoreticalMax > 0 ? (actualOutput / theoreticalMax) * 100 : 0;
+
+                    return { 
+                        ...f, 
+                        dailyProd, dailyCost, dailyNet, fairValueWax, cpuVal,
+                        unitCost: (f.costDoVX * market.DOVX) / f.output,
+                        efficiency
+                    };
                 });
             }, [market, roiTarget, cpuCost]);
 
-            // --- 2. VALEUR DU TOKEN ---
+            // --- 2. VALEUR DU TOKEN (Dépend de Factory Analysis) ---
             const tokenValue = useMemo(() => {
                 const f5 = factoryAnalysis.find(f => f.level === 5);
                 if (!f5) return 0;
@@ -206,13 +231,14 @@
                 });
 
                 const dailyNet = (prod - maint) + combatNet;
-                // APR Calc: Annual Net / (Estimated Account Value ? No, usually investment. Here we simulate Flow)
-                // Let's stick to v3.4 requested indicators
+                // APR Calc: Annual Net / (Estimated Account Value ?) - Here we simulate Flow
+                const monthlyNet = dailyNet * 30;
+                const yearlyNet = dailyNet * 365;
                 return { 
                     prod, maint, combatNet, dailyNet,
-                    monthlyNet: dailyNet * 30,
-                    yearlyNet: dailyNet * 365,
-                    usdDaily: dailyNet * waxPrice
+                    monthlyNet, yearlyNet,
+                    usdDaily: dailyNet * waxPrice,
+                    apr: 0 // Placeholder as account value is dynamic
                 };
             }, [accBuildings, accDivisions, factoryAnalysis, zonesAnalysis, waxPrice]);
 
@@ -226,7 +252,7 @@
                 return { f2, f3, f4, f5 };
             }, [blendCount]);
 
-            // --- 6. PACK LOGIC (Improved v3.4) ---
+            // --- 6. PACK LOGIC (v3.4 Style with APR) ---
             const packStats = useMemo(() => {
                 let dailyProd = 0, dailyCost = 0;
                 packBuilder.contents.forEach(item => {
@@ -264,6 +290,9 @@
                 else setPackBuilder({ ...packBuilder, contents: [...packBuilder.contents, { id: selectedFactoryToAdd, qty: 1 }] });
             };
             
+            const removeFromPack = (id) => setPackBuilder({ ...packBuilder, contents: packBuilder.contents.filter(i => i.id !== id) });
+            const updatePackQty = (id, newQty) => { if (newQty >= 1) setPackBuilder({ ...packBuilder, contents: packBuilder.contents.map(i => i.id === id ? {...i, qty: parseInt(newQty)} : i) }); };
+
             const handleSimulateChests = () => {
                 const chest = CHEST_DATA[selectedChestType];
                 if (!chest) return;
@@ -281,8 +310,8 @@
                     {/* HEADER */}
                     <div className="flex justify-between items-center border-b border-slate-700 pb-4">
                         <div>
-                            <h1 className="text-2xl font-bold text-blue-400">DoV COMMANDER v4.2</h1>
-                            <p className="text-xs text-slate-400">Business & Network Edition</p>
+                            <h1 className="text-2xl font-bold text-blue-400">DoV COMMANDER v3.4 + Network</h1>
+                            <p className="text-xs text-slate-400">Business, Monitoring & Strategy</p>
                         </div>
                         <div className="flex gap-4 text-xs">
                             <div className="bg-slate-800 p-2 rounded">
@@ -300,7 +329,7 @@
                     <div className="flex gap-2 overflow-x-auto pb-2">
                         {[
                             {id: 'network', icon: Icons.Network, label: '📡 RÉSEAU / CPU'},
-                            {id: 'account_sim', icon: Icons.Factory, label: 'COMPTE'},
+                            {id: 'account_sim', icon: Icons.Factory, label: 'COMPTE COMPLET'},
                             {id: 'zone_roi_advanced', icon: Icons.Token, label: 'ROI TOKENS'},
                             {id: 'valuation', icon: Icons.Valuation, label: 'VALORISATION'},
                             {id: 'blending', icon: Icons.Blend, label: 'FUSION'},
@@ -391,8 +420,8 @@
                                         </div>
                                     ))}
                                     <div className="mt-4 pt-2 border-t border-slate-700 flex justify-between text-sm">
-                                        <span className="text-emerald-400">Prod Brut: +{formatW(accountStats.prod)}</span>
-                                        <span className="text-red-400">Maint: -{formatW(accountStats.maint)}</span>
+                                        <span className="text-emerald-400">Production Brute: +{formatW(accountSimStats.prod)}</span>
+                                        <span className="text-red-400">Coût Maintenance: -{formatW(accountSimStats.maint)}</span>
                                     </div>
                                 </Card>
                                 <Card>
@@ -406,30 +435,30 @@
                                         </div>
                                     ))}
                                     <div className="mt-4 pt-2 border-t border-slate-700 text-right text-sm">
-                                        <span className="text-emerald-400 font-bold">Net Combat: {accountStats.combatNet > 0 ? '+' : ''}{formatW(accountStats.combatNet)}</span>
+                                        <span className="text-emerald-400 font-bold">Profit Net Combat: {accountSimStats.combatNet > 0 ? '+' : ''}{formatW(accountSimStats.combatNet)}</span>
                                     </div>
                                 </Card>
                             </div>
 
                             <Card className="border-t-4 border-t-emerald-500 bg-slate-800/80">
-                                <div className="text-center mb-2 text-emerald-400 font-bold tracking-widest text-sm uppercase">Bilan Consolidé (Net)</div>
+                                <div className="text-center mb-2 text-emerald-400 font-bold tracking-widest text-sm uppercase">Bilan Consolidé (Profit Net)</div>
                                 <div className="grid grid-cols-3 gap-4 text-center">
                                     <div className="p-2 bg-slate-900/50 rounded">
-                                        <div className="text-xs text-slate-400">JOUR (NET)</div>
-                                        <div className="text-xl font-bold text-white">{accountStats.dailyNet > 0 ? '+' : ''}{formatW(accountStats.dailyNet)}</div>
-                                        <div className="text-xs text-emerald-500">{formatUsd(accountStats.dailyNet)}</div>
+                                        <div className="text-xs text-slate-400">PAR JOUR (NET)</div>
+                                        <div className="text-xl font-bold text-white">{accountSimStats.dailyNet > 0 ? "+" : ""}{formatW(accountSimStats.dailyNet)}</div>
+                                        <div className="text-xs text-emerald-500">{formatUsd(accountSimStats.dailyNet)}</div>
                                     </div>
                                     <div className="p-2 bg-slate-900/50 rounded border border-slate-700">
-                                        <div className="text-xs text-purple-300">MOIS (NET)</div>
-                                        <div className="text-xl font-bold text-purple-100">{accountStats.monthlyNet > 0 ? '+' : ''}{formatW(accountStats.monthlyNet)}</div>
-                                        <div className="text-xs text-emerald-500">{formatUsd(accountStats.monthlyNet)}</div>
+                                        <div className="text-xs text-purple-300">PAR MOIS (NET)</div>
+                                        <div className="text-xl font-bold text-purple-100">{accountSimStats.monthlyNet > 0 ? "+" : ""}{formatW(accountSimStats.monthlyNet)}</div>
+                                        <div className="text-xs text-emerald-500">{formatUsd(accountSimStats.monthlyNet)}</div>
                                     </div>
                                     <div className="p-2 bg-slate-900/50 rounded">
-                                        <div className="text-xs text-slate-400">ANNÉE (NET)</div>
-                                        <div className="text-xl font-bold text-white">{accountStats.yearlyNet > 0 ? '+' : ''}{formatW(accountStats.yearlyNet)}</div>
-                                        <div className="text-xs text-emerald-500">{formatUsd(accountStats.yearlyNet)}</div>
-                                        {/* APR Indicator (Business Requirement) */}
-                                        <div className="text-[10px] text-slate-500 mt-1">APR (Est.) : {((accountStats.yearlyNet / (accountStats.prod * 365)) * 100).toFixed(0)}%</div>
+                                        <div className="text-xs text-slate-400">PAR AN (NET)</div>
+                                        <div className="text-xl font-bold text-white">{accountSimStats.yearlyNet > 0 ? "+" : ""}{formatW(accountSimStats.yearlyNet)}</div>
+                                        <div className="text-xs text-emerald-500">{formatUsd(accountSimStats.yearlyNet)}</div>
+                                        {/* APR Indicator (Requested in v3.4) */}
+                                        <div className="text-[10px] text-slate-500 mt-1">APR (Est.) : {((accountSimStats.yearlyNet / (accountSimStats.prod * 365)) * 100).toFixed(0)}%</div>
                                     </div>
                                 </div>
                             </Card>
@@ -530,8 +559,8 @@
                                                             <button onClick={() => removeFromPack(item.id)} className="text-red-500 text-xs">Suppr.</button>
                                                         </div>
                                                         <div className="flex justify-between text-[10px]">
-                                                            <span className="text-emerald-400">Brut: {formatW(f.dailyProd * item.qty)}</span>
-                                                            <span className="text-red-400">Maint: -{formatW(f.dailyCost * item.qty)}</span>
+                                                            <span className="text-emerald-400">Prod Brut: {formatW(f.dailyProd * item.qty)}</span>
+                                                            <span className="text-red-400">Coût Maint: -{formatW(f.dailyCost * item.qty)}</span>
                                                             <span className="text-white font-bold">Net: {formatW(f.dailyNet * item.qty)}</span>
                                                         </div>
                                                     </div>
@@ -581,7 +610,7 @@
                         </div>
                     )}
 
-                    {/* === OTHER TABS (Simplified for restoration) === */}
+                    {/* === TAB: BLENDING === */}
                     {activeTab === 'blending' && (
                         <div className="space-y-6 animate-fade-in">
                             <Card>
@@ -624,12 +653,15 @@
 
                     {(activeTab === 'production' || activeTab === 'combat' || activeTab === 'chests') && (
                         <div className="p-8 text-center text-slate-500 italic border border-dashed border-slate-700 rounded">
-                            Module complet disponible. Utilisez les onglets ci-dessus.
+                            <p>Ces modules sont disponibles dans le code complet. Utilisez les onglets ci-dessus pour la démo.</p>
                         </div>
                     )}
                 </div>
             );
         }
+
+        // --- CONSTANTS FOR BLEND LOGIC ---
+        const BLENDABLE_UNITS = [ { id: 'c1', name: 'Unit 1', level: 1 }, { id: 'c2', name: 'Unit 2', level: 1 } ];
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<DoVManager />);
