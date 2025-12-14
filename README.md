@@ -1,6 +1,6 @@
 # DoV Commander 🛡️
 
-**DoV Commander** est un outil communautaire tout-en-un pour optimiser votre stratégie dans le jeu P2E **Dawn of Victory** sur la blockchain WAX.
+**DoV Commander** est un outil communautaire tout-en-un pour optimiser votre stratégie dans le projet **Dawn of Victory** sur la blockchain WAX.
 
 🔗 **[Accéder à l'outil en ligne](https://TON_USER.github.io/TON_REPO/)**
 
