@@ -64,6 +64,14 @@
         const Diamond = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>;
         const Scale = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>;
         const Info = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+        const LinkIcon = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07L13 7"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07L11 17"/></svg>;
+        const BookIcon = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>;
+        const MessageSquare = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
+        const Mail = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>;
+        const Shuffle = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="9" x2="19" y2="13"/><line x1="4" y1="4" x2="8" y2="8"/></svg>;
+        const TrendingUp = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
+        const ZapOff = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="22" x2="12" y2="16"/><line x1="2" y1="12" x2="8" y2="12"/><path d="M13.88 9.94 17 6H10l-4 8h3l-2.61 3.51"/></svg>;
+
 
         // --- DATASETS ---
 
@@ -446,6 +454,45 @@
                 </div>
             );
         };
+        
+        // --- NOUVEAU COMPOSANT : OFFICIAL LINKS ---
+        const DovLinksSection = () => {
+            const links = [
+                { name: "Site Officiel", url: "https://dawnofvictory.io/", icon: <LinkIcon size={16} className="text-blue-400"/>, color: "blue" },
+                { name: "Whitepaper (Gitbook)", url: "https://dawn-of-victory.gitbook.io/dov/", icon: <BookIcon size={16} className="text-purple-400"/>, color: "purple" },
+                { name: "Accès Bêta", url: "https://beta.dawnofvictory.io/", icon: <CheckCircle size={16} className="text-emerald-400"/>, color: "emerald" },
+                { name: "Twitter", url: "https://twitter.com/DOVNFT", icon: <MessageSquare size={16} className="text-cyan-400"/>, color: "cyan" },
+                { name: "Telegram", url: "https://t.me/dawnofvictorynft", icon: <MessageSquare size={16} className="text-indigo-400"/>, color: "indigo" },
+                { name: "Échange DOV-X (Alcor)", url: "https://alcor.exchange/trade/dovx-dovvaultfort_wax-eosio.token", icon: <TrendingUp size={16} className="text-green-400"/>, color: "green" },
+                { name: "Swap WAX/DOV-X (Alcor)", url: "https://wax.alcor.exchange/swap?output=DOVX-dovvaultfort&input=WAX-eosio.token", icon: <Shuffle size={16} className="text-yellow-400"/>, color: "yellow" },
+                { name: "Blend NFT (NeftyBlocks)", url: "https://neftyblocks.com/c/dovdivisions/blends", icon: <Package size={16} className="text-orange-400"/>, color: "orange" },
+                { name: "Top 100 DOVX Holders (Bloks)", url: "https://wax.bloks.io/tokens/DOVX-wax-dovvaultfort", icon: <Database size={16} className="text-slate-400"/>, color: "slate" },
+                { name: "Fichier de Ressources Partagé", url: "https://whimsical.com/dawn-of-victory-marketing-NgpNonWnGyLUqosCRRJ5Ng@3CRerdhrAvzbxBHgLbRvGZoU", icon: <Info size={16} className="text-pink-400"/>, color: "pink" },
+            ];
+
+            return (
+                <Card className="mb-6 border-l-4 border-blue-500">
+                    <h3 className="text-xl font-bold text-blue-400 mb-4 flex items-center gap-2">
+                        <Shield size={24} /> Ressources Officielles Dawn of Victory (DOV)
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {links.map((link, index) => (
+                            <a 
+                                key={index} 
+                                href={link.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className={`flex items-center p-3 rounded-lg border border-slate-700 bg-slate-900 hover:bg-slate-700/50 transition-colors text-sm font-medium text-white`}
+                            >
+                                {link.icon}
+                                <span className="ml-3 truncate">{link.name}</span>
+                                <ChevronRight size={16} className="ml-auto text-slate-500" />
+                            </a>
+                        ))}
+                    </div>
+                </Card>
+            );
+        };
 
         // --- COMPONENTS ---
 
@@ -506,8 +553,8 @@
             
             // ROI TARGET
             const [roiTargetDays, setRoiTargetDays] = useState(365);
-            const [cpuPerAccount, setCpuPerAccount] = useState(250); // Default 250 WAX per account
-
+            const [cpuPerAccount, setCpuPerAccount] = useState(250); 
+            
             // COMBAT STATES
             const [selectedZoneId, setSelectedZoneId] = useState(1);
             const [selectedSquad, setSelectedSquad] = useState([]); 
@@ -1158,6 +1205,9 @@
                 
                 {/* --- WAX MONITORING BAR --- */}
                 <WaxMonitor />
+                
+                {/* --- NOUVELLE SECTION : LIENS OFFICIELS DOV --- */}
+                <DovLinksSection />
 
                 <div className="flex gap-4 mb-6 overflow-x-auto pb-2">
                     <button onClick={() => setActiveTab('account_sim')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'account_sim' ? 'bg-orange-600 text-white shadow-lg shadow-orange-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Briefcase size={18} /> 🏢 COMPTE COMPLET</button>
