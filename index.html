@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DoV Manager v3.4 + Network Monitor</title>
+    <title>DoV Manager v3.4.1 (Stable + Monitoring)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
@@ -31,39 +29,12 @@
 
     <script type="text/babel">
         // ==========================================================================================
-        //  1. DONNÉES DE JEU (BASE)
+        //  1. DONNÉES DE JEU
         // ==========================================================================================
 
         const INITIAL_MARKET = { WAX: 1, DOVX: 0.005285, DOVF: 0.00045, DOVR: 0.00045, DOVS: 0.00045, DOVH: 0.00045 };
 
-        const ZONES = [
-            { id: 1, name: 'Beach 1', type: 'Beach', win: 400, usage: 1160, minWeight: 14, officerReq: 1 },
-            { id: 2, name: 'Beach 2', type: 'Beach', win: 2405, usage: 6968, minWeight: 28, officerReq: 2 },
-            { id: 3, name: 'Beach 3', type: 'Beach', win: 3037, usage: 8800, minWeight: 55, officerReq: 3 },
-            { id: 4, name: 'Bunker', type: 'Beach', win: 3838, usage: 11120, minWeight: 109, officerReq: 4, isCheckpoint: true, bonusToken: "TOKEN-BUNKER" },
-            { id: 5, name: 'Forest 1', type: 'Forest', win: 4840, usage: 14024, minWeight: 219, officerReq: 5 },
-            { id: 6, name: 'Forest 2', type: 'Forest', win: 6110, usage: 17704, minWeight: 342, officerReq: 6 },
-            { id: 7, name: 'Forest 3', type: 'Forest', win: 7714, usage: 22352, minWeight: 450, officerReq: 7 },
-            { id: 8, name: 'Camp', type: 'Forest', win: 9739, usage: 28220, minWeight: 512, officerReq: 8, isCheckpoint: true, bonusToken: "TOKEN-CAMP" },
-            { id: 9, name: 'Hill 1', type: 'Hill', win: 12788, usage: 37052, minWeight: 695, officerReq: 9 },
-            { id: 10, name: 'Hill 2', type: 'Hill', win: 16791, usage: 48652, minWeight: 869, officerReq: 10 },
-            { id: 11, name: 'Hill 3', type: 'Hill', win: 22266, usage: 64516, minWeight: 1086, officerReq: 11 },
-            { id: 12, name: 'Radar', type: 'Hill', win: 29236, usage: 84712, minWeight: 1358, officerReq: 12, isCheckpoint: true, bonusToken: "TOKEN-RADAR" },
-            { id: 13, name: 'Plain 1', type: 'Plain', win: 34300, usage: 99384, minWeight: 1697, officerReq: 13 },
-            { id: 14, name: 'Plain 2', type: 'Plain', win: 43385, usage: 125708, minWeight: 1866, officerReq: 14 },
-            { id: 15, name: 'Plain 3', type: 'Plain', win: 52171, usage: 151164, minWeight: 2052, officerReq: 15 },
-            { id: 16, name: 'HQ', type: 'Plain', win: 64884, usage: 188000, minWeight: 2495, officerReq: 16, isCheckpoint: true, bonusToken: "TOKEN-HQ" },
-            { id: 17, name: 'City 1', type: 'City', win: 0, usage: 0, entryCostDovX: 777.35, minWeight: 108.53, officerReq: 1, bonusToken: "F1-TOKEN-CITY-2025", requiredUnits: ['e6', 'uc6', 'l2'] },
-            { id: 20, name: 'Bridge', type: 'City', win: 0, usage: 0, entryCostDovX: 14850, minWeight: 2494, officerReq: 1, bonusToken: "F4-TOKEN-BRIDGE", requiredUnits: ['e7', 'l2'] }
-        ];
-
-        const CHEST_DATA = {
-            'Bunker': { zone: 4, name: 'PACK Bunker', tokenCost: 27, drops: [{ type: 'building', pool: [{ id: 'c_f1', name: 'C_F1', prob: 100 }] }] },
-            'Camp': { zone: 8, name: 'PACK Camp', tokenCost: 27, drops: [{ type: 'building', pool: [{ id: 'r_f1', name: 'R_F1', prob: 100 }] }] },
-            'Radar': { zone: 12, name: 'PACK Radar', tokenCost: 27, drops: [{ type: 'building', pool: [{ id: 'e_f1', name: 'E_F1', prob: 100 }] }] },
-            'HQ': { zone: 16, name: 'PACK HQ', tokenCost: 27, drops: [{ type: 'building', pool: [{ id: 'l_f1', name: 'L_F1', prob: 100 }] }] }
-        };
-
+        // --- FACTORIES ---
         const generateFactories = () => {
             const types = ['FUEL', 'REPAIR', 'SUPPLY', 'HEALTH'];
             const rarities = [
@@ -79,13 +50,21 @@
                     rarity.levels.forEach(level => {
                         let name = `${rarity.name} ${type} ${level.l}`;
                         if (level.isBlend) name = `Supreme ${rarity.name} ${type} (Blend 10x F4)`;
+                        
+                        // Calcul equivalent F1 pour la densité
+                        let costInF1s = 1;
+                        if (level.l === 2) costInF1s = 3;
+                        if (level.l === 3) costInF1s = 9;
+                        if (level.l === 4) costInF1s = 27;
+                        if (level.l === 5) costInF1s = 270;
+
                         list.push({
                             id: `${rarity.name.charAt(0)}_${type.charAt(0)}${level.l}`,
                             name: name,
-                            type: type, rarity: rarity.name, level: level.l, output: level.out, costDoVX: level.cost,
-                            // Metadata for valuation
-                            accountsNeeded: level.l === 5 ? 270/4 : (Math.pow(3, level.l-1)/4), 
-                            equivalentF1s: Math.pow(3, level.l-1)
+                            type: type, rarity: rarity.name, level: level.l, 
+                            output: level.out, costDoVX: level.cost,
+                            equivalentF1s: costInF1s,
+                            accountsNeeded: costInF1s / 4 // 4 slots par compte
                         });
                     });
                 });
@@ -94,12 +73,19 @@
         };
         const FACTORIES = generateFactories();
 
-        // Basic Unit Templates for Blending
-        const UNIT_TEMPLATES = [
-            { baseId: 'c1', name: 'Infantry', rarity: 'Common' },
-            { baseId: 'c2', name: 'Tank', rarity: 'Common' },
+        // --- ZONES ---
+        const ZONES = [
+            { id: 1, name: 'Beach 1', type: 'Beach', win: 400, usage: 1160 },
+            { id: 2, name: 'Beach 2', type: 'Beach', win: 2405, usage: 6968 },
+            { id: 3, name: 'Beach 3', type: 'Beach', win: 3037, usage: 8800 },
+            { id: 4, name: 'Bunker', type: 'Beach', win: 3838, usage: 11120, bonusToken: "TOKEN-BUNKER", minWeight: 109 },
+            { id: 5, name: 'Forest 1', type: 'Forest', win: 4840, usage: 14024 },
+            { id: 8, name: 'Camp', type: 'Forest', win: 9739, usage: 28220, bonusToken: "TOKEN-CAMP", minWeight: 512 },
+            { id: 12, name: 'Radar', type: 'Hill', win: 29236, usage: 84712, bonusToken: "TOKEN-RADAR", minWeight: 1358 },
+            { id: 16, name: 'HQ', type: 'Plain', win: 64884, usage: 188000, bonusToken: "TOKEN-HQ", minWeight: 2495 },
+            { id: 17, name: 'City 1', type: 'City', win: 0, usage: 0, entryCostDovX: 777.35, bonusToken: "F1-TOKEN", minWeight: 108 },
+            { id: 20, name: 'Bridge', type: 'City', win: 0, usage: 0, entryCostDovX: 14850, bonusToken: "F4-TOKEN", minWeight: 2494 }
         ];
-        const BLENDABLE_UNITS = UNIT_TEMPLATES.map(t => ({ id: t.baseId, name: t.name, level: 1, rarity: t.rarity }));
 
         // ==========================================================================================
         //  2. MOTEUR REACT
@@ -107,177 +93,95 @@
 
         const { useState, useEffect, useMemo } = React;
 
-        // Components
-        const Card = ({ children, className = "" }) => <div className={`bg-slate-800 border border-slate-700 rounded-lg p-4 shadow-xl ${className}`}>{children}</div>;
-        const Badge = ({ children, color = "blue" }) => {
-            const colors = { blue: "bg-blue-900 text-blue-200 border-blue-700", green: "bg-emerald-900 text-emerald-200 border-emerald-700", red: "bg-red-900 text-red-200 border-red-700", yellow: "bg-yellow-900 text-yellow-200 border-yellow-700", purple: "bg-purple-900 text-purple-200 border-purple-700", pink: "bg-pink-900 text-pink-200 border-pink-700", indigo: "bg-indigo-900 text-indigo-200 border-indigo-700", cyan: "bg-cyan-900 text-cyan-200 border-cyan-700", slate: "bg-slate-700 text-slate-300 border-slate-600" };
-            return <span className={`px-2 py-1 rounded text-xs font-bold border ${colors[color] || colors.blue}`}>{children}</span>;
-        };
-        
-        // Icons
-        const Icon = ({ path }) => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={path} /></svg>;
-        const Icons = {
-            Factory: "M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z",
-            Combat: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
-            Pack: "m16.5 9.4-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z",
-            Token: "M6 3h12l4 6-10 13L2 9Z",
-            Valuation: "m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z M7 21h10 M12 3v18 M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2",
-            Blend: "M10 2v7.31 M14 2v7.31 M8.5 2h7 M14 9.3a6.5 6.5 0 1 1-4 0 M5.52 16h12.96",
-            Network: "M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z M12 6v6l4 2"
-        };
+        // ICONS
+        const IconNetwork = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z M12 6v6l4 2"/></svg>;
+        const IconFactory = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg>;
+        const IconPack = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16.5 9.4-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>;
+        const IconValuation = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/></svg>;
+        const IconTrash = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>;
+        const IconPlus = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
 
         function DoVManager() {
-            // States
-            const [activeTab, setActiveTab] = useState('network'); // Start on Network for visibility
-            const [market, setMarket] = useState(INITIAL_MARKET);
-            const [waxPrice, setWaxPrice] = useState(0.008);
+            // STATES
+            const [activeTab, setActiveTab] = useState('account_sim');
+            const [marketPrices, setMarketPrices] = useState(INITIAL_MARKET);
+            const [waxPriceUsd, setWaxPriceUsd] = useState(0.008); 
             
-            // Sim States
-            const [accBuildings, setAccBuildings] = useState([FACTORIES[0].id, FACTORIES[1].id, FACTORIES[2].id, FACTORIES[3].id]);
-            const [accDivisions, setAccDivisions] = useState([1, 1, 1]);
-            const [roiTarget, setRoiTarget] = useState(365);
-            
-            // --- NETWORK MONITORING STATE (NEW) ---
-            // 50 = Calme, 200 = Chargé, 500 = Saturé
-            const [cpuCost, setCpuCost] = useState(50); 
-            const [networkStatus, setNetworkStatus] = useState("Calme (Standard)");
+            // --- NOUVEAU MONITORING ---
+            const [cpuCost, setCpuCost] = useState(50); // Coût CPU par compte en WAX
+            const [networkStatus, setNetworkStatus] = useState("Calme");
 
-            // Blending State
-            const [blendUnit, setBlendUnit] = useState(BLENDABLE_UNITS[0]?.id);
-            const [blendCount, setBlendCount] = useState(0);
-
-            // Pack State
-            const [packBuilder, setPackBuilder] = useState({ name: 'Mon Pack', price: 100, contents: [] });
+            // Pack States
+            const [packBuilder, setPackBuilder] = useState({ name: 'Pack Perso', price: 100, contents: [] });
             const [selectedFactoryToAdd, setSelectedFactoryToAdd] = useState(FACTORIES[0].id);
-            
-            // Other States
-            const [selectedChestType, setSelectedChestType] = useState('Bunker');
-            const [numChestsToOpen, setNumChestsToOpen] = useState(1);
-            const [chestSimulationResults, setChestSimulationResults] = useState(null);
-            
-            // Auto Gen Options
-            const [autoGenOptions, setAutoGenOptions] = useState({ budget: "50", roi: "30", limit4: false, diverse: false });
 
-            // --- 1. CALCULS DE BASE ---
+            // Account Sim States
+            const [accountBuildings, setAccountBuildings] = useState([FACTORIES[0].id, FACTORIES[1].id, FACTORIES[2].id, FACTORIES[3].id]); 
+            
+            // Helpers
+            const formatW = (v) => `${v.toLocaleString(undefined, {maximumFractionDigits:2})} W`;
+            const formatUsd = (v) => `$${(v * waxPriceUsd).toFixed(2)}`;
+
+            // --- CALCULS (CORE LOGIC v3.4) ---
+            
             const factoryAnalysis = useMemo(() => {
-                return FACTORIES.map(f => {
-                    const dailyProd = f.output * 24 * market[`DOV${f.type.charAt(0)}`];
-                    const dailyCost = f.costDoVX * 24 * market.DOVX;
-                    const dailyNet = dailyProd - dailyCost;
+                return FACTORIES.map(factory => {
+                    const dailyProdWax = factory.output * 24 * marketPrices[`DOV${factory.type.charAt(0)}`]; 
+                    const dailyCostWax = factory.costDoVX * 24 * marketPrices.DOVX;
+                    const dailyNetWax = dailyProdWax - dailyCostWax;
                     
-                    // Valuation: Profit sur ROI Target + Economie CPU
-                    const prodVal = dailyNet * roiTarget;
-                    const savedAccounts = Math.max(0, f.accountsNeeded - 1);
-                    const cpuVal = savedAccounts * cpuCost; // Dynamic based on Network Tab
-                    const fairValueWax = prodVal + cpuVal;
-
-                    // Efficiency Logic
-                    let costInF1s = 1;
-                    if (f.level === 2) costInF1s = 3;
-                    if (f.level === 3) costInF1s = 9;
-                    if (f.level === 4) costInF1s = 27;
-                    if (f.level === 5) costInF1s = 270;
-                    
-                    const baseFactory = FACTORIES.find(bf => bf.type === f.type && bf.rarity === 'Common' && bf.level === 1);
-                    const f1DailyProd = baseFactory ? baseFactory.output * 24 : 5.4 * 24;
-                    const theoreticalMax = costInF1s * f1DailyProd;
-                    const actualOutput = f.output * 24;
-                    const efficiency = theoreticalMax > 0 ? (actualOutput / theoreticalMax) * 100 : 0;
+                    // --- AJOUT LOGIQUE CPU DU MONITORING ---
+                    // Valorisation = (Profit sur 1 an) + (Economie de Staking CPU)
+                    const roiDays = 365;
+                    const savedAccounts = Math.max(0, factory.accountsNeeded - 1);
+                    const cpuSavings = savedAccounts * cpuCost; // Impact du monitoring ici
+                    const fairValueWax = (dailyNetWax * roiDays) + cpuSavings;
 
                     return { 
-                        ...f, 
-                        dailyProd, dailyCost, dailyNet, fairValueWax, cpuVal,
-                        unitCost: (f.costDoVX * market.DOVX) / f.output,
-                        efficiency
+                        ...factory, 
+                        dailyProdWax, 
+                        dailyCostWax, 
+                        dailyNetWax, 
+                        fairValueWax,
+                        cpuSavings // Pour affichage
                     };
                 });
-            }, [market, roiTarget, cpuCost]);
+            }, [marketPrices, cpuCost]); // Dépendance cpuCost ajoutée
 
-            // --- 2. VALEUR DU TOKEN (Dépend de Factory Analysis) ---
-            const tokenValue = useMemo(() => {
-                const f5 = factoryAnalysis.find(f => f.level === 5);
-                if (!f5) return 0;
-                const f5Value = f5.fairValueWax;
-                const totalTokens = 270 * 27; 
-                return f5Value / totalTokens;
-            }, [factoryAnalysis]);
-
-            // --- 3. ANALYSE ZONES ---
-            const zonesAnalysis = useMemo(() => {
-                return ZONES.map(z => {
-                    const cost = z.usage ? z.usage * 4 * market.DOVF : (z.entryCostDovX || 0) * market.DOVX;
-                    const reward = z.win * market.DOVX;
-                    
-                    const tokenVal = z.bonusToken ? tokenValue : 0; 
-                    const totalProfit = (reward - cost) + tokenVal;
-                    const roi = cost > 0 ? (totalProfit / cost) * 100 : 0;
-
-                    return { ...z, cost, reward, tokenVal, totalProfit, roi };
-                });
-            }, [market, tokenValue]);
-
-            // --- 4. ANALYSE COMPTE ---
-            const accountStats = useMemo(() => {
-                let prod = 0, maint = 0;
-                accBuildings.forEach(id => {
-                    const f = factoryAnalysis.find(x => x.id === id);
-                    if(f) { prod += f.dailyProd; maint += f.dailyCost; }
-                });
-
-                let combatNet = 0;
-                accDivisions.forEach(zid => {
-                    const z = zonesAnalysis.find(x => x.id == zid);
-                    if(z) combatNet += z.totalProfit;
-                });
-
-                const dailyNet = (prod - maint) + combatNet;
-                // APR Calc: Annual Net / (Estimated Account Value ?) - Here we simulate Flow
-                const monthlyNet = dailyNet * 30;
-                const yearlyNet = dailyNet * 365;
-                return { 
-                    prod, maint, combatNet, dailyNet,
-                    monthlyNet, yearlyNet,
-                    usdDaily: dailyNet * waxPrice,
-                    apr: 0 // Placeholder as account value is dynamic
-                };
-            }, [accBuildings, accDivisions, factoryAnalysis, zonesAnalysis, waxPrice]);
-
-            // --- 5. BLEND LOGIC ---
-            const blendStats = useMemo(() => {
-                if(!blendCount) return null;
-                const f2 = Math.floor(blendCount / 3);
-                const f3 = Math.floor(blendCount / 9);
-                const f4 = Math.floor(blendCount / 27);
-                const f5 = Math.floor(blendCount / 270);
-                return { f2, f3, f4, f5 };
-            }, [blendCount]);
-
-            // --- 6. PACK LOGIC (v3.4 Style with APR) ---
             const packStats = useMemo(() => {
                 let dailyProd = 0, dailyCost = 0;
                 packBuilder.contents.forEach(item => {
                     const f = factoryAnalysis.find(x => x.id === item.id);
                     if(f) {
-                        dailyProd += f.dailyProd * item.qty;
-                        dailyCost += f.dailyCost * item.qty;
+                        dailyProd += f.dailyProdWax * item.qty;
+                        dailyCost += f.dailyCostWax * item.qty;
                     }
                 });
                 const dailyNet = dailyProd - dailyCost;
-                const roiDays = dailyNet > 0 ? packBuilder.price / dailyNet : 0;
+                const roiDays = dailyNet > 0 ? (packBuilder.price / dailyNet) : 0;
                 
-                // APR = (Yearly Profit / Investment) * 100
-                const apr = packBuilder.price > 0 ? ((dailyNet * 365) / packBuilder.price) * 100 : 0;
-                const monthlyNet = dailyNet * 30;
+                // INDICATEUR APR (v3.4 Requirement)
                 const yearlyNet = dailyNet * 365;
+                const apr = packBuilder.price > 0 ? (yearlyNet / packBuilder.price) * 100 : 0;
 
-                return { dailyProd, dailyCost, dailyNet, roiDays, apr, monthlyNet, yearlyNet };
+                return { dailyProd, dailyCost, dailyNet, roiDays, apr };
             }, [packBuilder, factoryAnalysis]);
 
-            // --- RENDER HELPERS ---
-            const formatW = (v) => `${v.toLocaleString(undefined, {maximumFractionDigits:2})} W`;
-            const formatUsd = (v) => `$${(v * waxPrice).toFixed(2)}`;
+            const accountStats = useMemo(() => {
+                let prod = 0, maint = 0;
+                accountBuildings.forEach(id => {
+                    const f = factoryAnalysis.find(x => x.id === id);
+                    if(f) { prod += f.dailyProdWax; maint += f.dailyCostWax; }
+                });
+                const net = prod - maint;
+                return { 
+                    prod, maint, net, 
+                    monthly: net * 30, 
+                    yearly: net * 365 
+                };
+            }, [accountBuildings, factoryAnalysis]);
 
-            // --- HANDLERS ---
+            // --- ACTIONS ---
             const setNetworkPreset = (level) => {
                 if (level === 'Low') { setCpuCost(50); setNetworkStatus("Calme (Standard)"); }
                 if (level === 'Med') { setCpuCost(200); setNetworkStatus("Chargé (Congestion)"); }
@@ -286,382 +190,237 @@
 
             const addToPack = () => {
                 const existing = packBuilder.contents.find(i => i.id === selectedFactoryToAdd);
-                if (existing) setPackBuilder({ ...packBuilder, contents: packBuilder.contents.map(i => i.id === selectedFactoryToAdd ? {...i, qty: i.qty + 1} : i) });
-                else setPackBuilder({ ...packBuilder, contents: [...packBuilder.contents, { id: selectedFactoryToAdd, qty: 1 }] });
-            };
-            
-            const removeFromPack = (id) => setPackBuilder({ ...packBuilder, contents: packBuilder.contents.filter(i => i.id !== id) });
-            const updatePackQty = (id, newQty) => { if (newQty >= 1) setPackBuilder({ ...packBuilder, contents: packBuilder.contents.map(i => i.id === id ? {...i, qty: parseInt(newQty)} : i) }); };
-
-            const handleSimulateChests = () => {
-                const chest = CHEST_DATA[selectedChestType];
-                if (!chest) return;
-                let results = { buildingDrops: {}, keyDrops: {} };
-                const pick = (pool) => { let r = Math.random()*pool.reduce((a,b)=>a+b.prob,0); for(let i of pool){ if(r<i.prob) return i.name; r-=i.prob; } };
-                for(let i=0; i<numChestsToOpen; i++) {
-                    const bName = pick(chest.drops[0].pool);
-                    results.buildingDrops[bName] = (results.buildingDrops[bName]||0)+1;
+                if (existing) {
+                    setPackBuilder({ ...packBuilder, contents: packBuilder.contents.map(i => i.id === selectedFactoryToAdd ? {...i, qty: i.qty + 1} : i) });
+                } else {
+                    setPackBuilder({ ...packBuilder, contents: [...packBuilder.contents, { id: selectedFactoryToAdd, qty: 1 }] });
                 }
-                setChestSimulationResults(results);
             };
+            const removeFromPack = (id) => setPackBuilder({ ...packBuilder, contents: packBuilder.contents.filter(i => i.id !== id) });
 
+            // --- RENDER ---
             return (
                 <div className="p-6 max-w-7xl mx-auto space-y-6">
-                    {/* HEADER */}
+                    {/* Header */}
                     <div className="flex justify-between items-center border-b border-slate-700 pb-4">
-                        <div>
-                            <h1 className="text-2xl font-bold text-blue-400">DoV COMMANDER v3.4 + Network</h1>
-                            <p className="text-xs text-slate-400">Business, Monitoring & Strategy</p>
-                        </div>
-                        <div className="flex gap-4 text-xs">
-                            <div className="bg-slate-800 p-2 rounded">
-                                <div className="text-slate-400">Prix WAX</div>
-                                <input type="number" value={waxPrice} onChange={e => setWaxPrice(parseFloat(e.target.value))} className="bg-transparent font-bold w-16" step="0.001"/>
-                            </div>
-                            <div className="bg-slate-800 p-2 rounded">
-                                <div className="text-slate-400">DOV-X</div>
-                                <input type="number" value={market.DOVX} onChange={e => setMarket({...market, DOVX: parseFloat(e.target.value)})} className="bg-transparent text-yellow-400 font-bold w-20" step="0.0001"/>
+                        <h1 className="text-2xl font-bold text-blue-400">DoV COMMANDER v3.4 + Network</h1>
+                        <div className="flex gap-4">
+                            <div className="bg-slate-800 p-2 rounded text-xs">
+                                <span className="text-slate-400">Prix WAX</span>
+                                <input type="number" value={waxPriceUsd} onChange={e=>setWaxPriceUsd(parseFloat(e.target.value))} className="bg-transparent font-bold w-16 ml-2" step="0.001"/>
                             </div>
                         </div>
                     </div>
 
-                    {/* NAVIGATION */}
+                    {/* Navigation */}
                     <div className="flex gap-2 overflow-x-auto pb-2">
-                        {[
-                            {id: 'network', icon: Icons.Network, label: '📡 RÉSEAU / CPU'},
-                            {id: 'account_sim', icon: Icons.Factory, label: 'COMPTE COMPLET'},
-                            {id: 'zone_roi_advanced', icon: Icons.Token, label: 'ROI TOKENS'},
-                            {id: 'valuation', icon: Icons.Valuation, label: 'VALORISATION'},
-                            {id: 'blending', icon: Icons.Blend, label: 'FUSION'},
-                            {id: 'combat', icon: Icons.Combat, label: 'COMBAT'},
-                            {id: 'packs', icon: Icons.Pack, label: 'PACKS'},
-                            {id: 'chests', icon: Icons.Pack, label: 'COFFRES'}
-                        ].map(tab => (
-                            <button key={tab.id} onClick={() => setActiveTab(tab.id)} 
-                                className={`px-4 py-2 rounded font-bold text-sm whitespace-nowrap flex items-center gap-2 ${activeTab === tab.id ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400'}`}>
-                                <Icon path={tab.icon} /> {tab.label}
-                            </button>
-                        ))}
+                        <button onClick={() => setActiveTab('network')} className={`px-4 py-2 rounded font-bold text-sm flex items-center gap-2 ${activeTab === 'network' ? 'bg-purple-600 text-white' : 'bg-slate-800 text-slate-400'}`}><IconNetwork/> RÉSEAU / CPU</button>
+                        <button onClick={() => setActiveTab('account_sim')} className={`px-4 py-2 rounded font-bold text-sm flex items-center gap-2 ${activeTab === 'account_sim' ? 'bg-orange-600 text-white' : 'bg-slate-800 text-slate-400'}`}><IconFactory/> COMPTE</button>
+                        <button onClick={() => setActiveTab('packs')} className={`px-4 py-2 rounded font-bold text-sm flex items-center gap-2 ${activeTab === 'packs' ? 'bg-purple-600 text-white' : 'bg-slate-800 text-slate-400'}`}><IconPack/> PACKS</button>
+                        <button onClick={() => setActiveTab('valuation')} className={`px-4 py-2 rounded font-bold text-sm flex items-center gap-2 ${activeTab === 'valuation' ? 'bg-cyan-600 text-white' : 'bg-slate-800 text-slate-400'}`}><IconValuation/> VALORISATION</button>
                     </div>
 
-                    {/* === TAB: NETWORK MONITOR (NEW) === */}
+                    {/* === ONGLET RÉSEAU / MONITORING (NOUVEAU) === */}
                     {activeTab === 'network' && (
-                        <div className="space-y-6 animate-fade-in">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <Card>
-                                    <h3 className="font-bold text-white mb-4 flex items-center gap-2">1. Monitoring Temps Réel</h3>
-                                    <p className="text-sm text-slate-400 mb-4">Consultez ces outils officiels pour voir la charge CPU actuelle ("CPU Usage").</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
+                            <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 shadow-xl">
+                                <h3 className="font-bold text-white mb-4 flex items-center gap-2">1. Monitoring Temps Réel</h3>
+                                <div className="space-y-4">
+                                    <p className="text-sm text-slate-400">Consultez ces outils officiels pour voir la charge CPU ("CPU Usage") :</p>
                                     <div className="flex gap-4">
                                         <a href="https://wax.antelope.tools/" target="_blank" className="flex-1 bg-slate-700 hover:bg-slate-600 text-white p-3 rounded text-center font-bold border border-slate-600">
                                             📊 Antelope Tools
-                                            <div className="text-xs text-slate-400 font-normal mt-1">Voir jauge "CPU Usage"</div>
                                         </a>
                                         <a href="https://waxblock.io/" target="_blank" className="flex-1 bg-slate-700 hover:bg-slate-600 text-white p-3 rounded text-center font-bold border border-slate-600">
-                                            ⛓️ Waxblock.io
-                                            <div className="text-xs text-slate-400 font-normal mt-1">Explorer de Blocs</div>
+                                            ⛓️ Waxblock Explorer
                                         </a>
                                     </div>
-                                </Card>
-
-                                <Card>
-                                    <h3 className="font-bold text-cyan-400 mb-4 flex items-center gap-2">2. Impact sur votre Valorisation</h3>
-                                    <p className="text-sm text-slate-400 mb-4">Ajustez le coût de staking actuel pour mettre à jour la valeur de vos F5 (qui économisent des comptes).</p>
-                                    
-                                    <div className="bg-slate-900 p-4 rounded border border-slate-700 mb-4">
-                                        <div className="flex justify-between mb-2">
-                                            <span className="text-slate-400 text-xs uppercase">État du Réseau</span>
-                                            <span className={`font-bold ${cpuCost > 200 ? 'text-red-500' : cpuCost > 100 ? 'text-yellow-500' : 'text-green-500'}`}>{networkStatus}</span>
-                                        </div>
-                                        <input type="range" min="10" max="1000" step="10" value={cpuCost} onChange={e => { setCpuCost(parseInt(e.target.value)); setNetworkStatus("Personnalisé"); }} className="w-full mb-2 accent-cyan-500"/>
-                                        <div className="flex justify-between text-xs text-slate-500 font-mono">
-                                            <span>10 W</span>
-                                            <span className="text-white font-bold text-lg">{cpuCost} WAX / Compte</span>
-                                            <span>1000 W</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex gap-2">
-                                        <button onClick={() => setNetworkPreset('Low')} className="flex-1 py-1 rounded bg-green-900/30 text-green-400 border border-green-800 text-xs">🟢 Calme (50W)</button>
-                                        <button onClick={() => setNetworkPreset('Med')} className="flex-1 py-1 rounded bg-yellow-900/30 text-yellow-400 border border-yellow-800 text-xs">🟡 Chargé (200W)</button>
-                                        <button onClick={() => setNetworkPreset('High')} className="flex-1 py-1 rounded bg-red-900/30 text-red-400 border border-red-800 text-xs">🔴 Saturé (600W)</button>
-                                    </div>
-                                </Card>
+                                </div>
                             </div>
 
-                            <Card className="border-t-4 border-cyan-500">
-                                <div className="text-center">
-                                    <div className="text-xs uppercase text-slate-500 mb-2">Impact Direct : Valeur "Fair Value" d'une F5 Supreme</div>
-                                    <div className="text-3xl font-bold text-white mb-1">
-                                        {factoryAnalysis.find(f => f.level === 5)?.fairValueWax.toLocaleString(undefined, {maximumFractionDigits:0})} WAX
+                            <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 shadow-xl">
+                                <h3 className="font-bold text-cyan-400 mb-4 flex items-center gap-2">2. Impact "Fair Value"</h3>
+                                <p className="text-sm text-slate-400 mb-4">Ajustez le coût de staking actuel. Cela mettra à jour la valeur des usines F5 dans l'onglet Valorisation.</p>
+                                
+                                <div className="bg-slate-900 p-4 rounded border border-slate-700 mb-4">
+                                    <div className="flex justify-between mb-2">
+                                        <span className="text-slate-400 text-xs uppercase">État du Réseau</span>
+                                        <span className={`font-bold ${cpuCost > 200 ? 'text-red-500' : cpuCost > 100 ? 'text-yellow-500' : 'text-green-500'}`}>{networkStatus}</span>
                                     </div>
-                                    <div className="text-sm text-cyan-400">
-                                        soit {formatUsd(factoryAnalysis.find(f => f.level === 5)?.fairValueWax)}
-                                    </div>
-                                    <div className="mt-4 p-2 bg-slate-900/50 rounded inline-block text-xs text-slate-400">
-                                        Économie de capital réalisée : <span className="text-white font-bold">{Math.floor(270/4 * cpuCost).toLocaleString()} WAX</span> (67 comptes x {cpuCost} W)
+                                    <input type="range" min="10" max="1000" step="10" value={cpuCost} onChange={e => { setCpuCost(parseInt(e.target.value)); setNetworkStatus("Personnalisé"); }} className="w-full mb-2 accent-cyan-500"/>
+                                    <div className="flex justify-between text-xs text-slate-500 font-mono">
+                                        <span>10 W</span>
+                                        <span className="text-white font-bold text-lg">{cpuCost} WAX / Compte</span>
+                                        <span>1000 W</span>
                                     </div>
                                 </div>
-                            </Card>
+
+                                <div className="flex gap-2">
+                                    <button onClick={() => setNetworkPreset('Low')} className="flex-1 py-1 rounded bg-green-900/30 text-green-400 border border-green-800 text-xs">🟢 Calme (50W)</button>
+                                    <button onClick={() => setNetworkPreset('Med')} className="flex-1 py-1 rounded bg-yellow-900/30 text-yellow-400 border border-yellow-800 text-xs">🟡 Chargé (200W)</button>
+                                    <button onClick={() => setNetworkPreset('High')} className="flex-1 py-1 rounded bg-red-900/30 text-red-400 border border-red-800 text-xs">🔴 Saturé (600W)</button>
+                                </div>
+                            </div>
                         </div>
                     )}
 
-                    {/* === TAB: COMPTE COMPLET === */}
+                    {/* === ONGLET COMPTE (v3.4 Base) === */}
                     {activeTab === 'account_sim' && (
                         <div className="space-y-6 animate-fade-in">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <Card>
-                                    <h3 className="font-bold text-orange-400 mb-4">Production (4 Slots)</h3>
-                                    {accBuildings.map((id, i) => (
-                                        <div key={i} className="flex gap-2 mb-2">
-                                            <span className="text-slate-500 w-6">#{i+1}</span>
-                                            <select className="flex-1 bg-slate-900 border border-slate-700 rounded text-sm p-1" value={id} onChange={e => { const n = [...accBuildings]; n[i] = e.target.value; setAccBuildings(n); }}>
-                                                {FACTORIES.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                            <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 shadow-xl">
+                                <h3 className="text-lg font-bold text-orange-400 mb-4 flex items-center gap-2"><FactoryIcon /> Configuration Production (4 Slots)</h3>
+                                <div className="space-y-3">
+                                    {accountBuildings.map((bId, idx) => (
+                                        <div key={idx} className="flex gap-2 items-center">
+                                            <span className="text-xs text-slate-500 w-6">#{idx+1}</span>
+                                            <select 
+                                                value={bId} 
+                                                onChange={(e) => {
+                                                    const newBuilds = [...accountBuildings];
+                                                    newBuilds[idx] = e.target.value;
+                                                    setAccountBuildings(newBuilds);
+                                                }}
+                                                className="flex-1 bg-slate-900 border border-slate-700 rounded p-2 text-sm focus:outline-none focus:border-orange-500"
+                                            >
+                                                {FACTORIES.map(f => (
+                                                    <option key={f.id} value={f.id}>{f.name}</option>
+                                                ))}
                                             </select>
                                         </div>
                                     ))}
-                                    <div className="mt-4 pt-2 border-t border-slate-700 flex justify-between text-sm">
-                                        <span className="text-emerald-400">Production Brute: +{formatW(accountSimStats.prod)}</span>
-                                        <span className="text-red-400">Coût Maintenance: -{formatW(accountSimStats.maint)}</span>
-                                    </div>
-                                </Card>
-                                <Card>
-                                    <h3 className="font-bold text-blue-400 mb-4">Combat (3 Divisions)</h3>
-                                    {accDivisions.map((id, i) => (
-                                        <div key={i} className="flex gap-2 mb-2">
-                                            <span className="text-slate-500 w-12">Div {i+1}</span>
-                                            <select className="flex-1 bg-slate-900 border border-slate-700 rounded text-sm p-1" value={id} onChange={e => { const n = [...accDivisions]; n[i] = parseInt(e.target.value); setAccDivisions(n); }}>
-                                                {ZONES.map(z => <option key={z.id} value={z.id}>{z.name}</option>)}
-                                            </select>
+                                </div>
+                                {/* INDICATEURS NET/BRUT v3.4 */}
+                                <div className="mt-4 pt-4 border-t border-slate-700 grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <div className="text-slate-400 text-xs">Production Brute /j</div>
+                                        <div className="text-emerald-400 font-mono font-bold">
+                                            +{formatW(accountStats.prod)}
                                         </div>
-                                    ))}
-                                    <div className="mt-4 pt-2 border-t border-slate-700 text-right text-sm">
-                                        <span className="text-emerald-400 font-bold">Profit Net Combat: {accountSimStats.combatNet > 0 ? '+' : ''}{formatW(accountSimStats.combatNet)}</span>
                                     </div>
-                                </Card>
+                                    <div className="text-right">
+                                        <div className="text-slate-400 text-xs">Coût Maintenance /j</div>
+                                        <div className="text-red-400 font-mono font-bold">
+                                            -{formatW(accountStats.maint)}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <Card className="border-t-4 border-t-emerald-500 bg-slate-800/80">
-                                <div className="text-center mb-2 text-emerald-400 font-bold tracking-widest text-sm uppercase">Bilan Consolidé (Profit Net)</div>
+                            <div className="bg-slate-800/80 border-t-4 border-t-emerald-500 rounded-lg p-4 shadow-xl">
+                                <div className="text-center mb-4 text-emerald-400 font-bold tracking-widest text-sm uppercase">Bilan Consolidé (Net)</div>
                                 <div className="grid grid-cols-3 gap-4 text-center">
                                     <div className="p-2 bg-slate-900/50 rounded">
-                                        <div className="text-xs text-slate-400">PAR JOUR (NET)</div>
-                                        <div className="text-xl font-bold text-white">{accountSimStats.dailyNet > 0 ? "+" : ""}{formatW(accountSimStats.dailyNet)}</div>
-                                        <div className="text-xs text-emerald-500">{formatUsd(accountSimStats.dailyNet)}</div>
+                                        <div className="text-xs text-slate-400 mb-1">PAR JOUR (NET)</div>
+                                        <div className="text-xl font-bold text-white">{formatW(accountStats.net)}</div>
+                                        <div className="text-xs text-emerald-400">{formatUsd(accountStats.net)}</div>
                                     </div>
                                     <div className="p-2 bg-slate-900/50 rounded border border-slate-700">
-                                        <div className="text-xs text-purple-300">PAR MOIS (NET)</div>
-                                        <div className="text-xl font-bold text-purple-100">{accountSimStats.monthlyNet > 0 ? "+" : ""}{formatW(accountSimStats.monthlyNet)}</div>
-                                        <div className="text-xs text-emerald-500">{formatUsd(accountSimStats.monthlyNet)}</div>
+                                        <div className="text-xs text-purple-300 mb-1">PAR MOIS (NET)</div>
+                                        <div className="text-xl font-bold text-purple-100">{formatW(accountStats.monthly)}</div>
                                     </div>
                                     <div className="p-2 bg-slate-900/50 rounded">
-                                        <div className="text-xs text-slate-400">PAR AN (NET)</div>
-                                        <div className="text-xl font-bold text-white">{accountSimStats.yearlyNet > 0 ? "+" : ""}{formatW(accountSimStats.yearlyNet)}</div>
-                                        <div className="text-xs text-emerald-500">{formatUsd(accountSimStats.yearlyNet)}</div>
-                                        {/* APR Indicator (Requested in v3.4) */}
-                                        <div className="text-[10px] text-slate-500 mt-1">APR (Est.) : {((accountSimStats.yearlyNet / (accountSimStats.prod * 365)) * 100).toFixed(0)}%</div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </div>
-                    )}
-
-                    {/* === TAB: ROI AVANCE (TOKEN) === */}
-                    {activeTab === 'zone_roi_advanced' && (
-                        <div className="space-y-6">
-                            <Card className="border-l-4 border-indigo-500">
-                                <div className="flex flex-col md:flex-row gap-6">
-                                    <div className="flex-1">
-                                        <h3 className="text-lg font-bold text-white mb-2">Valorisation du Token</h3>
-                                        <p className="text-sm text-slate-400 mb-4">Basée sur le coût F5 (Prod + Econ CPU) divisé par le coût blend (7290 tokens).</p>
-                                        <div className="grid grid-cols-3 gap-4 text-center items-center bg-slate-900 p-4 rounded">
-                                            <div>
-                                                <div className="text-xs text-slate-500">Valeur F5</div>
-                                                <div className="text-emerald-400 font-bold">{factoryAnalysis.find(f=>f.level===5)?.fairValueWax.toLocaleString(undefined, {maximumFractionDigits:0})} W</div>
-                                            </div>
-                                            <div className="text-2xl text-slate-600">÷</div>
-                                            <div>
-                                                <div className="text-xs text-slate-500">Coût Blend</div>
-                                                <div className="font-bold text-white">7 290 Tokens</div>
-                                            </div>
+                                        <div className="text-xs text-slate-400 mb-1">PAR AN (NET)</div>
+                                        <div className="text-xl font-bold text-white">{formatW(accountStats.yearly)}</div>
+                                        {/* INDICATEUR APR v3.4 */}
+                                        <div className="text-[10px] text-slate-500 mt-1">
+                                            APR (Est.) : {((accountStats.yearly / (accountStats.prod * 365)) * 100).toFixed(0)}%
                                         </div>
                                     </div>
-                                    <div className="bg-indigo-900/30 p-4 rounded border border-indigo-500 flex flex-col justify-center items-center min-w-[200px]">
-                                        <div className="text-xs text-indigo-300 uppercase font-bold mb-1">Valeur 1 Token</div>
-                                        <div className="text-3xl font-mono text-white">{tokenValue.toFixed(2)} WAX</div>
-                                        <div className="text-sm text-indigo-400">{formatUsd(tokenValue)}</div>
-                                    </div>
                                 </div>
-                            </Card>
-
-                            <table className="w-full text-left text-sm border-collapse">
-                                <thead className="bg-slate-800 text-slate-400 uppercase text-xs">
-                                    <tr>
-                                        <th className="p-3">Zone</th>
-                                        <th className="p-3 text-right">Coût Entrée</th>
-                                        <th className="p-3 text-right">Gain DOV-X</th>
-                                        <th className="p-3 text-right text-indigo-300 bg-indigo-900/20">Gain Token (Unit)</th>
-                                        <th className="p-3 text-right text-white">Profit Total</th>
-                                        <th className="p-3 text-center">ROI</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {zonesAnalysis.filter(z => z.bonusToken).map(z => (
-                                        <tr key={z.id} className="border-b border-slate-700 hover:bg-slate-800">
-                                            <td className="p-3 font-bold">{z.name}</td>
-                                            <td className="p-3 text-right text-red-400">-{formatW(z.cost)}</td>
-                                            <td className="p-3 text-right text-emerald-400">+{formatW(z.reward)}</td>
-                                            <td className="p-3 text-right text-indigo-300 bg-indigo-900/10 font-bold">+{formatW(z.tokenVal)}</td>
-                                            <td className="p-3 text-right font-bold text-white">{formatW(z.totalProfit)}</td>
-                                            <td className="p-3 text-center"><Badge color={z.roi > 0 ? 'green' : 'red'}>{z.roi.toFixed(1)}%</Badge></td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                            </div>
                         </div>
                     )}
-                    
-                    {/* === TAB: PACKS (With Detailed List) === */}
+
+                    {/* === ONGLET PACKS (v3.4 avec détail Net/Brut) === */}
                     {activeTab === 'packs' && (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div className="space-y-6">
-                                <Card>
-                                    <h3 className="font-bold text-purple-400 mb-4">Configuration du Pack</h3>
-                                    <div className="space-y-4">
-                                        <div className="flex gap-4">
-                                            <div className="flex-1">
-                                                <label className="text-xs text-slate-400">Prix Pack ($)</label>
-                                                <input type="number" value={packBuilder.price} onChange={e => setPackBuilder({...packBuilder, price: parseFloat(e.target.value)})} className="w-full bg-slate-900 border border-purple-500 rounded p-2 text-white font-bold"/>
-                                            </div>
-                                            <div className="flex-1">
-                                                <label className="text-xs text-slate-400">Eq. WAX</label>
-                                                <div className="p-2 text-slate-300">{formatW(packBuilder.price / waxPrice)}</div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="text-xs text-slate-400">Ajouter Bâtiment</label>
-                                            <div className="flex gap-2">
-                                                <select className="flex-1 bg-slate-900 border border-slate-600 rounded p-2" value={selectedFactoryToAdd} onChange={e => setSelectedFactoryToAdd(e.target.value)}>
-                                                    {FACTORIES.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-                                                </select>
-                                                <button onClick={addToPack} className="bg-purple-600 text-white p-2 rounded"><Icon path={Icons.Pack}/></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="mt-6">
-                                        <h4 className="text-xs uppercase text-slate-500 mb-2">Contenu (Détail Net)</h4>
-                                        <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                                            {packBuilder.contents.map((item, i) => {
-                                                const f = factoryAnalysis.find(x => x.id === item.id);
-                                                return (
-                                                    <div key={i} className="bg-slate-900 p-2 rounded border border-slate-700 flex flex-col gap-1">
-                                                        <div className="flex justify-between">
-                                                            <span className="font-bold text-sm">{f.name} x{item.qty}</span>
-                                                            <button onClick={() => removeFromPack(item.id)} className="text-red-500 text-xs">Suppr.</button>
-                                                        </div>
-                                                        <div className="flex justify-between text-[10px]">
-                                                            <span className="text-emerald-400">Prod Brut: {formatW(f.dailyProd * item.qty)}</span>
-                                                            <span className="text-red-400">Coût Maint: -{formatW(f.dailyCost * item.qty)}</span>
-                                                            <span className="text-white font-bold">Net: {formatW(f.dailyNet * item.qty)}</span>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                </Card>
-                            </div>
-                            <div className="space-y-6">
-                                <Card className="border-t-4 border-t-purple-500 h-full flex flex-col justify-between">
-                                    <div>
-                                        <h3 className="text-lg font-bold text-white mb-6">Analyse Financière</h3>
-                                        <div className="space-y-4 mb-8">
-                                            <div className="grid grid-cols-2 gap-4 text-xs">
-                                                <div><span className="text-slate-500">Production Brute</span><div className="text-emerald-400 font-bold">{formatW(packStats.dailyProd)}</div></div>
-                                                <div className="text-right"><span className="text-slate-500">Coût Maintenance</span><div className="text-red-400 font-bold">-{formatW(packStats.dailyCost)}</div></div>
-                                            </div>
-                                            <div className="bg-slate-900 p-4 rounded border border-slate-700 text-center">
-                                                <div className="text-slate-400 text-xs uppercase mb-1">Profit Net Quotidien</div>
-                                                <div className="text-2xl font-bold text-white">{formatW(packStats.dailyNet)}</div>
-                                            </div>
-                                            
-                                            {/* PROJECTIONS */}
-                                            <div className="border border-slate-700 rounded overflow-hidden">
-                                                <div className="bg-slate-800 px-3 py-1 text-xs font-bold text-slate-400 uppercase">Projections Net</div>
-                                                <table className="w-full text-xs text-right">
-                                                    <tbody>
-                                                        <tr className="border-b border-slate-700/50"><td className="p-2 text-left">Mois</td><td className="p-2 text-emerald-400">{formatW(packStats.monthlyNet)}</td></tr>
-                                                        <tr className="border-b border-slate-700/50"><td className="p-2 text-left">Année</td><td className="p-2 text-emerald-400">{formatW(packStats.yearlyNet)}</td></tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="text-center">
-                                        <div className="text-xs text-slate-500 uppercase">Retour sur Investissement</div>
-                                        {packStats.dailyNet > 0 ? (
-                                            <div>
-                                                <div className="text-4xl font-bold text-white">{Math.ceil(packStats.roiDays)} <span className="text-sm font-normal text-slate-400">Jours</span></div>
-                                                <div className="inline-block bg-emerald-900/50 text-emerald-400 px-2 py-1 rounded text-xs mt-2 border border-emerald-700">APR: {packStats.apr.toFixed(2)}%</div>
-                                            </div>
-                                        ) : <div className="text-red-400 font-bold">NON RENTABLE</div>}
-                                    </div>
-                                </Card>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* === TAB: BLENDING === */}
-                    {activeTab === 'blending' && (
-                        <div className="space-y-6 animate-fade-in">
-                            <Card>
-                                <h3 className="font-bold text-indigo-400 mb-4">Simulateur de Fusion</h3>
-                                <div className="flex gap-4 items-end mb-6">
-                                    <div><label className="text-xs text-slate-400 block mb-1">Nombre de F1</label><input type="number" value={blendCount} onChange={e => setBlendCount(parseInt(e.target.value)||0)} className="bg-slate-900 border border-slate-600 rounded p-2 text-white w-32"/></div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
+                            <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 shadow-xl">
+                                <h3 className="font-bold text-purple-400 mb-4">Configuration</h3>
+                                <div className="mb-4">
+                                    <label className="text-xs text-slate-400">Prix Pack ($)</label>
+                                    <input type="number" value={packBuilder.price} onChange={e => setPackBuilder({...packBuilder, price: parseFloat(e.target.value)})} className="w-full bg-slate-900 border border-purple-500 rounded p-2 text-white font-bold"/>
                                 </div>
-                                {blendStats && (
-                                    <div className="grid grid-cols-4 gap-4 text-center">
-                                        <div className="bg-slate-900 p-4 rounded border border-slate-700"><div className="text-xs text-slate-400">F2 (Rare)</div><div className="text-xl font-bold text-white">{blendStats.f2}</div></div>
-                                        <div className="bg-slate-900 p-4 rounded border border-slate-700"><div className="text-xs text-slate-400">F3 (Epic)</div><div className="text-xl font-bold text-white">{blendStats.f3}</div></div>
-                                        <div className="bg-indigo-900/20 p-4 rounded border border-indigo-500"><div className="text-xs text-indigo-300 font-bold">F4 (Legendary)</div><div className="text-2xl font-bold text-white">{blendStats.f4}</div></div>
-                                        <div className="bg-red-900/20 p-4 rounded border border-red-500"><div className="text-xs text-red-300 font-bold">F5 (Supreme)</div><div className="text-2xl font-bold text-white">{blendStats.f5}</div></div>
-                                    </div>
-                                )}
-                            </Card>
+                                <div className="flex gap-2 mb-6">
+                                    <select className="flex-1 bg-slate-900 border border-slate-600 rounded p-2 text-sm" value={selectedFactoryToAdd} onChange={e => setSelectedFactoryToAdd(e.target.value)}>
+                                        {FACTORIES.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                                    </select>
+                                    <button onClick={addToPack} className="bg-purple-600 text-white p-2 rounded"><IconPlus/></button>
+                                </div>
+                                <h4 className="text-xs uppercase text-slate-500 mb-2">Contenu (Détail Net)</h4>
+                                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                                    {packBuilder.contents.map((item, i) => {
+                                        const f = factoryAnalysis.find(x => x.id === item.id);
+                                        return (
+                                            <div key={i} className="bg-slate-900 p-2 rounded border border-slate-700 flex flex-col gap-1">
+                                                <div className="flex justify-between">
+                                                    <span className="font-bold text-sm text-white">{f.name} x{item.qty}</span>
+                                                    <button onClick={() => removeFromPack(item.id)} className="text-red-500 text-xs"><IconTrash/></button>
+                                                </div>
+                                                <div className="flex justify-between text-[10px]">
+                                                    <span className="text-emerald-400">Brut: {formatW(f.dailyProdWax * item.qty)}</span>
+                                                    <span className="text-red-400">Maint: -{formatW(f.dailyCostWax * item.qty)}</span>
+                                                    <span className="text-white font-bold">Net: {formatW(f.dailyNetWax * item.qty)}</span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                            
+                            <div className="bg-slate-800 border-t-4 border-t-purple-500 rounded-lg p-4 shadow-xl">
+                                <h3 className="font-bold text-white mb-6">Analyse Financière</h3>
+                                <div className="grid grid-cols-2 gap-4 text-xs mb-6">
+                                    <div><span className="text-slate-500">Prod Brute</span><div className="text-emerald-400 font-bold">{formatW(packStats.dailyProd)}</div></div>
+                                    <div className="text-right"><span className="text-slate-500">Maintenance</span><div className="text-red-400 font-bold">-{formatW(packStats.dailyCost)}</div></div>
+                                </div>
+                                <div className="bg-slate-900 p-4 rounded border border-slate-700 text-center mb-6">
+                                    <div className="text-slate-400 text-xs uppercase mb-1">Profit Net Quotidien</div>
+                                    <div className="text-2xl font-bold text-white">{formatW(packStats.dailyNet)}</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-xs text-slate-500 uppercase">Retour sur Investissement</div>
+                                    {packStats.dailyNet > 0 ? (
+                                        <div>
+                                            <div className="text-4xl font-bold text-white">{Math.ceil(packStats.roiDays)} <span className="text-sm font-normal text-slate-400">Jours</span></div>
+                                            <div className="inline-block bg-emerald-900/50 text-emerald-400 px-2 py-1 rounded text-xs mt-2 border border-emerald-700">APR: {packStats.apr.toFixed(2)}%</div>
+                                        </div>
+                                    ) : <div className="text-red-400 font-bold">NON RENTABLE</div>}
+                                </div>
+                            </div>
                         </div>
                     )}
                     
+                    {/* === ONGLET VALORISATION (Impact Monitoring) === */}
                     {activeTab === 'valuation' && (
                         <div className="space-y-6 animate-fade-in">
-                            <Card>
-                                <div className="flex justify-between mb-4"><h3 className="font-bold text-cyan-400">Valorisation des Actifs</h3></div>
+                            <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 shadow-xl">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="font-bold text-cyan-400">Valorisation des Actifs (Fair Value)</h3>
+                                    <div className="text-xs text-slate-400 text-right">
+                                        <div>Inclut Profit Net sur 365j</div>
+                                        <div className="text-cyan-400">+ Économie Staking ({cpuCost} WAX/cpte)</div>
+                                    </div>
+                                </div>
                                 <table className="w-full text-left text-sm">
-                                    <thead className="text-slate-500 text-xs uppercase border-b border-slate-700"><tr><th className="p-2">Actif</th><th className="p-2 text-right">Prod (Net)</th><th className="p-2 text-right">Gain CPU</th><th className="p-2 text-right">Valeur Juste</th></tr></thead>
+                                    <thead className="text-slate-500 text-xs uppercase border-b border-slate-700"><tr><th className="p-2">Actif</th><th className="p-2 text-right">Prod Net (1an)</th><th className="p-2 text-right">Gain CPU</th><th className="p-2 text-right">Valeur Juste</th></tr></thead>
                                     <tbody>
                                         {factoryAnalysis.map(f => (
                                             <tr key={f.id} className="border-b border-slate-700/50 hover:bg-slate-800">
-                                                <td className="p-2 font-bold">{f.name}</td>
-                                                <td className="p-2 text-right text-slate-300">{formatW(f.dailyNet * roiTarget)}</td>
-                                                <td className="p-2 text-right text-indigo-300">+{formatW(f.cpuVal)}</td>
+                                                <td className="p-2 font-bold text-white flex items-center gap-2">{f.name}{f.level===5 && <span className="bg-indigo-500 text-[10px] px-1 rounded">💎</span>}</td>
+                                                <td className="p-2 text-right text-slate-300">{formatW(f.dailyNetWax * 365)}</td>
+                                                <td className="p-2 text-right text-indigo-300 font-bold">+{formatW(f.cpuSavings)}</td>
                                                 <td className="p-2 text-right font-bold text-cyan-400">{formatW(f.fairValueWax)}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
-                            </Card>
+                            </div>
                         </div>
                     )}
 
-                    {(activeTab === 'production' || activeTab === 'combat' || activeTab === 'chests') && (
-                        <div className="p-8 text-center text-slate-500 italic border border-dashed border-slate-700 rounded">
-                            <p>Ces modules sont disponibles dans le code complet. Utilisez les onglets ci-dessus pour la démo.</p>
-                        </div>
-                    )}
                 </div>
             );
         }
-
-        // --- CONSTANTS FOR BLEND LOGIC ---
-        const BLENDABLE_UNITS = [ { id: 'c1', name: 'Unit 1', level: 1 }, { id: 'c2', name: 'Unit 2', level: 1 } ];
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<DoVManager />);
