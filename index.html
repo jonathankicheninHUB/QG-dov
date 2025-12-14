@@ -318,90 +318,82 @@
             { id: 20, name: 'Bridge', type: 'City', order: 20, win: 0, usage: 0, entryCostDovX: 14850.80, minWeight: 2494.23, keyReq: 20, officerReq: 1, bonusToken: "F4-TOKEN-CITY-2025", specificOfficer: 'o11', requiredUnits: ['e7', 'l2', 'l2'] } 
         ];
 
-        // --- UNIT TEMPLATES ---
-        const UNIT_TEMPLATES = [
-            { baseId: 'c1', name: '26th Infantry', type: 'Infantry', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 0.01 } },
-            { baseId: 'c2', name: '18th Infantry', type: 'Infantry', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 0.01 } },
-            { baseId: 'c3', name: '507th Parachute', type: 'Parachute', rarity: 'Common', base: 0.3, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 0.01 } },
-            { baseId: 'c4', name: '32nd Field Artillery', type: 'Artillery', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 1.0, Forest: 0.72, Hill: 1.0, City: 0.01 } },
-            { baseId: 'c5', name: '82nd Armored Reconn', type: 'Reconn', rarity: 'Common', base: 0.3, b: { Beach: 0.22, Plain: 1.0, Forest: 1.0, Hill: 1.0, City: 1.0 } },
-            { baseId: 'uc1', name: '505th Parachute', type: 'Parachute', rarity: 'Uncommon', base: 0.9, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 0.01 } },
-            { baseId: 'uc2', name: '5th Field Artillery', type: 'Artillery', rarity: 'Uncommon', base: 0.9, b: { Beach: 1.0, Plain: 1.0, Forest: 1.0, Hill: 1.0, City: 0.01 } },
-            { baseId: 'uc3', name: '325th Glider', type: 'Glider', rarity: 'Uncommon', base: 0.9, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 0.01 } },
-            { baseId: 'uc4', name: 'Anti-tank Xmas', type: 'Anti-Tank', rarity: 'Uncommon', base: 0.9, b: { Beach: 0.22, Plain: 1.0, Forest: 1.0, Hill: 1.0, City: 1.0 } },
-            { baseId: 'r1', name: '16th Infantry', type: 'Infantry', rarity: 'Rare', base: 3.6, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 1.0, City: 0.01 } },
-            { baseId: 'r2', name: '635th Anti-Tank', type: 'Anti-Tank', rarity: 'Rare', base: 3.6, b: { Beach: 0.22, Plain: 0.72, Forest: 1.0, Hill: 1.0, City: 1.0 } },
-            { baseId: 'e1', name: '502nd Parachute', type: 'Parachute', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 1.0 } },
-            { baseId: 'e2', name: '37th Engineer', type: 'Engineer', rarity: 'Epic', base: 8.42, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 1.0, City: 0.01 } },
-            { baseId: 'e3', name: '741st Tank', type: 'Tank', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 0.72, City: 0.01 } },
-            { baseId: 'e4', name: 'Afterland', type: 'Special', rarity: 'Epic', base: 8.42, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 1.0, City: 0.01 } },
-            { baseId: 'l1', name: '741 Tank Xmas', type: 'Tank', rarity: 'Legendary', base: 57.6, b: { Beach: 0.22, Plain: 1.0, Forest: 0.22, Hill: 0.72, City: 0.01 } },
-        ];
-
-        const COMBAT_TEMPLATES = [
-             ...UNIT_TEMPLATES,
-             { baseId: 'c6', name: 'HMS Glasgow', type: 'Ship', rarity: 'Common', base: 0.3, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 1.0 } },
-             { baseId: 'uc5', name: 'Mosquito B.IV', type: 'Plane', rarity: 'Uncommon', base: 0.9, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 1.0 } },
-             { baseId: 'uc6', name: 'Avro Lancaster', type: 'Plane', rarity: 'Uncommon', base: 0.9, b: { Beach: 1.0, Plain: 0.22, Forest: 1.0, Hill: 0.72, City: 1.0 } },
-             { baseId: 'r3', name: '346th Guyenne', type: 'Plane', rarity: 'Rare', base: 3.6, b: { Beach: 1.0, Plain: 1.0, Forest: 0.22, Hill: 1.0, City: 1.0 } },
-             { baseId: 'r4', name: 'USS Texas', type: 'Ship', rarity: 'Rare', base: 3.6, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
-             { baseId: 'r5', name: 'USS Baldwin', type: 'Ship', rarity: 'Rare', base: 3.6, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
-             { baseId: 'e5', name: 'USS Frankford', type: 'Ship', rarity: 'Epic', base: 8.42, b: { Beach: 1.25, Plain: 1.0, Forest: 1.0, Hill: 0.75, City: 1.0 } },
-             { baseId: 'e6', name: 'B-26 Marauder', type: 'Plane', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
-             { baseId: 'e7', name: 'Georges Leygues', type: 'Ship', rarity: 'Epic', base: 8.42, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } },
-             { baseId: 'l2', name: 'USS Arkansas', type: 'Ship', rarity: 'Legendary', base: 57.6, b: { Beach: 0.22, Plain: 0.22, Forest: 0.22, Hill: 0.22, City: 1.0 } }
-        ];
-
-        const generateUnits = (templates) => {
-            let list = [];
-            templates.forEach(tpl => {
-                for (let lvl = 1; lvl <= 4; lvl++) {
-                    const multiplier = Math.pow(3, lvl - 1); 
-                    list.push({
-                        id: `${tpl.baseId}_f${lvl}`, 
-                        baseId: tpl.baseId,
-                        name: `${tpl.rarity} F${lvl}-${tpl.name}`,
-                        type: tpl.type,
-                        rarity: tpl.rarity,
-                        level: lvl,
-                        baseWeight: tpl.base * multiplier,
-                        bonuses: tpl.b
-                    });
-                }
-            });
-            return list;
-        };
-
-        const FACTORIES = generateFactories();
-
-        const ZONES = [
-            { id: 1, name: 'Beach 1', type: 'Beach', order: 1, win: 400, usage: 1160, minWeight: 14, keyReq: 0, officerReq: 1 },
-            { id: 2, name: 'Beach 2', type: 'Beach', order: 2, win: 2405, usage: 6968, minWeight: 28, keyReq: 5, officerReq: 2 },
-            { id: 3, name: 'Beach 3', type: 'Beach', order: 3, win: 3037, usage: 8800, minWeight: 55, keyReq: 6, officerReq: 3 },
-            { id: 4, name: 'Bunker', type: 'Beach', order: 4, win: 3838, usage: 11120, minWeight: 109, keyReq: 7, officerReq: 4, isCheckpoint: true, unitReq: 'e2', bonusToken: "TOKEN-BUNKER" }, 
-            { id: 5, name: 'Forest 1', type: 'Forest', order: 5, win: 4840, usage: 14024, minWeight: 219, keyReq: 8, officerReq: 5 },
-            { id: 6, name: 'Forest 2', type: 'Forest', order: 6, win: 6110, usage: 17704, minWeight: 342, keyReq: 9, officerReq: 6 },
-            { id: 7, name: 'Forest 3', type: 'Forest', order: 7, win: 7714, usage: 22352, minWeight: 450, keyReq: 10, officerReq: 7 },
-            { id: 8, name: 'Camp', type: 'Forest', order: 8, win: 9739, usage: 28220, minWeight: 512, keyReq: 11, officerReq: 8, isCheckpoint: true, unitReq: 'e1', bonusToken: "TOKEN-CAMP" },
-            { id: 9, name: 'Hill 1', type: 'Hill', order: 9, win: 12788, usage: 37052, minWeight: 695, keyReq: 12, officerReq: 9 },
-            { id: 10, name: 'Hill 2', type: 'Hill', order: 10, win: 16791, usage: 48652, minWeight: 869, keyReq: 13, officerReq: 10 },
-            { id: 11, name: 'Hill 3', type: 'Hill', order: 11, win: 22266, usage: 64516, minWeight: 1086, keyReq: 14, officerReq: 11 },
-            { id: 12, name: 'Radar', type: 'Hill', order: 12, win: 29236, usage: 84712, minWeight: 1358, keyReq: 15, officerReq: 12, isCheckpoint: true, unitReq: 'e3', godmotherReq: true, bonusToken: "TOKEN-RADAR" },
-            { id: 13, name: 'Plain 1', type: 'Plain', order: 13, win: 34300, usage: 99384, minWeight: 1697, keyReq: 16, officerReq: 13 },
-            { id: 14, name: 'Plain 2', type: 'Plain', order: 14, win: 43385, usage: 125708, minWeight: 1866, keyReq: 17, officerReq: 14 },
-            { id: 15, name: 'Plain 3', type: 'Plain', order: 15, win: 52171, usage: 151164, minWeight: 2052, keyReq: 18, officerReq: 15 },
-            { id: 16, name: 'HQ', type: 'Plain', order: 16, win: 64884, usage: 188000, minWeight: 2495, keyReq: 19, officerReq: 16, isCheckpoint: true, unitReq: 'l1', godmotherReq: true, bonusToken: "TOKEN-HQ" },
-            { id: 17, name: 'City 1', type: 'City', order: 17, win: 0, usage: 0, entryCostDovX: 777.35, minWeight: 108.53, keyReq: 9, officerReq: 1, bonusToken: "F1-TOKEN-CITY-2025", specificOfficer: 'o25', requiredUnits: ['e6', 'uc6', 'l2'] },
-            { id: 18, name: 'City 2', type: 'City', order: 18, win: 0, usage: 0, entryCostDovX: 2213.87, minWeight: 511.76, keyReq: 13, officerReq: 1, bonusToken: "F2-TOKEN-CITY-2025", specificOfficer: 'o26', requiredUnits: ['uc5', 'c6', 'r4'] },
-            { id: 19, name: 'City 3', type: 'City', order: 19, win: 0, usage: 0, entryCostDovX: 6677.85, minWeight: 1357.04, keyReq: 17, officerReq: 1, bonusToken: "F3-TOKEN-CITY-2025", specificOfficer: 'o27', requiredUnits: ['uc6', 'r5', 'e7', 'l2'] },
-            { id: 20, name: 'Bridge', type: 'City', order: 20, win: 0, usage: 0, entryCostDovX: 14850.80, minWeight: 2494.23, keyReq: 20, officerReq: 1, bonusToken: "F4-TOKEN-CITY-2025", specificOfficer: 'o11', requiredUnits: ['e7', 'l2', 'l2'] } 
-        ];
-
         // --- MOCK INVENTORY ---
-        const ALL_OFFICERS = [ /* ... officers data ... */ ];
-        const ALL_SUPPORTS = [ /* ... supports data ... */ ];
-        const ALL_KEYS = [ /* ... keys data ... */ ];
-        const ALL_GODMOTHERS = [ /* ... godmothers data ... */ ];
+        const ALL_OFFICERS = [
+            { id: 'o1', name: 'F1-BRIGADIER-GEN-CLIFT-ANDRUS', order: 1 },
+            { id: 'o2', name: 'F2-BRIGADIER-GEN-CLIFT-ANDRUS', order: 2 },
+            { id: 'o3', name: 'F3-BRIGADIER-GEN-CLIFT-ANDRUS', order: 3 },
+            { id: 'o4', name: 'F4-BRIGADIER-GEN-CLIFT-ANDRUS', order: 4 },
+            { id: 'o5', name: 'F1-COLONEL-JOHN-F-R-SEITZ', order: 5 },
+            { id: 'o6', name: 'F2-COLONEL-JOHN-F-R-SEITZ', order: 6 },
+            { id: 'o7', name: 'F3-COLONEL-JOHN-F-R-SEITZ', order: 7 },
+            { id: 'o8', name: 'F4-COLONEL-JOHN-F-R-SEITZ', order: 8 },
+            { id: 'o9', name: 'F1-MAJOR-ERNEST-L-SMITH', order: 9 },
+            { id: 'o10', name: 'F1-Major_Gen_C_R_HUEBNER', order: 13 },
+            { id: 'o11', name: 'F1-L_COLONEL_G_A_TAYLOR', order: 17 },
+            { id: 'o12', name: 'F1-MAJOR-GENERAL-WHAOU', order: 20 },
+            { id: 'o13', name: 'F1-MAJOR-GENERAL-PANCAKE', order: 20 },
+            { id: 'o14', name: 'F1-MAJOR-GENERAL-RAPHI', order: 1 },
+            { id: 'o15', name: 'F1-MAJOR-GENERAL-ROLAND', order: 0 },
+            { id: 'o16', name: 'F1-DOCTEUR-GENERAL-B.ANDREW', order: 0 },
+            { id: 'o17', name: 'F1-MAJOR-GENERAL-DAGDAG', order: 0 },
+            { id: 'o18', name: 'F1-BRIGADIER-GENERAL-KEVIN', order: 0 },
+            { id: 'o19', name: 'F1-BRIGADIER-GENERAL-LUCAS', order: 0 },
+            { id: 'o20', name: 'F1-LIEUTENANT-COMMANDER-ELODIE', order: 0 },
+            { id: 'o21', name: 'F1-LIEUTENANT-GENERAL-GREG', order: 20 },
+            { id: 'o22', name: 'F1-LIEUTENANT-GENERAL-OLIVER', order: 20 },
+            { id: 'o23', name: 'F1-DIVISION-GENERAL-FLO', order: 1 },
+            { id: 'o24', name: 'F1-BRIGADIER-GENERAL-NIMAJ', order: 1 },
+            { id: 'o25', name: 'F1-CAP-JOY-BRIGHT-HANCOCK', order: 19 },
+            { id: 'o26', name: 'F1-CAP-JEAN-PALMER', order: 20 },
+            { id: 'o27', name: 'F1-COMMAND-RITA-LENIHAN', order: 21 },
+        ];
+
+        const ALL_SUPPORTS = [
+            { id: 's1', name: 'F1-1st-MEDICAL-BATTALION', bonusPct: 0.5 },
+            { id: 's2', name: 'F4-1st-MEDICAL-BATTALION', bonusPct: 3.0 },
+            { id: 's3', name: 'F1-56th-SIGNAL-BATTALION', bonusPct: 1.5 },
+            { id: 's4', name: 'F4-56th-SIGNAL-BATTALION', bonusPct: 4.5 },
+            { id: 's5', name: 'F1-104th-MEDICAL-BATTALION', bonusPct: 2.5 },
+            { id: 's6', name: 'F4-104th-MEDICAL-BATTALION', bonusPct: 10.0 },
+            { id: 's7', name: 'F1-29-SIGNAL-COMPAGNY-XMAS', bonusPct: 2.5 },
+            { id: 's8', name: 'F4-29-SIGNAL-COMPAGNY-XMAS', bonusPct: 10.0 },
+            { id: 's9', name: 'F1-ASPIRANT-KIYO', bonusPct: 12.0 },
+            { id: 's10', name: 'F2E-F4-104th-MEDICAL-BATTALION', bonusPct: 10.0 },
+        ];
+
+        const ALL_KEYS = [
+            { id: 'k1', name: 'F1-KEY-BEACH', order: 4 },
+            { id: 'k2', name: 'F2-KEY-BEACH', order: 5 },
+            { id: 'k3', name: 'F3-KEY-BEACH', order: 6 },
+            { id: 'k4', name: 'F4-KEY-BEACH', order: 7 },
+            { id: 'k5', name: 'F1-KEY-FOREST', order: 8 },
+            { id: 'k6', name: 'F2-KEY-FOREST', order: 9 },
+            { id: 'k7', name: 'F3-KEY-FOREST', order: 10 },
+            { id: 'k8', name: 'F4-KEY-FOREST', order: 11 },
+            { id: 'k9', name: 'F1-KEY-HILL', order: 12 },
+            { id: 'k10', name: 'F2-KEY-HILL', order: 13 },
+            { id: 'k11', name: 'F3-KEY-HILL', order: 14 },
+            { id: 'k12', name: 'F4-KEY-HILL', order: 15 },
+            { id: 'k13', name: 'F1-KEY-PLAINE', order: 16 },
+            { id: 'k14', name: 'F2-KEY-PLAINE', order: 17 },
+            { id: 'k15', name: 'F3-KEY-PLAINE', order: 18 },
+            { id: 'k16', name: 'F4-KEY-PLAINE', order: 19 },
+            { id: 'k17', name: 'F1-KEY-CITY', order: 9 },
+            { id: 'k18', name: 'F2-KEY-CITY', order: 13 },
+            { id: 'k19', name: 'F3-KEY-CITY', order: 17 },
+            { id: 'k20', name: 'F4-KEY-CITY', order: 20 },
+        ];
+
+        const ALL_GODMOTHERS = [
+            { id: 'gm1', name: 'F1-Sonja-Henie-Xmas' },
+            { id: 'gm2', name: 'F2-Sonja-Henie-Xmas' },
+            { id: 'gm3', name: 'F3-Sonja-Henie-Xmas' },
+            { id: 'gm4', name: 'F4-Sonja-Henie-Xmas' },
+            { id: 'gm5', name: 'F4-GODMOTHER-SONJA-HENIE' },
+            { id: 'gm6', name: 'F1-Miss-Betty-QTT' },
+            { id: 'gm7', name: 'F1-DOROTHY-STRATTON' },
+        ];
 
         const MOCK_INVENTORY = {
             keys: ALL_KEYS,
@@ -533,28 +525,6 @@
             const [isLoading, setIsLoading] = useState(true);
             const [error, setError] = useState(null);
 
-            // Mapping des IDs de template aux noms de production
-            const templateMapping = {
-                'c1': 'Common Fuel',
-                'c2': 'Common Repair',
-                'c3': 'Common Supply',
-                'c4': 'Common Health',
-                'c20': 'Rare Fuel',
-                'c21': 'Rare Repair',
-                'c22': 'Rare Supply',
-                'c23': 'Rare Health',
-                'c39': 'Epic Fuel',
-                'c40': 'Epic Repair',
-                'c41': 'Epic Supply',
-                'c42': 'Epic Health',
-                'c58': 'Legendary Fuel',
-                'c59': 'Legendary Repair',
-                'c60': 'Legendary Supply',
-                'c61': 'Legendary Health',
-                'c77': 'Supreme Blend' 
-                // Note: Il faudrait une liste plus complète pour inclure tous les niveaux
-            };
-            
             // Mapping des couleurs par rareté pour le style
             const rarityColors = {
                 'Common': 'blue',
@@ -577,6 +547,7 @@
                     setIsLoading(true);
                     setError(null);
                     try {
+                        // Endpoint pour récupérer les templates FACTORY (schéma 'factory') de la collection 'dovdivisions'
                         const API_ENDPOINT = 'https://wax.api.atomicassets.io/atomicassets/v1/templates?collection_name=dovdivisions&schema_name=factory&limit=100&page=1&order=desc&sort=created';
                         
                         const response = await fetch(API_ENDPOINT);
@@ -598,16 +569,18 @@
                                 const key = `${rarity}_${prodType}`;
                                 const supply = parseInt(template.circulating_supply);
                                 
-                                if (!aggregated[key]) {
-                                    aggregated[key] = {
-                                        rarity: rarity,
-                                        prodType: prodType,
-                                        count: 0
-                                    };
+                                if (supply > 0) {
+                                    if (!aggregated[key]) {
+                                        aggregated[key] = {
+                                            rarity: rarity,
+                                            prodType: prodType,
+                                            count: 0
+                                        };
+                                    }
+                                    
+                                    aggregated[key].count += supply;
+                                    totalNFTs += supply;
                                 }
-                                
-                                aggregated[key].count += supply;
-                                totalNFTs += supply;
                             });
                         }
                         
@@ -707,7 +680,7 @@
         // --- APP MAIN ---
 
         function DoVManager() {
-            const [activeTab, setActiveTab] = useState('account_sim');
+            const [activeTab, setActiveTab] = useState('global_stats'); // Défini sur le nouvel onglet
             const [viewMode, setViewMode] = useState('dashboard');
             const [marketPrices, setMarketPrices] = useState(INITIAL_MARKET_PRICES);
             const [waxPriceUsd, setWaxPriceUsd] = useState(0.008); 
