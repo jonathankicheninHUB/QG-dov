@@ -43,6 +43,8 @@
         const Shield = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
         const FactoryIcon = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/></svg>;
         const Crosshair = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>;
+        // FIX APPLIED: TrendingUp definition re-added
+        const TrendingUp = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
         const AlertTriangle = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
         const CheckCircle = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
         const Lock = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
@@ -61,6 +63,7 @@
         const Briefcase = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>;
         const Database = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>;
         const Gift = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.9 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>;
+        const Flask = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M10 2v7.31"/><path d="M14 2v7.31"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/></svg>;
         const Diamond = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>;
         const Scale = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>;
         const Info = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
@@ -69,9 +72,7 @@
         const MessageSquare = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
         const Mail = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>;
         const Shuffle = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="9" x2="19" y2="13"/><line x1="4" y1="4" x2="8" y2="8"/></svg>;
-        const TrendingUp = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
         const ZapOff = ({size=20, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="22" x2="12" y2="16"/><line x1="2" y1="12" x2="8" y2="12"/><path d="M13.88 9.94 17 6H10l-4 8h3l-2.61 3.51"/></svg>;
-
 
         // --- DATASETS ---
 
@@ -95,6 +96,7 @@
                         { id: 'c_f1_repair', name: 'C_F1_PRODUCER_REPAIR', prob: 24.98 },
                         { id: 'c_f1_supply', name: 'C_F1_PRODUCER_SUPPLY', prob: 24.98 },
                         { id: 'c_f1_health', name: 'C_F1_PRODUCER_HEALTH', prob: 24.98 },
+                        
                         { id: 'c_f4_fuel', name: 'C_F4_PRODUCER_FUEL', prob: 0.02 },
                         { id: 'c_f4_supply', name: 'C_F4_PRODUCER_SUPPLY', prob: 0.02 },
                         { id: 'c_f4_repair', name: 'C_F4_PRODUCER_REPAIR', prob: 0.02 },
@@ -203,9 +205,9 @@
                         level: level.l,
                         output: level.out,
                         costDoVX: level.cost,
-                        efficiency: 100, 
+                        efficiency: 100, // Default 100%
                         accountsNeeded: 1,
-                        equivalentF1s: 1
+                        equivalentF1s: 1 // Baseline
                     });
                 });
                 });
@@ -235,7 +237,7 @@
             { id: 17, name: 'City 1', type: 'City', order: 17, win: 0, usage: 0, entryCostDovX: 777.35, minWeight: 108.53, keyReq: 9, officerReq: 1, bonusToken: "F1-TOKEN-CITY-2025", specificOfficer: 'o25', requiredUnits: ['e6', 'uc6', 'l2'] },
             { id: 18, name: 'City 2', type: 'City', order: 18, win: 0, usage: 0, entryCostDovX: 2213.87, minWeight: 511.76, keyReq: 13, officerReq: 1, bonusToken: "F2-TOKEN-CITY-2025", specificOfficer: 'o26', requiredUnits: ['uc5', 'c6', 'r4'] },
             { id: 19, name: 'City 3', type: 'City', order: 19, win: 0, usage: 0, entryCostDovX: 6677.85, minWeight: 1357.04, keyReq: 17, officerReq: 1, bonusToken: "F3-TOKEN-CITY-2025", specificOfficer: 'o27', requiredUnits: ['uc6', 'r5', 'e7', 'l2'] },
-            { id: 20, name: 'Bridge', type: 'City', order: 20, win: 0, usage: 0, entryCostDovX: 14850.80, minWeight: 2494.23, keyReq: 20, officerReq: 1, bonusToken: "F4-TOKEN-CITY-2025", specificOfficer: 'o11', requiredUnits: ['e7', 'l2', 'l2'] } 
+            { id: 20, name: 'Bridge', type: 'City', order: 20, win: 0, usage: 0, entryCostDovX: 14850.80, minWeight: 2494.23, keyReq: 20, officerReq: 1, bonusToken: "F4-TOKEN-CITY-2025", specificOfficer: 'o11', requiredUnits: ['e7', 'l2', 'l2'] }
         ];
 
         // --- UNIT TEMPLATES ---
@@ -293,6 +295,7 @@
         };
 
         const UNITS = generateUnits(COMBAT_TEMPLATES);
+        const BLENDABLE_UNITS = generateUnits(UNIT_TEMPLATES); // Excludes ships/planes for blending
 
         const ALL_OFFICERS = [
             { id: 'o1', name: 'F1-BRIGADIER-GEN-CLIFT-ANDRUS', order: 1 },
@@ -564,6 +567,10 @@
             const [selectedGodmother, setSelectedGodmother] = useState(null);
             const [activeDivision, setActiveDivision] = useState(1);
 
+            // BLENDING STATES
+            const [selectedBlendUnitId, setSelectedBlendUnitId] = useState(UNIT_TEMPLATES[0].baseId + '_f1');
+            const [ownedF1Count, setOwnedF1Count] = useState(0);
+
             // OPTIONS GENERATOR
             const [autoGenOptions, setAutoGenOptions] = useState({
                 budget: "50",
@@ -572,6 +579,7 @@
                 diverse: false
             });
 
+            // HANDLERS
             const handleGlobalWaxPriceChange = (val) => {
                 const newWaxPrice = parseFloat(val);
                 setWaxPriceUsd(newWaxPrice);
@@ -674,6 +682,30 @@
                 }
             };
             
+            // --- BLEND CALCULATION LOGIC ---
+            const blendCalculation = useMemo(() => {
+                const baseId = selectedBlendUnitId ? selectedBlendUnitId.split('_')[0] : '';
+                const unit = UNITS.find(u => u.baseId === baseId && u.level === 1);
+                
+                if (!unit || ownedF1Count <= 0) return null;
+
+                const f1BaseCount = ownedF1Count;
+                const f2Count = Math.floor(f1BaseCount / 3);
+                const f3Count = Math.floor(f1BaseCount / 9);
+                const f4Count = Math.floor(f1BaseCount / 27);
+                
+                const slotsSavedF4 = f1BaseCount - f4Count; 
+
+                return {
+                    unitName: unit.name,
+                    f2Count,
+                    f3Count,
+                    f4Count,
+                    slotsSavedF4
+                };
+            }, [selectedBlendUnitId, ownedF1Count]);
+
+            // --- AUTO PACK GENERATOR ---
             const generateAutoPack = () => {
                 const targetPriceUsd = parseFloat(autoGenOptions.budget);
                 const targetRoi = parseFloat(autoGenOptions.roi);
@@ -742,7 +774,7 @@
                     contents: selectedContents
                 });
                 setPackPriceUsdStr(targetPriceUsd.toString());
-                setTargetRoi(targetRoi.toString());
+                setTargetRoi(targetRoi.toString()); 
             };
 
 
@@ -786,7 +818,6 @@
                 const totalRoiPeriodWax = dailyNetWax * roiDays;
                 
                 // NEW: APR Calculation (Annual Percentage Rate)
-                // APR = (Yearly Profit / Investment) * 100
                 const apr = packBuilder.price > 0 ? (yearlyNetWax / packBuilder.price) * 100 : 0;
 
                 return { totalDailyProdWax, totalDailyCostWax, dailyNetWax, roiDays, monthlyNetWax, yearlyNetWax, totalRoiPeriodWax, apr };
@@ -825,6 +856,7 @@
                     
                     const actualOutput = factory.output * 24;
                     const efficiency = theoreticalMax > 0 ? (actualOutput / theoreticalMax) * 100 : 0;
+
 
                     return { 
                         ...factory, 
@@ -1019,7 +1051,6 @@
                 const dailyNetProfitWax = (totalProdWax + totalCombatRewardWax + totalCombatTokenValueWax) - (totalMaintWax + totalCombatEntryWax);
                 const dailyNetProfitUsd = dailyNetProfitWax * waxPriceUsd;
 
-                // Ajout des calculs Mensuels et Annuels
                 const monthlyNetProfitWax = dailyNetProfitWax * 30;
                 const monthlyNetProfitUsd = monthlyNetProfitWax * waxPriceUsd;
                 const yearlyNetProfitWax = dailyNetProfitWax * 365;
@@ -1070,9 +1101,10 @@
 
 
             const filteredUnits = useMemo(() => {
-                if (unitRarityFilter === 'ALL') return userInventory.units;
-                return userInventory.units.filter(u => u.rarity === unitRarityFilter);
-            }, [userInventory.units, unitRarityFilter]);
+                if (unitRarityFilter === 'ALL') return UNITS;
+                return UNITS.filter(u => u.rarity === unitRarityFilter);
+            }, [UNITS, unitRarityFilter]);
+            
             const squadStats = useMemo(() => {
                 let totalBaseWeight = 0;
                 let totalEffectiveWeight = 0;
@@ -1122,23 +1154,23 @@
                 const zone = ZONES.find(z => z.id === parseInt(selectedZoneId));
                 if (!zone) return;
                 
-                if (zone.keyReq > 0) { const neededKey = userInventory.keys.find(k => k.order >= zone.keyReq); if (neededKey) setSelectedKey(neededKey); }
+                if (zone.keyReq > 0) { const neededKey = ALL_KEYS.find(k => k.order >= zone.keyReq); if (neededKey) setSelectedKey(neededKey); }
                 
                 if (zone.specificOfficer) {
-                     const specOff = userInventory.officers.find(o => o.id === zone.specificOfficer);
+                     const specOff = ALL_OFFICERS.find(o => o.id === zone.specificOfficer);
                      if (specOff) setSelectedOfficer(specOff);
                 } else {
-                    const highestOfficer = [...userInventory.officers].sort((a, b) => b.order - a.order)[0];
+                    const highestOfficer = [...ALL_OFFICERS].sort((a, b) => b.order - a.order)[0];
                     if (highestOfficer) setSelectedOfficer(highestOfficer);
                 }
 
                 if (zone.godmotherReq) {
-                    if (userInventory.godmothers.length > 0) setSelectedGodmother(userInventory.godmothers[0]);
+                    if (ALL_GODMOTHERS.length > 0) setSelectedGodmother(ALL_GODMOTHERS[0]);
                 } else {
-                    if (userInventory.godmothers.length > 0) setSelectedGodmother(userInventory.godmothers[0]);
+                    setSelectedGodmother(null);
                 }
 
-                const bestSupport = [...userInventory.supports].sort((a, b) => b.bonusPct - a.bonusPct)[0];
+                const bestSupport = [...ALL_SUPPORTS].sort((a, b) => b.bonusPct - a.bonusPct)[0];
                 if (bestSupport) setSelectedSupport(bestSupport);
 
                 let newSquad = [];
@@ -1146,7 +1178,7 @@
                 let currentWeight = 0;
 
                 if (zone.unitReq) {
-                    const prereqUnit = userInventory.units.find(u => u.baseId === zone.unitReq || u.id.startsWith(zone.unitReq));
+                    const prereqUnit = UNITS.find(u => u.baseId === zone.unitReq || u.id.startsWith(zone.unitReq));
                     if (prereqUnit) {
                         newSquad.push(prereqUnit);
                         const bonus = prereqUnit.bonuses[zone.type] || 0;
@@ -1157,8 +1189,8 @@
                 
                 if (zone.requiredUnits) {
                     zone.requiredUnits.forEach(reqId => {
-                         const unit = userInventory.units.find(u => u.baseId === reqId || u.id.startsWith(reqId));
-                         if (unit && currentSlots < 10) {
+                         const unit = UNITS.find(u => u.baseId === reqId || u.id.startsWith(reqId));
+                         if (unit && !newSquad.some(u => u.id === unit.id) && currentSlots < 10) {
                              newSquad.push(unit);
                              const bonus = unit.bonuses[zone.type] || 0;
                              currentWeight += unit.baseWeight * bonus;
@@ -1167,8 +1199,9 @@
                     });
                 }
 
-                const candidates = userInventory.units.map(u => { const bonus = u.bonuses[zone.type] || 0; return { ...u, effectiveW: u.baseWeight * bonus }; });
+                const candidates = UNITS.filter(u => !newSquad.some(nu => nu.id === u.id)).map(u => { const bonus = u.bonuses[zone.type] || 0; return { ...u, effectiveW: u.baseWeight * bonus }; });
                 candidates.sort((a, b) => b.effectiveW - a.effectiveW);
+                
                 for (let unit of candidates) {
                     if (currentSlots >= 10) break;
                     if (unit.effectiveW <= 0.01) continue;
@@ -1215,6 +1248,7 @@
                     <button onClick={() => setActiveTab('production')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'production' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><FactoryIcon size={18} /> PRODUCTION</button>
                     <button onClick={() => setActiveTab('packs')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'packs' ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Package size={18} /> PACKS</button>
                     <button onClick={() => setActiveTab('chests')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'chests' ? 'bg-yellow-600 text-white shadow-lg shadow-yellow-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Gift size={18} /> COFFRES</button>
+                    <button onClick={() => setActiveTab('blending')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'blending' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Flask size={18} /> FUSION</button>
                     <button onClick={() => setActiveTab('zone_roi_advanced')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'zone_roi_advanced' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Diamond size={18} /> ROI AVANCÉ (TOKENS)</button>
                     <button onClick={() => setActiveTab('valuation')} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all whitespace-nowrap ${activeTab === 'valuation' ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}><Scale size={18} /> VALORISATION ACTIFS</button>
                 </div>
@@ -1335,173 +1369,7 @@
                     </div>
                 )}
 
-                {/* --- TAB: ZONE ROI ADVANCED --- */}
-                {activeTab === 'zone_roi_advanced' && (
-                    <div className="space-y-6">
-                        <Card>
-                            <h3 className="text-lg font-bold text-indigo-400 mb-6 flex items-center gap-2"><Diamond size={20} /> Rentabilité Avancée : Impact des Reward Tokens</h3>
-                            <div className="p-4 bg-indigo-900/10 rounded border border-indigo-700/30 mb-6 text-sm text-indigo-200">
-                                <p><strong>ℹ️ Note :</strong> La valeur des Tokens est désormais calculée <strong>dynamiquement</strong> par l'algorithme "Fair Value".</p>
-                                <p className="mt-1 opacity-70">Formule : (Coût d'Entrée × 25%) + (Difficulté Poids × 0.1 WAX)</p>
-                            </div>
-                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
-                                {['Bunker', 'Camp', 'Radar', 'HQ'].map(type => (
-                                    <div key={type} className="bg-indigo-900/20 p-3 rounded border border-indigo-700/50">
-                                        <label className="text-xs text-indigo-300 block mb-1">Val. Estimée Coffre {type} (WAX)</label>
-                                        <input 
-                                            type="number" 
-                                            value={chestEstimates[type]}
-                                            onChange={(e) => setChestEstimates({...chestEstimates, [type]: parseFloat(e.target.value) || 0})}
-                                            className="w-full bg-slate-900 border border-indigo-600 rounded p-2 text-sm text-white font-bold focus:outline-none"
-                                        />
-                                        <div className="text-[10px] text-slate-500 mt-1">1 Token ≈ {(chestEstimates[type]/27).toFixed(2)} WAX</div>
-                                    </div>
-                                ))}
-                            </div>
 
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="text-slate-400 border-b border-slate-700 text-xs uppercase bg-slate-800/50">
-                                            <th className="p-3">Zone Checkpoint</th>
-                                            <th className="p-3 text-right">Coût Entrée</th>
-                                            <th className="p-3 text-right">Gain DOV-X</th>
-                                            <th className="p-3 text-right text-indigo-300">+ Gain Token (1u)</th>
-                                            <th className="p-3 text-right font-bold text-white">Profit Net Total</th>
-                                            <th className="p-3 text-center">ROI Boosté</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="text-sm">
-                                        {advancedRoiAnalysis.map(z => (
-                                            <tr key={z.id} className="border-b border-slate-700 hover:bg-slate-800/50 transition-colors">
-                                                <td className="p-3 font-bold text-white">
-                                                    <div>{z.name}</div>
-                                                    <div className="text-[10px] text-slate-500 uppercase">{z.bonusToken.replace('TOKEN-', '')} TOKEN DROP</div>
-                                                </td>
-                                                <td className="p-3 text-right font-mono text-red-400">
-                                                    -{z.totalCostWAX.toFixed(2)} W
-                                                </td>
-                                                <td className="p-3 text-right font-mono text-emerald-400">
-                                                    +{z.rewardWAX.toFixed(2)} W
-                                                </td>
-                                                <td className="p-3 text-right font-mono text-indigo-300 bg-indigo-900/10">
-                                                    +{z.tokenValWax.toFixed(2)} W
-                                                </td>
-                                                <td className="p-3 text-right font-mono font-bold">
-                                                    <div className={z.totalProfitWax > 0 ? "text-emerald-400" : "text-red-400"}>
-                                                        {z.totalProfitWax > 0 ? "+" : ""}{z.totalProfitWax.toFixed(2)} W
-                                                    </div>
-                                                    <div className="text-[10px] opacity-70">${(z.totalProfitWax * waxPriceUsd).toFixed(2)}</div>
-                                                </td>
-                                                <td className="p-3 text-center">
-                                                    <div className={`px-2 py-1 rounded text-xs font-bold inline-block ${z.totalRoi > 0 ? "bg-emerald-900/50 text-emerald-300" : "bg-red-900/50 text-red-300"}`}>
-                                                        {z.totalRoi.toFixed(1)}%
-                                                    </div>
-                                                    {z.roiBoost > 0 && <div className="text-[10px] text-indigo-400 mt-1">+{z.roiBoost.toFixed(1)}% boost</div>}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </Card>
-                    </div>
-                )}
-
-                {/* --- TAB: VALUATION --- */}
-                {activeTab === 'valuation' && (
-                    <div className="space-y-6">
-                        <Card>
-                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                                <div>
-                                    <h3 className="text-lg font-bold text-cyan-400 mb-1 flex items-center gap-2"><Scale size={20} /> Valorisation "Fair Value" des Actifs</h3>
-                                    <p className="text-slate-400 text-sm">Calcul basé sur le rendement, l'économie de comptes (CPU Staking) et le temps gagné.</p>
-                                </div>
-                                <div className="flex flex-col items-end gap-2">
-                                    <div className="flex items-center gap-2 bg-slate-900 p-2 rounded-lg border border-slate-700">
-                                        <span className="text-xs text-slate-400">ROI Cible (Jours) :</span>
-                                        <input 
-                                            type="number" 
-                                            value={roiTargetDays}
-                                            onChange={(e) => setRoiTargetDays(parseInt(e.target.value) || 30)}
-                                            className="w-16 bg-slate-800 border border-slate-600 rounded text-center text-sm focus:outline-none focus:border-cyan-500"
-                                        />
-                                    </div>
-                                    <div className="flex items-center gap-2 bg-slate-900 p-2 rounded-lg border border-slate-700">
-                                        <span className="text-xs text-slate-400">CPU par Compte (WAX) :</span>
-                                        <input 
-                                            type="number" 
-                                            value={cpuPerAccount}
-                                            onChange={(e) => setCpuPerAccount(parseInt(e.target.value) || 0)}
-                                            className="w-16 bg-slate-800 border border-slate-600 rounded text-center text-sm focus:outline-none focus:border-cyan-500"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="bg-blue-900/20 border border-blue-700/50 p-4 rounded mb-6 text-sm text-blue-200">
-                                <h4 className="font-bold flex items-center gap-2 mb-2"><Info size={16}/> Notre Raisonnement de Valorisation</h4>
-                                <ul className="list-disc pl-5 space-y-1 text-xs">
-                                    <li><strong>Production :</strong> Le profit net généré sur la période cible (ex: 365 jours).</li>
-                                    <li><strong>Gain de Temps :</strong> Prime pour les actifs qui condensent la puissance (ex: 1 F5 = 270 F1).</li>
-                                    <li><strong>Économie de Capital (CPU) :</strong> Pour obtenir la même production qu'une usine suprême (F5) avec des usines communes (F1), il faudrait gérer ~67 comptes. Chaque compte nécessite de bloquer du WAX pour le CPU (ex: {cpuPerAccount} WAX). L'usine F5 économise ce capital bloqué.</li>
-                                </ul>
-                            </div>
-                            
-                            <div className="flex items-center gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700 mb-4">
-                                <button onClick={() => setValuationFilter('ALL')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'ALL' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'}`}>TOUT</button>
-                                <button onClick={() => setValuationFilter('BUILDING')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'BUILDING' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>BÂTIMENTS</button>
-                                <button onClick={() => setValuationFilter('TOKEN')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'TOKEN' ? 'bg-yellow-600 text-white' : 'text-slate-400 hover:text-white'}`}>TOKENS</button>
-                                <button onClick={() => setValuationFilter('KEY')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'KEY' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>CLÉS</button>
-                                <button onClick={() => setValuationFilter('UNIT')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'UNIT' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}>UNITÉS</button>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                {/* LISTING */}
-                                <div className="col-span-2">
-                                    <div className="overflow-x-auto max-h-[600px]">
-                                        <table className="w-full text-left border-collapse">
-                                            <thead className="sticky top-0 bg-slate-800 z-10 shadow-lg">
-                                                <tr className="text-slate-400 border-b border-slate-700 text-xs uppercase">
-                                                    <th className="p-3">Nom de l'Actif</th>
-                                                    <th className="p-3">Type</th>
-                                                    <th className="p-3 text-right">Valeur Théorique (WAX)</th>
-                                                    <th className="p-3 text-right">Valeur Théorique ($)</th>
-                                                    <th className="p-3">Détails Calcul</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="text-sm">
-                                                {filteredAssetValuations.map((asset, idx) => (
-                                                    <tr key={idx} className="border-b border-slate-700 hover:bg-slate-700/30 transition-colors">
-                                                        <td className="p-3 font-bold text-white flex items-center gap-2">
-                                                            {asset.name}
-                                                            {asset.isSupreme && <span className="bg-indigo-500 text-white text-[10px] px-1 rounded">💎 GAME CHANGER</span>}
-                                                        </td>
-                                                        <td className="p-3">
-                                                            <span className={`px-2 py-1 rounded text-xs border ${
-                                                                asset.type === 'Bâtiment' ? 'bg-blue-900/30 text-blue-300 border-blue-800' :
-                                                                asset.type === 'Token' ? 'bg-yellow-900/30 text-yellow-300 border-yellow-800' :
-                                                                asset.type === 'Clé Tactique' ? 'bg-purple-900/30 text-purple-300 border-purple-800' :
-                                                                'bg-emerald-900/30 text-emerald-300 border-emerald-800'
-                                                            }`}>
-                                                                {asset.type}
-                                                            </span>
-                                                        </td>
-                                                        <td className="p-3 text-right font-mono text-cyan-300 font-bold">{asset.valueWax.toLocaleString(undefined, {maximumFractionDigits: 0})} W</td>
-                                                        <td className="p-3 text-right font-mono text-slate-300">${asset.valueUsd.toFixed(2)}</td>
-                                                        <td className="p-3 text-xs text-slate-500 italic">{asset.details}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
-                )}
-                
-                {/* COMBAT AND OTHER TABS RENDERED BELOW... */}
                 {activeTab === 'combat' && (
                     <div>
                         {viewMode === 'dashboard' ? (
@@ -1705,7 +1573,60 @@
                         <div><h2 className="text-xl font-bold flex items-center gap-2 text-emerald-400"><FactoryIcon /> Analyse Rentabilité Usines</h2><p className="text-slate-400 text-sm mt-1">Comparez le coût de production vs prix d'achat Alcor.</p></div>
                         <div className="flex items-center gap-4"><div className="flex items-center gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700"><button onClick={() => setTimeframe('day')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${timeframe === 'day' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>24H</button><button onClick={() => setTimeframe('month')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${timeframe === 'month' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>30 JOURS</button></div><div className="flex items-center gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700 hidden md:flex"><Filter size={14} className="text-slate-500 ml-2" />{['ALL', 'FUEL', 'REPAIR', 'SUPPLY', 'HEALTH'].map(f => (<button key={f} onClick={() => setFactoryFilter(f)} className={`px-3 py-1 rounded text-xs font-bold transition-all ${factoryFilter === f ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}>{f}</button>))}</div></div>
                         </div>
-                        <div className="overflow-x-auto max-h-[700px]"><table className="w-full text-left border-collapse"><thead className="sticky top-0 bg-slate-800 z-10 shadow-lg"><tr className="text-slate-400 border-b border-slate-700 text-xs uppercase"><th className="p-3">Usine</th><th className="p-3">Type</th><th className="p-3">Rareté</th><th className="p-3 text-right">Prod. Brute ({timeframe === 'day' ? '24h' : 'Mois'})</th><th className="p-3 text-right">Coût Unit (WAX)</th><th className="p-3 text-right text-emerald-300">Profit Net ($)</th><th className="p-3 text-center">Action</th></tr></thead><tbody className="overflow-y-auto">{filteredFactories.map(factory => (<tr key={factory.id} className="border-b border-slate-700 hover:bg-slate-700/30 transition-colors"><td className="p-3 font-bold text-white text-sm">{factory.name}</td><td className="p-3 text-xs text-slate-400">{factory.type}</td><td className="p-3"><Badge color={factory.rarity === 'Legendary' ? 'yellow' : factory.rarity === 'Epic' ? 'purple' : factory.rarity === 'Supreme' ? 'red' : 'blue'}>{factory.rarity} {factory.level < 5 ? `L${factory.level}` : ''}</Badge></td><td className="p-3 text-right font-mono text-emerald-400 text-sm">{factory.displayOutput.toLocaleString(undefined, {maximumFractionDigits: 0})}</td><td className="p-3 text-right font-mono text-sm"><div className={factory.betterToBuy ? "text-red-300" : "text-slate-300"}>{factory.unitCost.toFixed(6)}</div><div className="text-[10px] text-slate-500">Mkt: {factory.marketPrice.toFixed(6)}</div></td><td className="p-3 text-right font-mono text-sm font-bold"><div className={factory.displayProfitUsd > 0 ? "text-emerald-400" : "text-red-400"}>${factory.displayProfitUsd.toFixed(timeframe === 'day' ? 4 : 2)}</div><div className="text-[10px] text-slate-500">{factory.displayProfitWax.toFixed(2)} WAX</div></td><td className="p-3 text-center">{factory.betterToBuy ? (<div className="inline-flex items-center gap-1 text-red-400 font-bold bg-red-900/30 px-2 py-1 rounded text-xs"><AlertTriangle size={12} /> BUY</div>) : (<div className="inline-flex items-center gap-1 text-emerald-400 font-bold bg-emerald-900/30 px-2 py-1 rounded text-xs"><CheckCircle size={12} /> PROD</div>)}</td></tr>))}</tbody></table></div>
+                        <div className="overflow-x-auto max-h-[700px]">
+                            <table className="w-full text-left border-collapse">
+                                <thead className="sticky top-0 bg-slate-800 z-10 shadow-lg">
+                                    <tr className="text-slate-400 border-b border-slate-700 text-xs uppercase">
+                                        <th className="p-3">Usine</th>
+                                        <th className="p-3">Type</th>
+                                        <th className="p-3">Rareté</th>
+                                        <th className="p-3 text-right">Efficacité</th>
+                                        <th className="p-3 text-right">Eq. F1</th>
+                                        <th className="p-3 text-right">Prod. Brute ({timeframe === 'day' ? '24h' : 'Mois'})</th>
+                                        <th className="p-3 text-right">Coût Unit (WAX)</th>
+                                        <th className="p-3 text-right text-emerald-300">Profit Net ($)</th>
+                                        <th className="p-3 text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="overflow-y-auto">
+                                    {filteredFactories.map(factory => (
+                                        <tr key={factory.id} className="border-b border-slate-700 hover:bg-slate-700/30 transition-colors">
+                                            <td className="p-3 font-bold text-white text-sm">{factory.name}</td>
+                                            <td className="p-3 text-xs text-slate-400">{factory.type}</td>
+                                            <td className="p-3">
+                                                <Badge color={factory.rarity === 'Legendary' ? 'yellow' : factory.rarity === 'Epic' ? 'purple' : factory.rarity === 'Supreme' ? 'red' : 'blue'}>
+                                                    {factory.rarity} {factory.level < 5 ? `L${factory.level}` : ''}
+                                                </Badge>
+                                            </td>
+                                            <td className={`p-3 text-right font-mono text-sm font-bold ${factory.efficiency >= 100 ? 'text-green-400' : 'text-yellow-400'}`}>
+                                                {factory.efficiency.toFixed(0)}%
+                                            </td>
+                                            <td className="p-3 text-right font-mono text-sm text-slate-300">
+                                                {factory.equivalentF1s.toFixed(1)}
+                                            </td>
+                                            <td className="p-3 text-right font-mono text-emerald-400 text-sm">
+                                                {factory.displayOutput.toLocaleString(undefined, {maximumFractionDigits: 0})}
+                                            </td>
+                                            <td className="p-3 text-right font-mono text-sm">
+                                                <div className={factory.betterToBuy ? "text-red-300" : "text-slate-300"}>{factory.unitCost.toFixed(6)}</div>
+                                                <div className="text-[10px] text-slate-500">Mkt: {factory.marketPrice.toFixed(6)}</div>
+                                            </td>
+                                            <td className="p-3 text-right font-mono text-sm font-bold">
+                                                <div className={factory.displayProfitUsd > 0 ? "text-emerald-400" : "text-red-400"}>${factory.displayProfitUsd.toFixed(timeframe === 'day' ? 4 : 2)}</div>
+                                                <div className="text-[10px] text-slate-500">{factory.displayProfitWax.toFixed(2)} WAX</div>
+                                            </td>
+                                            <td className="p-3 text-center">
+                                                {factory.betterToBuy ? (
+                                                    <div className="inline-flex items-center gap-1 text-red-400 font-bold bg-red-900/30 px-2 py-1 rounded text-xs"><AlertTriangle size={12} /> BUY</div>
+                                                ) : (
+                                                    <div className="inline-flex items-center gap-1 text-emerald-400 font-bold bg-emerald-900/30 px-2 py-1 rounded text-xs"><CheckCircle size={12} /> PROD</div>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </Card>
                     </div>
                 )}
@@ -1868,6 +1789,187 @@
                                             <div><div className="text-xs font-bold text-slate-400 uppercase mb-2 flex justify-between"><span>Clés Tactiques (100% Drop Rate)</span><span>{Object.values(chestSimulationResults.keyDrops).reduce((a,b)=>a+b,0)} recus</span></div><div className="space-y-1">{Object.entries(chestSimulationResults.keyDrops).map(([name, count]) => ( <div key={name} className="flex justify-between text-sm p-1 hover:bg-slate-800 rounded"><span className="text-purple-300">{name}</span><span className="font-mono font-bold text-white">x{count}</span></div> ))}</div></div>
                                         </div>
                                     )}
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+                )}
+                
+                {/* BLEND TAB */}
+                {activeTab === 'blending' && (
+                    <div className="space-y-6">
+                        <Card>
+                            <h3 className="text-lg font-bold text-indigo-400 mb-4 flex items-center gap-2"><Flask size={20} /> Simulateur de Fusion (Blend)</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-4">
+                                    <div className="bg-indigo-900/20 border border-indigo-700/50 p-3 rounded text-sm text-indigo-200">
+                                        <p className="font-bold mb-1">Règle de Fusion :</p>
+                                        <p>3 Cartes (Même Rareté) ➜ 1 Carte (Niveau Supérieur)</p>
+                                        <p className="text-xs text-indigo-400 mt-2 italic">* Ne fonctionne pas pour les Avions, Bateaux et Officiers 'Wave'</p>
+                                    </div>
+                                    <div><label className="text-xs text-slate-400 block mb-1">Choisir une Unité de Base (F1)</label><select className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm focus:outline-none focus:border-indigo-500" value={selectedBlendUnitId} onChange={(e) => setSelectedBlendUnitId(e.target.value)}>{BLENDABLE_UNITS.filter(u => u.level === 1).map(u => (<option key={u.id} value={u.id}>{u.name}</option>))}</select></div>
+                                    <div><label className="text-xs text-slate-400 block mb-1">Quantité possédée (F1)</label><div className="flex items-center gap-2"><input type="number" min="0" value={ownedF1Count} onChange={(e) => setOwnedF1Count(parseInt(e.target.value) || 0)} className="flex-1 bg-slate-900 border border-slate-600 rounded p-2 text-sm focus:outline-none focus:border-indigo-500" /><span className="text-slate-500 text-sm">Unités</span></div></div>
+                                </div>
+                                <div className="space-y-4">
+                                    {blendCalculation ? (
+                                        <div className="h-full flex flex-col justify-between">
+                                            <div>
+                                                <h4 className="font-bold text-white mb-4 border-b border-slate-700 pb-2">Résultats de Fusion pour : <span className="text-indigo-400">{blendCalculation.unitName.replace('F1-', '')}</span></h4>
+                                                <div className="space-y-3">
+                                                    <div className="flex justify-between items-center bg-slate-900 p-2 rounded border border-slate-700"><div className="text-slate-400 text-sm">Vers <strong>F2 (★★)</strong></div><div className="font-mono text-white font-bold">{blendCalculation.f2Count} unités <span className="text-xs text-slate-500 font-normal">(Coût: {blendCalculation.f2Count * 3})</span></div></div>
+                                                    <div className="flex justify-between items-center bg-slate-900 p-2 rounded border border-slate-700"><div className="text-slate-400 text-sm">Vers <strong>F3 (★★★)</strong></div><div className="font-mono text-white font-bold">{blendCalculation.f3Count} unités <span className="text-xs text-slate-500 font-normal">(Coût: {blendCalculation.f3Count * 9})</span></div></div>
+                                                    <div className="flex justify-between items-center bg-indigo-900/30 p-2 rounded border border-indigo-600/50"><div className="text-indigo-300 text-sm">Vers <strong>F4 (★★★★)</strong></div><div className="font-mono text-white font-bold text-lg">{blendCalculation.f4Count} unités <span className="text-xs text-slate-400 font-normal block text-right">(Coût: {blendCalculation.f4Count * 27})</span></div></div>
+                                                </div>
+                                            </div>
+                                            {blendCalculation.f4Count > 0 && (
+                                                <div className="mt-4 p-3 bg-emerald-900/20 border border-emerald-600/30 rounded text-center">
+                                                    <div className="text-xs text-emerald-400 uppercase font-bold mb-1">Optimisation des Slots</div>
+                                                    <div className="text-sm text-slate-300">En fusionnant vers F4, vous libérez <strong className="text-white">{blendCalculation.slotsSavedF4} slots</strong> dans votre armée pour la même puissance de feu.</div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="h-full flex items-center justify-center text-slate-500 italic text-sm">Entrez une quantité pour voir les calculs.</div>
+                                    )}
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+                )}
+                
+                {/* ROI ADVANCED TAB */}
+                {activeTab === 'zone_roi_advanced' && (
+                    <div className="space-y-6">
+                        <Card>
+                            <h3 className="text-lg font-bold text-indigo-400 mb-6 flex items-center gap-2"><Diamond size={20} /> Rentabilité Avancée : Impact des Reward Tokens</h3>
+                            <div className="p-4 bg-indigo-900/10 rounded border border-indigo-700/30 mb-6 text-sm text-indigo-200">
+                                <p><strong>ℹ️ Note :</strong> La valeur des Tokens est désormais calculée <strong>dynamiquement</strong> par l'algorithme "Fair Value".</p>
+                                <p className="mt-1 opacity-70">Formule : (Coût d'Entrée × 25%) + (Difficulté Poids × 0.1 WAX)</p>
+                            </div>
+                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+                                {['Bunker', 'Camp', 'Radar', 'HQ'].map(type => (
+                                    <div key={type} className="bg-indigo-900/20 p-3 rounded border border-indigo-700/50">
+                                        <label className="text-xs text-indigo-300 block mb-1">Val. Estimée Coffre {type} (WAX)</label>
+                                        <input 
+                                            type="number" 
+                                            value={chestEstimates[type]}
+                                            onChange={(e) => setChestEstimates({...chestEstimates, [type]: parseFloat(e.target.value) || 0})}
+                                            className="w-full bg-slate-900 border border-indigo-600 rounded p-2 text-sm text-white font-bold focus:outline-none"
+                                        />
+                                        <div className="text-[10px] text-slate-500 mt-1">1 Token ≈ {(chestEstimates[type]/27).toFixed(2)} WAX</div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="text-slate-400 border-b border-slate-700 text-xs uppercase bg-slate-800/50"><th className="p-3">Zone Checkpoint</th><th className="p-3 text-right">Coût Entrée</th><th className="p-3 text-right">Gain DOV-X</th><th className="p-3 text-right text-indigo-300">+ Gain Token (1u)</th><th className="p-3 text-right font-bold text-white">Profit Net Total</th><th className="p-3 text-center">ROI Boosté</th></tr>
+                                    </thead>
+                                    <tbody className="text-sm">
+                                        {advancedRoiAnalysis.map(z => (
+                                            <tr key={z.id} className="border-b border-slate-700 hover:bg-slate-800/50 transition-colors">
+                                                <td className="p-3 font-bold text-white"><div>{z.name}</div><div className="text-[10px] text-slate-500 uppercase">{z.bonusToken.replace('TOKEN-', '')} TOKEN DROP</div></td>
+                                                <td className="p-3 text-right font-mono text-red-400">-{z.totalCostWAX.toFixed(2)} W</td>
+                                                <td className="p-3 text-right font-mono text-emerald-400">+{z.rewardWAX.toFixed(2)} W</td>
+                                                <td className="p-3 text-right font-mono text-indigo-300 bg-indigo-900/10">+{z.tokenValWax.toFixed(2)} W</td>
+                                                <td className="p-3 text-right font-mono font-bold"><div className={z.totalProfitWax > 0 ? "text-emerald-400" : "text-red-400"}>{z.totalProfitWax > 0 ? "+" : ""}{z.totalProfitWax.toFixed(2)} W</div><div className="text-[10px] opacity-70">${(z.totalProfitWax * waxPriceUsd).toFixed(2)}</div></td>
+                                                <td className="p-3 text-center"><div className={`px-2 py-1 rounded text-xs font-bold inline-block ${z.totalRoi > 0 ? "bg-emerald-900/50 text-emerald-300" : "bg-red-900/50 text-red-300"}`}>{z.totalRoi.toFixed(1)}%</div>{z.roiBoost > 0 && <div className="text-[10px] text-indigo-400 mt-1">+{z.roiBoost.toFixed(1)}% boost</div>}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </Card>
+                    </div>
+                )}
+
+                {/* --- TAB: VALUATION (New) --- */}
+                {activeTab === 'valuation' && (
+                    <div className="space-y-6">
+                        <Card>
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                                <div>
+                                    <h3 className="text-lg font-bold text-cyan-400 mb-1 flex items-center gap-2"><Scale size={20} /> Valorisation "Fair Value" des Actifs</h3>
+                                    <p className="text-slate-400 text-sm">Calcul basé sur le rendement et l'utilité théorique sur une période donnée.</p>
+                                </div>
+                                <div className="flex flex-col items-end gap-2">
+                                    <div className="flex items-center gap-2 bg-slate-900 p-2 rounded-lg border border-slate-700">
+                                        <span className="text-xs text-slate-400">ROI Cible (Jours) :</span>
+                                        <input 
+                                            type="number" 
+                                            value={roiTargetDays}
+                                            onChange={(e) => setRoiTargetDays(parseInt(e.target.value) || 30)}
+                                            className="w-16 bg-slate-800 border border-slate-600 rounded text-center text-sm focus:outline-none focus:border-cyan-500"
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-2 bg-slate-900 p-2 rounded-lg border border-slate-700">
+                                        <span className="text-xs text-slate-400">CPU par Compte (WAX) :</span>
+                                        <input 
+                                            type="number" 
+                                            value={cpuPerAccount}
+                                            onChange={(e) => setCpuPerAccount(parseInt(e.target.value) || 0)}
+                                            className="w-16 bg-slate-800 border border-slate-600 rounded text-center text-sm focus:outline-none focus:border-cyan-500"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="bg-blue-900/20 border border-blue-700/50 p-4 rounded mb-6 text-sm text-blue-200">
+                                <h4 className="font-bold flex items-center gap-2 mb-2"><Info size={16}/> Notre Raisonnement de Valorisation</h4>
+                                <ul className="list-disc pl-5 space-y-1 text-xs">
+                                    <li><strong>Production :</strong> Le profit net généré sur la période cible (ex: 365 jours).</li>
+                                    <li><strong>Gain de Temps :</strong> Prime pour les actifs qui condensent la puissance (ex: 1 F5 = 270 F1).</li>
+                                    <li><strong>Économie de Capital (CPU) :</strong> Pour obtenir la même production qu'une usine suprême (F5) avec des usines communes (F1), il faudrait gérer ~67 comptes. Chaque compte nécessite de bloquer du WAX pour le CPU (ex: {cpuPerAccount} WAX). L'usine F5 économise ce capital bloqué.</li>
+                                </ul>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700 mb-4">
+                                <button onClick={() => setValuationFilter('ALL')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'ALL' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'}`}>TOUT</button>
+                                <button onClick={() => setValuationFilter('BUILDING')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'BUILDING' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>BÂTIMENTS</button>
+                                <button onClick={() => setValuationFilter('TOKEN')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'TOKEN' ? 'bg-yellow-600 text-white' : 'text-slate-400 hover:text-white'}`}>TOKENS</button>
+                                <button onClick={() => setValuationFilter('KEY')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'KEY' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>CLÉS</button>
+                                <button onClick={() => setValuationFilter('UNIT')} className={`px-3 py-1 rounded text-xs font-bold transition-all ${valuationFilter === 'UNIT' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}>UNITÉS</button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {/* LISTING */}
+                                <div className="col-span-2">
+                                    <div className="overflow-x-auto max-h-[600px]">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead className="sticky top-0 bg-slate-800 z-10 shadow-lg">
+                                                <tr className="text-slate-400 border-b border-slate-700 text-xs uppercase">
+                                                    <th className="p-3">Nom de l'Actif</th>
+                                                    <th className="p-3">Type</th>
+                                                    <th className="p-3 text-right">Valeur Théorique (WAX)</th>
+                                                    <th className="p-3 text-right">Valeur Théorique ($)</th>
+                                                    <th className="p-3">Détails Calcul</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="text-sm">
+                                                {filteredAssetValuations.map((asset, idx) => (
+                                                    <tr key={idx} className="border-b border-slate-700 hover:bg-slate-700/30 transition-colors">
+                                                        <td className="p-3 font-bold text-white flex items-center gap-2">
+                                                            {asset.name}
+                                                            {asset.isSupreme && <span className="bg-indigo-500 text-white text-[10px] px-1 rounded">💎 GAME CHANGER</span>}
+                                                        </td>
+                                                        <td className="p-3">
+                                                            <span className={`px-2 py-1 rounded text-xs border ${
+                                                                asset.type === 'Bâtiment' ? 'bg-blue-900/30 text-blue-300 border-blue-800' :
+                                                                asset.type === 'Token' ? 'bg-yellow-900/30 text-yellow-300 border-yellow-800' :
+                                                                asset.type === 'Clé Tactique' ? 'bg-purple-900/30 text-purple-300 border-purple-800' :
+                                                                'bg-emerald-900/30 text-emerald-300 border-emerald-800'
+                                                            }`}>
+                                                                {asset.type}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-3 text-right font-mono text-cyan-300 font-bold">{asset.valueWax.toLocaleString(undefined, {maximumFractionDigits: 0})} W</td>
+                                                        <td className="p-3 text-right font-mono text-slate-300">${asset.valueUsd.toFixed(2)}</td>
+                                                        <td className="p-3 text-xs text-slate-500 italic">{asset.details}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </Card>
